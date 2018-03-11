@@ -1,5 +1,7 @@
 # Android-InAppBilling
 
+[[https://github.com/LiteKite/Android-InAppBilling/assets/assets/screen_one.png|alt=screen_one]]
+
 A sample which uses Google's Play Billing Library and it does InApp Purchases and Subscriptions.
 
 ## License
