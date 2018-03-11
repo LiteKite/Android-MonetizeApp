@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright 2018 LiteKite Startup. All rights reserved.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.adapter.ViewPurchasesAdapter">
+
+    <data>
+
+        <variable
+            name="presenter"
+            type="com.litekite.inappbilling.viewmodel.PurchaseItemVM" />
+
+    </data>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/size10"
+        app:cardBackgroundColor="@color/teal_a400"
+        app:cardCornerRadius="@dimen/size0"
+        app:cardElevation="@dimen/size5"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="false">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_list_item"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/size10">
+
+            <ImageView
+                android:id="@+id/iv_product_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/one_apple"
+                app:purchaseItemSrcCompat="@{presenter.skuProductName}"
+                tools:src="@drawable/ic_apple" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/size0"
+                android:layout_marginLeft="@dimen/size10"
+                android:layout_marginRight="@dimen/size0"
+                android:layout_marginStart="@dimen/size10"
+                android:layout_toEndOf="@id/iv_product_item"
+                android:layout_toRightOf="@id/iv_product_item"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_product_name"
+                    style="@style/MyTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:text="@{presenter.skuProductName}"
+                    android:textSize="@dimen/text16"
+                    android:textStyle="bold"
+                    tools:text="@string/one_apple" />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/size5" />
+
+                <TextView
+                    android:id="@+id/tv_product_state"
+                    style="@style/MyTextViewStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:text="@{presenter.skuProductState, default=@string/qty}"
+                    android:textSize="@dimen/text18"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</layout>

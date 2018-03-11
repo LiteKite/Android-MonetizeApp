@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright 2018 LiteKite Startup. All rights reserved.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.fragment.dialog.BillingPremiumDialog">
+
+    <data>
+
+        <variable
+            name="presenter"
+            type="com.litekite.inappbilling.viewmodel.BillingPremiumVM" />
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/iv_fruit_store"
+            android:layout_marginTop="@dimen/sizeMinus32"
+            android:background="@drawable/bg_app"
+            android:padding="@dimen/size10">
+
+            <TextView
+                android:id="@+id/tv_subscribe"
+                style="@style/MyTextViewStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/size10"
+                android:text="@string/subscribe"
+                android:textSize="@dimen/text18"
+                android:textStyle="bold" />
+
+            <View
+                android:id="@+id/v_subscribe"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/size4"
+                android:layout_alignEnd="@+id/tv_subscribe"
+                android:layout_alignRight="@+id/tv_subscribe"
+                android:layout_below="@id/tv_subscribe"
+                android:layout_marginEnd="@dimen/size24"
+                android:layout_marginLeft="@dimen/size2"
+                android:layout_marginRight="@dimen/size24"
+                android:layout_marginStart="@dimen/size2"
+                android:layout_marginTop="@dimen/size10"
+                android:background="@color/black" />
+
+            <TextView
+                android:id="@+id/tv_billing_premium_desc"
+                style="@style/MyTextViewStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/v_subscribe"
+                android:layout_marginTop="@dimen/size20"
+                android:lineSpacingExtra="@dimen/size4"
+                android:text="@string/billing_premium_desc"
+                android:textSize="@dimen/text14" />
+
+            <TextView
+                android:id="@+id/tv_billing_price"
+                style="@style/MyTextViewStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_billing_premium_desc"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/size20"
+                android:text="@string/price"
+                android:textSize="@dimen/text18"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_billing_buy"
+                style="@style/MyButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/size40"
+                android:layout_below="@id/tv_billing_price"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/size20"
+                android:onClick="@{(view) -> presenter.onClick(view)}"
+                android:paddingEnd="@dimen/size40"
+                android:paddingStart="@dimen/size40"
+                android:text="@string/buy" />
+
+            <View
+                android:id="@+id/v_billing_price"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/size4"
+                android:layout_alignEnd="@+id/btn_billing_buy"
+                android:layout_alignLeft="@+id/btn_billing_buy"
+                android:layout_alignRight="@+id/btn_billing_buy"
+                android:layout_alignStart="@+id/btn_billing_buy"
+                android:layout_below="@id/btn_billing_buy"
+                android:layout_marginBottom="@dimen/size10"
+                android:layout_marginEnd="@dimen/size40"
+                android:layout_marginStart="@dimen/size40"
+                android:layout_marginTop="@dimen/size20"
+                android:background="@color/black" />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/iv_fruit_store"
+            android:layout_width="@dimen/size64"
+            android:layout_height="@dimen/size64"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="@dimen/size24"
+            android:layout_marginRight="@dimen/size24"
+            android:layout_marginTop="@dimen/size24"
+            android:background="@drawable/ic_launcher_background"
+            android:contentDescription="@string/fruit_store_img"
+            android:padding="@dimen/size10"
+            app:srcCompat="@drawable/ic_fruit_store" />
+
+    </RelativeLayout>
+
+</layout>

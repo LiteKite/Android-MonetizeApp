@@ -53,3 +53,11 @@ google-services.json
 freeline.py
 freeline/
 freeline_project_description.json
+
+# Android Studio Configurations
+.DS_Store
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/build
+/captures

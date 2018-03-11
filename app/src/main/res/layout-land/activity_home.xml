@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright 2018 LiteKite Startup. All rights reserved.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.activity.HomeActivity">
+
+    <data>
+
+        <variable
+            name="presenter"
+            type="com.litekite.inappbilling.viewmodel.HomeVM" />
+
+    </data>
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/tb_widget"
+            layout="@layout/widget_toolbar" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/size20"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/iv_fruit_store"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:contentDescription="@string/fruit_store_img"
+                    android:scaleType="center"
+                    app:srcCompat="@drawable/ic_fruit_store" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btn_buy_from_store"
+                    style="@style/MyButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:drawableEnd=
+                        "@{presenter.isPremiumPurchased.value, default=@drawable/ic_lock_outline_white}"
+                    android:drawablePadding="@dimen/sizeMinus20"
+                    android:drawableRight=
+                        "@{presenter.isPremiumPurchased.value, default=@drawable/ic_lock_outline_white}"
+                    android:onClick="@{(view) -> presenter.onClick(view)}"
+                    android:text="@string/buy_from_store" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/size30" />
+
+                <Button
+                    android:id="@+id/btn_view_your_purchases"
+                    style="@style/MyButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableEnd=
+                        "@{presenter.isPremiumPurchased.value, default=@drawable/ic_lock_outline_white}"
+                    android:drawablePadding="@dimen/sizeMinus20"
+                    android:drawableRight=
+                        "@{presenter.isPremiumPurchased.value, default=@drawable/ic_lock_outline_white}"
+                    android:onClick="@{(view) -> presenter.onClick(view)}"
+                    android:text="@string/view_your_purchases" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+</layout>
+

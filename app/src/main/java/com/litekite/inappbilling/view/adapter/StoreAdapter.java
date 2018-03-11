@@ -1,0 +1,108 @@
+/*
+ * Copyright 2018 LiteKite Startup. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.litekite.inappbilling.view.adapter;
+
+import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+
+import com.litekite.inappbilling.R;
+import com.litekite.inappbilling.billing.BillingManager;
+import com.litekite.inappbilling.databinding.AdapterStoreItemBinding;
+import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
+import com.litekite.inappbilling.viewmodel.StoreItemVM;
+
+import java.util.List;
+
+/**
+ * StoreAdapter, a RecyclerViewAdapter which provides product item and each product item has its
+ * own name and price. Each product has respective buy button if it wasn't already purchased.
+ * This is not applicable for inApp Products as it can be purchased multiple times. For
+ * subscription based products, "Purchased" will be shown to indicate that it was already
+ * purchased, otherwise the buy button will be there to make purchase.
+ *
+ * @author Vignesh S
+ * @version 1.0, 10/03/2018
+ * @since 1.0
+ */
+public class StoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+	private Context context;
+	private List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList;
+	private BillingManager billingManager;
+
+	/**
+	 * Initializes attributes.
+	 *
+	 * @param context                     An Activity Context.
+	 * @param skuProductsAndPurchasesList Has Sku Products and its related purchases.
+	 * @param billingManager              Provides access to BillingClient which perform Product
+	 *                                    Purchases from Google Play Billing Library.
+	 */
+	public StoreAdapter(Context context,
+						List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList,
+						BillingManager billingManager) {
+		this.context = context;
+		this.skuProductsAndPurchasesList = skuProductsAndPurchasesList;
+		this.billingManager = billingManager;
+	}
+
+	@Override
+	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		AdapterStoreItemBinding adapterStoreItemBinding = DataBindingUtil.inflate(
+				LayoutInflater.from(parent.getContext()),
+				R.layout.adapter_store_item, parent,
+				false);
+		return new ViewHolderStoreProduct(adapterStoreItemBinding);
+	}
+
+	@Override
+	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+		ViewHolderStoreProduct viewHolderStoreProduct = (ViewHolderStoreProduct) holder;
+		BillingSkuRelatedPurchases productRelatedPurchases = skuProductsAndPurchasesList.get(position);
+		viewHolderStoreProduct.adapterStoreItemBinding.setPresenter(
+				new StoreItemVM(context, billingManager, productRelatedPurchases));
+		viewHolderStoreProduct.adapterStoreItemBinding.executePendingBindings();
+	}
+
+	@Override
+	public int getItemCount() {
+		return skuProductsAndPurchasesList.size();
+	}
+
+	/**
+	 * ViewHolderStoreProduct, which provides product view item.
+	 */
+	class ViewHolderStoreProduct extends RecyclerView.ViewHolder {
+
+		AdapterStoreItemBinding adapterStoreItemBinding;
+
+		/**
+		 * Gives product view item and its bindings.
+		 *
+		 * @param adapterStoreItemBinding Has bindings for the product view item.
+		 */
+		ViewHolderStoreProduct(AdapterStoreItemBinding adapterStoreItemBinding) {
+			super(adapterStoreItemBinding.getRoot());
+			this.adapterStoreItemBinding = adapterStoreItemBinding;
+		}
+
+	}
+
+}

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Copyright 2018 LiteKite Startup. All rights reserved.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<resources>
+
+    <string name="app_name">InAppBilling</string>
+    <string name="back_btn">Back Button</string>
+    <string name="toolbar_title">Toolbar Title</string>
+
+    <!--Common-->
+    <string name="err_no_internet">Please check your internet connection!</string>
+
+    <!--Home-->
+    <string name="home">Home</string>
+    <string name="fruit_store_img">Fruit Store Image</string>
+    <string name="buy_from_store">Buy From Store</string>
+    <string name="view_your_purchases">View Your Purchases</string>
+
+    <!--Billing Dialog-->
+    <string name="subscribe">Subscribe</string>
+    <string name="billing_premium_desc">The features including \"Buying from store\" and
+        \"Viewing your purchased items\" requires special one-time subscription. Please
+        subscribe to enjoy these features for a lifetime.</string>
+    <string name="price">$0</string>
+    <string name="buy">Buy</string>
+
+    <!--InApp Billing-->
+    <string name="err_subscription_not_supported">Subscriptions are not supported with your
+        device!</string>
+    <string name="err_service_disconnected">Play Store service is not currently available! Please
+        check back later!</string>
+    <string name="err_no_sku">We did not find any SKUs to display&#8230; Check your internet
+        connection and make sure your Google Developer Console was setup correctly.</string>
+
+    <!--Store/View Purchased-->
+    <string name="store">Store</string>
+    <string name="your_purchases">Your Purchases</string>
+    <string name="one_apple">One Apple</string>
+    <plurals name="apples">
+        <item quantity="zero">Apple</item>
+        <item quantity="one">Apple</item>
+        <item quantity="many">Apples</item>
+        <item quantity="other">Apples</item>
+    </plurals>
+    <string name="qty">Qty: %d Purchased</string>
+    <string name="unlimited_popcorn">Unlimited Popcorn for a month</string>
+    <string name="purchased_with_expiry">Purchased, Expires at %s</string>
+    <string name="not_purchased_yet">Not Purchased Yet</string>
+    <string name="purchased">Purchased</string>
+    <string name="purchase_expired">Purchase Expired at %s</string>
+
+</resources>

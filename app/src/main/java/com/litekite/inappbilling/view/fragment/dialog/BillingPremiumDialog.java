@@ -1,0 +1,139 @@
+/*
+ * Copyright 2018 LiteKite Startup. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.litekite.inappbilling.view.fragment.dialog;
+
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialogFragment;
+import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.litekite.inappbilling.R;
+import com.litekite.inappbilling.databinding.DialogBillingPremiumBinding;
+import com.litekite.inappbilling.room.entity.BillingSkuDetails;
+import com.litekite.inappbilling.viewmodel.BillingPremiumVM;
+import com.litekite.inappbilling.viewmodel.BillingVM;
+
+/**
+ * BillingPremiumDialog, A PremiumPurchaseDialog which is a BottomSheet which lets user to buy
+ * Premium Feature and perform purchase actions from Google Play Billing Library. This Premium
+ * Feature is an inApp Product and we won't consume it as it was a one time purchase. Once
+ * purchased, no need to purchase again. To buy inApp Products many time, it needs to be consumed
+ * otherwise.
+ *
+ * @author Vignesh S
+ * @version 1.0, 10/03/2018
+ * @since 1.0
+ */
+public class BillingPremiumDialog extends BottomSheetDialogFragment {
+
+	private static final String TAG = BillingPremiumDialog.class.getName();
+	private DialogBillingPremiumBinding dialogBillingPremiumBinding;
+
+	/**
+	 * Observes changes and updates about the Premium Feature Sku Product which is stored in the
+	 * local database.
+	 * <p>
+	 * Sets Premium Feature Product Price.
+	 */
+	private Observer<BillingSkuDetails> premiumSkuDetailsObserver =
+			new Observer<BillingSkuDetails>() {
+				@Override
+				public void onChanged(@Nullable BillingSkuDetails billingSkuDetails) {
+					if (billingSkuDetails != null) {
+						dialogBillingPremiumBinding.tvBillingPrice
+								.setText(billingSkuDetails.skuPrice);
+						dialogBillingPremiumBinding.executePendingBindings();
+					}
+				}
+			};
+
+	/**
+	 * Launches BillingPremiumDialog.
+	 *
+	 * @param context An Activity Context.
+	 */
+	public static void show(Context context) {
+		if (context instanceof AppCompatActivity) {
+			BillingPremiumDialog billingPremiumDialog = new BillingPremiumDialog();
+			billingPremiumDialog.setStyle(BottomSheetDialogFragment.STYLE_NORMAL,
+					R.style.MyBottomSheetDialogTheme);
+			billingPremiumDialog.show(
+					((AppCompatActivity) context).getSupportFragmentManager(), TAG);
+		}
+	}
+
+	/**
+	 * Dismisses BillingPremiumDialog.
+	 *
+	 * @param context An Activity Context.
+	 */
+	public static void dismiss(Context context) {
+		if (context instanceof AppCompatActivity) {
+			BillingPremiumDialog billingPremiumDialog =
+					(BillingPremiumDialog) ((AppCompatActivity) context)
+							.getSupportFragmentManager().findFragmentByTag(TAG);
+			if (billingPremiumDialog != null && billingPremiumDialog.isAdded()) {
+				billingPremiumDialog.dismiss();
+			}
+		}
+	}
+
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater,
+							 @Nullable ViewGroup container,
+							 @Nullable Bundle savedInstanceState) {
+		dialogBillingPremiumBinding =
+				DataBindingUtil.inflate(
+						inflater,
+						R.layout.dialog_billing_premium,
+						container,
+						false);
+		return dialogBillingPremiumBinding.getRoot();
+	}
+
+	@Override
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		init();
+	}
+
+	/**
+	 * Initializes Presenter BillingPremiumViewModel, BillingViewModel and registers LifeCycle
+	 * Observers.
+	 * Observes Premium Feature Product Sku Details.
+	 */
+	private void init() {
+		BillingPremiumVM billingPremiumVM = ViewModelProviders.of(this)
+				.get(BillingPremiumVM.class);
+		BillingVM billingVM = ViewModelProviders.of(this).get(BillingVM.class);
+		dialogBillingPremiumBinding.setPresenter(billingPremiumVM);
+		billingPremiumVM.setBillingManager(billingVM.getBillingManager());
+		this.getLifecycle().addObserver(billingPremiumVM);
+		this.getLifecycle().addObserver(billingVM);
+		billingPremiumVM.getPremiumSkuDetails()
+				.observe(this, premiumSkuDetailsObserver);
+	}
+
+}
