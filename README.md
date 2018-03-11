@@ -2,7 +2,11 @@
 
 <img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/app_icon.png" alt="App Icon" />
 
+##
+
 ### A sample which uses Google's Play Billing Library and it does InApp Purchases and Subscriptions.
+
+##
 
 <div align="center">
 <img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/screen_one.png" alt="App Screenshot One"/>
