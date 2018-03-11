@@ -8,8 +8,6 @@
 </img>
 </div>
 
-##
-
 <div align="center">
 <img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/screen_one.png" alt="App Screenshot One"/>
 </div>
