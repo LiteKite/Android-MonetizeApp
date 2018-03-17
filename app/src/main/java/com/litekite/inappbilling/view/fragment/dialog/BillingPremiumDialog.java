@@ -102,8 +102,8 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater,
-							 @Nullable ViewGroup container,
-							 @Nullable Bundle savedInstanceState) {
+	                         @Nullable ViewGroup container,
+	                         @Nullable Bundle savedInstanceState) {
 		dialogBillingPremiumBinding =
 				DataBindingUtil.inflate(
 						inflater,

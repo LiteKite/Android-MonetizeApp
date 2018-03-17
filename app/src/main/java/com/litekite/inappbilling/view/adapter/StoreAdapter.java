@@ -56,8 +56,8 @@ public class StoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 	 *                                    Purchases from Google Play Billing Library.
 	 */
 	public StoreAdapter(Context context,
-						List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList,
-						BillingManager billingManager) {
+	                    List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList,
+	                    BillingManager billingManager) {
 		this.context = context;
 		this.skuProductsAndPurchasesList = skuProductsAndPurchasesList;
 		this.billingManager = billingManager;

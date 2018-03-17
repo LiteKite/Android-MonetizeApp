@@ -60,13 +60,17 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 		fetchFromDB();
 	}
 
-	@BindingAdapter("android:drawableEnd")
-	public static void setDrawableEnd(Button button, Boolean isPremiumPurchased) {
-		setBtnDrawableRightEnd(button, isPremiumPurchased);
+	/**
+	 * Fetches and checks whether the Premium Feature was purchased and stored in the local
+	 * database and assigns it to {@link #isPremiumPurchased} LiveData.
+	 */
+	private void fetchFromDB() {
+		isPremiumPurchased = AppDatabase.getAppDatabase(this.getApplication()).getBillingDao()
+				.getIsThisSkuPurchased(BillingConstants.SKU_UNLOCK_APP_FEATURES);
 	}
 
-	@BindingAdapter("android:drawableRight")
-	public static void setDrawableRight(Button button, Boolean isPremiumPurchased) {
+	@BindingAdapter("android:drawableEnd")
+	public static void setDrawableEnd(Button button, Boolean isPremiumPurchased) {
 		setBtnDrawableRightEnd(button, isPremiumPurchased);
 	}
 
@@ -92,6 +96,11 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 					R.drawable.ic_lock_outline_white,
 					0);
 		}
+	}
+
+	@BindingAdapter("android:drawableRight")
+	public static void setDrawableRight(Button button, Boolean isPremiumPurchased) {
+		setBtnDrawableRightEnd(button, isPremiumPurchased);
 	}
 
 	/**
@@ -125,15 +134,6 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 				}
 				break;
 		}
-	}
-
-	/**
-	 * Fetches and checks whether the Premium Feature was purchased and stored in the local
-	 * database and assigns it to {@link #isPremiumPurchased} LiveData.
-	 */
-	private void fetchFromDB() {
-		isPremiumPurchased = AppDatabase.getAppDatabase(this.getApplication()).getBillingDao()
-				.getIsThisSkuPurchased(BillingConstants.SKU_UNLOCK_APP_FEATURES);
 	}
 
 	/**

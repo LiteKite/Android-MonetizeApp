@@ -59,6 +59,16 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 	}
 
 	/**
+	 * Fetches Premium Feature Sku Details stored in the local database and assigns it to
+	 * {@link #premiumSkuDetails} LiveData.
+	 */
+	private void fetchFromDB() {
+		premiumSkuDetails = AppDatabase.getAppDatabase(this.getApplication())
+				.getBillingDao()
+				.getSkuDetails(BillingConstants.SKU_UNLOCK_APP_FEATURES);
+	}
+
+	/**
 	 * Sets BillingManager.
 	 *
 	 * @param billingManager Provides access to BillingClient which perform Product Purchases from
@@ -96,16 +106,6 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 			premiumSkuDetails = new MutableLiveData<>();
 		}
 		return premiumSkuDetails;
-	}
-
-	/**
-	 * Fetches Premium Feature Sku Details stored in the local database and assigns it to
-	 * {@link #premiumSkuDetails} LiveData.
-	 */
-	private void fetchFromDB() {
-		premiumSkuDetails = AppDatabase.getAppDatabase(this.getApplication())
-				.getBillingDao()
-				.getSkuDetails(BillingConstants.SKU_UNLOCK_APP_FEATURES);
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

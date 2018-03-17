@@ -72,19 +72,19 @@ public class BillingVM extends AndroidViewModel implements
 	}
 
 	/**
+	 * Initializes BillingManager.
+	 */
+	private void initPlayBilling() {
+		billingManager = new BillingManager(this, this.getApplication());
+	}
+
+	/**
 	 * Gives BillingManager Instance.
 	 *
 	 * @return a BillingManager Instance.
 	 */
 	public BillingManager getBillingManager() {
 		return billingManager;
-	}
-
-	/**
-	 * Initializes BillingManager.
-	 */
-	private void initPlayBilling() {
-		billingManager = new BillingManager(this, this.getApplication());
 	}
 
 	@Override

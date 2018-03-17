@@ -54,19 +54,11 @@ public class PurchaseItemVM {
 	 *                                Purchases.
 	 */
 	public PurchaseItemVM(Context context,
-						  BillingSkuRelatedPurchases productRelatedPurchases) {
+	                      BillingSkuRelatedPurchases productRelatedPurchases) {
 		this.context = context;
 		this.skuProductDetails = productRelatedPurchases.billingSkuDetails;
 		this.productPurchaseDetails = productRelatedPurchases.billingPurchaseDetails;
 		init();
-	}
-
-	@BindingAdapter("purchaseItemSrcCompat")
-	public static void setPurchaseItemSrcCompat(ImageView iv, String skuProductName) {
-		iv.setImageResource(
-				skuProductName.equals(iv.getContext().getString(R.string.unlimited_popcorn))
-						? R.drawable.ic_popcorn
-						: R.drawable.ic_apple);
 	}
 
 	/**
@@ -112,6 +104,14 @@ public class PurchaseItemVM {
 		// Unlimited popcorn purchase is active. For apple, it can be bought multiple times.
 		skuProductState.set(context.getString(R.string.purchased_with_expiry,
 				productExpiryDateTime));
+	}
+
+	@BindingAdapter("purchaseItemSrcCompat")
+	public static void setPurchaseItemSrcCompat(ImageView iv, String skuProductName) {
+		iv.setImageResource(
+				skuProductName.equals(iv.getContext().getString(R.string.unlimited_popcorn))
+						? R.drawable.ic_popcorn
+						: R.drawable.ic_apple);
 	}
 
 }

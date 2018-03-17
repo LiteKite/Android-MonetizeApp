@@ -38,14 +38,14 @@ public class InAppBillingApp extends Application {
 	}
 
 	@Override
-	protected void attachBaseContext(Context base) {
-		super.attachBaseContext(base);
-		MultiDex.install(this);
+	public void onTerminate() {
+		super.onTerminate();
 	}
 
 	@Override
-	public void onTerminate() {
-		super.onTerminate();
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
+		MultiDex.install(this);
 	}
 
 }

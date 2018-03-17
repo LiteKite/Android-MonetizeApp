@@ -64,20 +64,13 @@ public class StoreItemVM {
 	 *                                Purchases.
 	 */
 	public StoreItemVM(Context context,
-					   BillingManager billingManager,
-					   BillingSkuRelatedPurchases productRelatedPurchases) {
+	                   BillingManager billingManager,
+	                   BillingSkuRelatedPurchases productRelatedPurchases) {
 		this.context = context;
 		this.billingManager = billingManager;
 		this.skuProductDetails = productRelatedPurchases.billingSkuDetails;
 		this.productPurchaseDetails = productRelatedPurchases.billingPurchaseDetails;
 		init();
-	}
-
-	@BindingAdapter("storeItemSrcCompat")
-	public static void setStoreItemSrcCompat(ImageView iv, String skuProductName) {
-		iv.setImageResource(skuProductName.equals(iv.getContext().getString(R.string.one_apple))
-				? R.drawable.ic_apple
-				: R.drawable.ic_popcorn);
 	}
 
 	/**
@@ -123,6 +116,13 @@ public class StoreItemVM {
 		}
 		// Popcorn was already purchased, no need to buy again.
 		isAlreadyPurchased.set(Boolean.TRUE);
+	}
+
+	@BindingAdapter("storeItemSrcCompat")
+	public static void setStoreItemSrcCompat(ImageView iv, String skuProductName) {
+		iv.setImageResource(skuProductName.equals(iv.getContext().getString(R.string.one_apple))
+				? R.drawable.ic_apple
+				: R.drawable.ic_popcorn);
 	}
 
 	/**

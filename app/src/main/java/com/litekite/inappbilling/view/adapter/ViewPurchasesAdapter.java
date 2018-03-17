@@ -51,7 +51,7 @@ public class ViewPurchasesAdapter extends RecyclerView.Adapter<RecyclerView.View
 	 * @param skuProductsAndPurchasesList Has Sku Products and its related purchases.
 	 */
 	public ViewPurchasesAdapter(Context context,
-								List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList) {
+	                            List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList) {
 		this.context = context;
 		this.skuProductsAndPurchasesList = skuProductsAndPurchasesList;
 	}

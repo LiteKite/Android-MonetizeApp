@@ -88,9 +88,9 @@ public class BaseActivity extends AppCompatActivity {
 	 * @param tvToolbarTitle A TextView in which the title of a Toolbar is displayed.
 	 */
 	protected void setToolbar(Toolbar toolbar,
-							  boolean backBtnVisible,
-							  String toolbarTitle,
-							  TextView tvToolbarTitle) {
+	                          boolean backBtnVisible,
+	                          String toolbarTitle,
+	                          TextView tvToolbarTitle) {
 		if (toolbar != null) {
 			toolbar.setTitle("");
 			if (backBtnVisible) {

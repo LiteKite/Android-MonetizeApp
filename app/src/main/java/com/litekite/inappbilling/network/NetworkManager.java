@@ -71,7 +71,7 @@ public class NetworkManager {
 	 *                          changes made.
 	 */
 	public static void registerNetworkBrReceiver(Context context,
-												 BroadcastReceiver networkBrReceiver) {
+	                                             BroadcastReceiver networkBrReceiver) {
 		IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 		context.registerReceiver(networkBrReceiver, intentFilter);
 	}
@@ -84,7 +84,7 @@ public class NetworkManager {
 	 *                          changes made.
 	 */
 	public static void unregisterNetworkBrReceiver(Context context,
-												   BroadcastReceiver networkBrReceiver) {
+	                                               BroadcastReceiver networkBrReceiver) {
 		context.unregisterReceiver(networkBrReceiver);
 	}
 

@@ -104,72 +104,6 @@ public class BillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
-	 * Starts BillingClient Service if not connected already, Or does the tasks written inside
-	 * the runnable implementation.
-	 *
-	 * @param runnable A runnable implementation.
-	 */
-	private void executeServiceRequest(Runnable runnable) {
-		if (isServiceConnected) {
-			runnable.run();
-		} else {
-			// If billing service was disconnected, we try to reconnect 1 time.
-			// (feel free to introduce your retry policy here).
-			startServiceConnection(runnable);
-		}
-	}
-
-	/**
-	 * Makes connection with BillingClient.
-	 *
-	 * @param executeOnSuccess A runnable implementation.
-	 */
-	private void startServiceConnection(final Runnable executeOnSuccess) {
-		myBillingClient.startConnection(new BillingClientStateListener() {
-			@Override
-			public void onBillingSetupFinished(@BillingResponse int billingResponseCode) {
-				// The billing client is ready. You can query purchases here.
-				BaseActivity.printLog(TAG, "Setup finished");
-				if (billingResponseCode == BillingResponse.OK) {
-					isServiceConnected = true;
-					if (executeOnSuccess != null) {
-						executeOnSuccess.run();
-					}
-				}
-				logErrorType(billingResponseCode);
-			}
-
-			@Override
-			public void onBillingServiceDisconnected() {
-				// Try to restart the connection on the next request to
-				// Google Play by calling the startConnection() method.
-				isServiceConnected = false;
-			}
-		});
-	}
-
-	/**
-	 * Checks if subscriptions are supported for current client.
-	 * <p>
-	 * Note: This method does not automatically retry for RESULT_SERVICE_DISCONNECTED.
-	 * It is only used in unit tests and after queryPurchases execution, which already has
-	 * a retry-mechanism implemented.
-	 * </p>
-	 *
-	 * @return boolean value of whether the subscription is supported or not.
-	 */
-	private boolean areSubscriptionsSupported() {
-		int responseCode = myBillingClient.isFeatureSupported(FeatureType.SUBSCRIPTIONS);
-		if (responseCode != BillingResponse.OK) {
-			BaseActivity.printLog(TAG,
-					"areSubscriptionsSupported() got an error response: " + responseCode);
-			billingUpdatesListener
-					.onBillingError(context.getString(R.string.err_subscription_not_supported));
-		}
-		return responseCode == BillingResponse.OK;
-	}
-
-	/**
 	 * Query purchases across various use cases and deliver the result in a formalized way through
 	 * a listener
 	 */
@@ -237,8 +171,8 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 *                            placed into the {@link #myPurchasesResultList}
 	 */
 	private void queryPurchaseHistoryAsync(final List<Purchase> purchasesResultList,
-										   final @SkuType String skuType,
-										   final Runnable executeWhenFinished) {
+	                                       final @SkuType String skuType,
+	                                       final Runnable executeWhenFinished) {
 		Runnable queryPurchases = new Runnable() {
 			@Override
 			public void run() {
@@ -246,7 +180,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 						new PurchaseHistoryResponseListener() {
 							@Override
 							public void onPurchaseHistoryResponse(@BillingResponse int responseCode,
-																  List<Purchase> purchasesList) {
+							                                      List<Purchase> purchasesList) {
 								if (responseCode == BillingResponse.OK && purchasesList != null) {
 									purchasesResultList.addAll(purchasesList);
 									if (executeWhenFinished != null) {
@@ -275,7 +209,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 * @param responseCode BillingClient response code about the success or failure result.
 	 */
 	private void onQueryPurchasesFinished(List<Purchase> result,
-										  @BillingResponse int responseCode) {
+	                                      @BillingResponse int responseCode) {
 		// Have we been disposed of in the meantime? If so, or bad result code, then quit
 		if (myBillingClient == null) {
 			BaseActivity.printLog(TAG, "Billing client was null or result code ("
@@ -318,9 +252,9 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 *                            getting results of Subscription based SKU Details.
 	 */
 	private void querySkuDetailsAsync(final List<SkuDetails> skuResultList,
-									  final SkuDetailsParams.Builder params,
-									  final @SkuType String billingType,
-									  final Runnable executeWhenFinished) {
+	                                  final SkuDetailsParams.Builder params,
+	                                  final @SkuType String billingType,
+	                                  final Runnable executeWhenFinished) {
 		// Creating a runnable from the request to use it inside our connection retry policy below
 		final Runnable queryRequest = new Runnable() {
 			@Override
@@ -329,7 +263,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 						new SkuDetailsResponseListener() {
 							@Override
 							public void onSkuDetailsResponse(int responseCode,
-															 List<SkuDetails> skuDetailsList) {
+							                                 List<SkuDetails> skuDetailsList) {
 								// Process the result.
 								if (responseCode != BillingResponse.OK) {
 									BaseActivity.printLog(TAG,
@@ -354,6 +288,99 @@ public class BillingManager implements PurchasesUpdatedListener {
 			}
 		};
 		executeServiceRequest(queryRequest);
+	}
+
+	/**
+	 * Start a purchase flow.
+	 *
+	 * @param activity    requires activity class to initiate purchase flow.
+	 * @param skuId       The SKU ID registered in the Google Play Developer Console.
+	 * @param billingType InApp or Subscription based Product.
+	 */
+	public void initiatePurchaseFlow(final Activity activity,
+	                                 final String skuId,
+	                                 final @SkuType String billingType) {
+		if (areSubscriptionsSupported()) {
+			Runnable purchaseFlowRequest = new Runnable() {
+				@Override
+				public void run() {
+					BaseActivity.printLog(TAG, "Launching in-app purchase flow.");
+					BillingFlowParams purchaseParams =
+							BillingFlowParams.newBuilder()
+									.setSku(skuId)
+									.setType(billingType)
+									.build();
+					myBillingClient.launchBillingFlow(activity, purchaseParams);
+				}
+			};
+			executeServiceRequest(purchaseFlowRequest);
+		}
+	}
+
+	/**
+	 * Checks if subscriptions are supported for current client.
+	 * <p>
+	 * Note: This method does not automatically retry for RESULT_SERVICE_DISCONNECTED.
+	 * It is only used in unit tests and after queryPurchases execution, which already has
+	 * a retry-mechanism implemented.
+	 * </p>
+	 *
+	 * @return boolean value of whether the subscription is supported or not.
+	 */
+	private boolean areSubscriptionsSupported() {
+		int responseCode = myBillingClient.isFeatureSupported(FeatureType.SUBSCRIPTIONS);
+		if (responseCode != BillingResponse.OK) {
+			BaseActivity.printLog(TAG,
+					"areSubscriptionsSupported() got an error response: " + responseCode);
+			billingUpdatesListener
+					.onBillingError(context.getString(R.string.err_subscription_not_supported));
+		}
+		return responseCode == BillingResponse.OK;
+	}
+
+	/**
+	 * Starts BillingClient Service if not connected already, Or does the tasks written inside
+	 * the runnable implementation.
+	 *
+	 * @param runnable A runnable implementation.
+	 */
+	private void executeServiceRequest(Runnable runnable) {
+		if (isServiceConnected) {
+			runnable.run();
+		} else {
+			// If billing service was disconnected, we try to reconnect 1 time.
+			// (feel free to introduce your retry policy here).
+			startServiceConnection(runnable);
+		}
+	}
+
+	/**
+	 * Makes connection with BillingClient.
+	 *
+	 * @param executeOnSuccess A runnable implementation.
+	 */
+	private void startServiceConnection(final Runnable executeOnSuccess) {
+		myBillingClient.startConnection(new BillingClientStateListener() {
+			@Override
+			public void onBillingSetupFinished(@BillingResponse int billingResponseCode) {
+				// The billing client is ready. You can query purchases here.
+				BaseActivity.printLog(TAG, "Setup finished");
+				if (billingResponseCode == BillingResponse.OK) {
+					isServiceConnected = true;
+					if (executeOnSuccess != null) {
+						executeOnSuccess.run();
+					}
+				}
+				logErrorType(billingResponseCode);
+			}
+
+			@Override
+			public void onBillingServiceDisconnected() {
+				// Try to restart the connection on the next request to
+				// Google Play by calling the startConnection() method.
+				isServiceConnected = false;
+			}
+		});
 	}
 
 	/**
@@ -405,36 +432,9 @@ public class BillingManager implements PurchasesUpdatedListener {
 		}
 	}
 
-	/**
-	 * Start a purchase flow.
-	 *
-	 * @param activity    requires activity class to initiate purchase flow.
-	 * @param skuId       The SKU ID registered in the Google Play Developer Console.
-	 * @param billingType InApp or Subscription based Product.
-	 */
-	public void initiatePurchaseFlow(final Activity activity,
-									 final String skuId,
-									 final @SkuType String billingType) {
-		if (areSubscriptionsSupported()) {
-			Runnable purchaseFlowRequest = new Runnable() {
-				@Override
-				public void run() {
-					BaseActivity.printLog(TAG, "Launching in-app purchase flow.");
-					BillingFlowParams purchaseParams =
-							BillingFlowParams.newBuilder()
-									.setSku(skuId)
-									.setType(billingType)
-									.build();
-					myBillingClient.launchBillingFlow(activity, purchaseParams);
-				}
-			};
-			executeServiceRequest(purchaseFlowRequest);
-		}
-	}
-
 	@Override
 	public void onPurchasesUpdated(@BillingResponse int responseCode,
-								   @Nullable List<Purchase> purchases) {
+	                               @Nullable List<Purchase> purchases) {
 		if (responseCode == BillingResponse.OK && purchases != null) {
 			for (Purchase purchase : purchases) {
 				handlePurchase(purchase);

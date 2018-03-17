@@ -52,6 +52,15 @@ public class ProductsAndPurchasesVM extends AndroidViewModel implements Lifecycl
 	}
 
 	/**
+	 * Fetches Sku Products List and its related Purchases stored in the local database and assigns
+	 * it to {@link #skuProductsAndPurchasesList} LiveData.
+	 */
+	private void fetchFromDB() {
+		skuProductsAndPurchasesList = AppDatabase.getAppDatabase(this.getApplication())
+				.getBillingDao().getSkuRelatedPurchases();
+	}
+
+	/**
 	 * A view gets this {@link #skuProductsAndPurchasesList} and observes for changes and updates
 	 * with it.
 	 *
@@ -59,15 +68,6 @@ public class ProductsAndPurchasesVM extends AndroidViewModel implements Lifecycl
 	 */
 	public LiveData<List<BillingSkuRelatedPurchases>> getSkuProductsAndPurchasesList() {
 		return skuProductsAndPurchasesList;
-	}
-
-	/**
-	 * Fetches Sku Products List and its related Purchases stored in the local database and assigns
-	 * it to {@link #skuProductsAndPurchasesList} LiveData.
-	 */
-	private void fetchFromDB() {
-		skuProductsAndPurchasesList = AppDatabase.getAppDatabase(this.getApplication())
-				.getBillingDao().getSkuRelatedPurchases();
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
