@@ -1,2 +1,2 @@
 # Android-InAppBilling
-A sample which uses Google's Play Billing Library and it does InApp Purchases and Subscriptions.
+This branch has assets that are displayed on the README file from master branch.  
