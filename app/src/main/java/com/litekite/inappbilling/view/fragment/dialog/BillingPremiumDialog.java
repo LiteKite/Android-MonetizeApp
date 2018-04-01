@@ -21,6 +21,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -101,7 +102,7 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
 
 	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater,
+	public View onCreateView(@NonNull LayoutInflater inflater,
 	                         @Nullable ViewGroup container,
 	                         @Nullable Bundle savedInstanceState) {
 		dialogBillingPremiumBinding =
@@ -114,7 +115,7 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
 	}
 
 	@Override
-	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		init();
 	}

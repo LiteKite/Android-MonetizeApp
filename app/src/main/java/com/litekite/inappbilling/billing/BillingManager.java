@@ -133,7 +133,6 @@ public class BillingManager implements PurchasesUpdatedListener {
 				} else {
 					BaseActivity.printLog(TAG, "queryPurchases() got an error response code: "
 							+ purchasesResult.getResponseCode());
-					logErrorType(purchasesResult.getResponseCode());
 				}
 				BaseActivity.printLog(TAG, "Local Query Purchase List Size: "
 						+ purchasesResult.getPurchasesList().size());
@@ -328,6 +327,10 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 * @return boolean value of whether the subscription is supported or not.
 	 */
 	private boolean areSubscriptionsSupported() {
+		if (myBillingClient == null) {
+			BaseActivity.printLog(TAG, "Billing client was null and quitting");
+			return false;
+		}
 		int responseCode = myBillingClient.isFeatureSupported(FeatureType.SUBSCRIPTIONS);
 		if (responseCode != BillingResponse.OK) {
 			BaseActivity.printLog(TAG,

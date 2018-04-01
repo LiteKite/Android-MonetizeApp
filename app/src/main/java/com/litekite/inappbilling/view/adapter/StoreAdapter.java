@@ -18,6 +18,7 @@ package com.litekite.inappbilling.view.adapter;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -63,8 +64,9 @@ public class StoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 		this.billingManager = billingManager;
 	}
 
+	@NonNull
 	@Override
-	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		AdapterStoreItemBinding adapterStoreItemBinding = DataBindingUtil.inflate(
 				LayoutInflater.from(parent.getContext()),
 				R.layout.adapter_store_item, parent,
@@ -73,9 +75,10 @@ public class StoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 	}
 
 	@Override
-	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 		ViewHolderStoreProduct viewHolderStoreProduct = (ViewHolderStoreProduct) holder;
-		BillingSkuRelatedPurchases productRelatedPurchases = skuProductsAndPurchasesList.get(position);
+		BillingSkuRelatedPurchases productRelatedPurchases =
+				skuProductsAndPurchasesList.get(position);
 		viewHolderStoreProduct.adapterStoreItemBinding.setPresenter(
 				new StoreItemVM(context, billingManager, productRelatedPurchases));
 		viewHolderStoreProduct.adapterStoreItemBinding.executePendingBindings();
