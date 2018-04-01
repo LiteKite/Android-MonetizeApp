@@ -50,7 +50,7 @@ import java.util.Set;
  *
  * @author Vignesh S
  * @version 1.0, 04/03/2018
- * @see <a href="https://developer.android.com/google/play/billing/billing_library.html#connecting">
+ * @see <a href="https://developer.android.com/google/play/billing/billing_library.html">
  * Google Play Billing Library Guide</a>
  * @see <a href="https://developer.android.com/training/play-billing-library/index.html"> Google
  * Play Billing Training Guide</a>
