@@ -76,7 +76,7 @@
 
 [Google Play Library Testing](https://developer.android.com/google/play/billing/billing_testing.html) -> For making test purchases without any real transactions.
 
-[Android Architecture Components](https://developer.android.com/topic/libraries/architecture/index.html) -> For LiveData, ViewModel, Room Persistance Library and Data Binding Library.
+[Android Architecture Components](https://developer.android.com/topic/libraries/architecture/index.html) -> For LiveData, ViewModel, Room Persistence Library and Data Binding Library.
 
 ## Support
 
