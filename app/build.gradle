@@ -69,6 +69,6 @@ dependencies {
     testImplementation 'android.arch.core:core-testing:1.1.1'
     // Test helpers for Room
     testImplementation 'android.arch.persistence.room:testing:1.0.0'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
