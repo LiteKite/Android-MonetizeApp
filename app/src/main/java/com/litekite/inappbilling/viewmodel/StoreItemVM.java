@@ -30,7 +30,7 @@ import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.room.entity.BillingPurchaseDetails;
 import com.litekite.inappbilling.room.entity.BillingSkuDetails;
 import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
-import com.litekite.inappbilling.util.DataTimeUtil;
+import com.litekite.inappbilling.util.DateTimeUtil;
 
 import java.util.List;
 
@@ -108,9 +108,9 @@ public class StoreItemVM {
 		// production release, add 30 days to the purchase time that gives the expiry date of
 		// subscription
 		productPurchaseTimeInMillis =
-				productPurchaseTimeInMillis + DataTimeUtil.FIVE_MINUTES_IN_MILLIS;
+				productPurchaseTimeInMillis + DateTimeUtil.FIVE_MINUTES_IN_MILLIS;
 		// Unlimited popcorn purchase was expired if true, and need to buy again.
-		if (DataTimeUtil.isDateTimePast(productPurchaseTimeInMillis)) {
+		if (DateTimeUtil.isDateTimePast(productPurchaseTimeInMillis)) {
 			isAlreadyPurchased.set(Boolean.FALSE);
 			return;
 		}

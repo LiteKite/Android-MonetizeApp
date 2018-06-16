@@ -29,14 +29,14 @@ import java.util.Locale;
  * @version 1.0, 04/03/2018
  * @since 1.0
  */
-public class DataTimeUtil {
+public class DateTimeUtil {
 
 	public static long FIVE_MINUTES_IN_MILLIS = 5 * 60 * 1000;
 
 	@SuppressWarnings("unused")
 	public static long THIRTY_DAYS_IN_MILLIS = 30 * 24 * 60 * 60 * 1000L;
 
-	private DataTimeUtil() {
+	private DateTimeUtil() {
 
 	}
 
