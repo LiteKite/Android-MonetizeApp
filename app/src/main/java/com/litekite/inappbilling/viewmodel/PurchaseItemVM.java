@@ -69,7 +69,8 @@ public class PurchaseItemVM {
 		if (skuProductDetails.skuID.equals(BillingConstants.SKU_BUY_APPLE)) {
 			skuProductName.set(context.getResources().getQuantityString(R.plurals.apples,
 					productPurchaseDetails.size()));
-			skuProductState.set(context.getString(R.string.qty, productPurchaseDetails.size()));
+			skuProductState.set(context.getResources().getQuantityString(R.plurals.qty,
+					productPurchaseDetails.size(), productPurchaseDetails.size()));
 		} else { // This is Popcorn.
 			skuProductName.set(context.getString(R.string.unlimited_popcorn));
 			checkPopcornPurchaseStatus();

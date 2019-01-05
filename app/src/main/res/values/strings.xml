@@ -17,7 +17,6 @@
 <resources>
 
     <string name="app_name">InAppBilling</string>
-    <string name="back_btn">Back Button</string>
     <string name="toolbar_title">Toolbar Title</string>
 
     <!--Common-->
@@ -55,7 +54,12 @@
         <item quantity="many">Apples</item>
         <item quantity="other">Apples</item>
     </plurals>
-    <string name="qty">Qty: %d Purchased</string>
+    <plurals name="qty">
+        <item quantity="zero">Qty: %d item purchased</item>
+        <item quantity="one">Qty: %d item purchased</item>
+        <item quantity="many">Qty: %d items purchased</item>
+        <item quantity="other">Qty: %d items purchased</item>
+    </plurals>
     <string name="unlimited_popcorn">Unlimited Popcorn for a month</string>
     <string name="purchased_with_expiry">Purchased, Expires at %s</string>
     <string name="not_purchased_yet">Not Purchased Yet</string>

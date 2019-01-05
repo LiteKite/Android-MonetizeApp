@@ -87,7 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:text="@{presenter.skuProductState, default=@string/qty}"
+                    android:text="@{presenter.skuProductState, default=@plurals/qty}"
                     android:textSize="@dimen/text18"
                     android:textStyle="bold" />
 
