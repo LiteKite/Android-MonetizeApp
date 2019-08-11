@@ -17,14 +17,15 @@
 package com.litekite.inappbilling.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.billing.BillingUpdatesListener;
@@ -83,22 +84,23 @@ public class BillingVM extends AndroidViewModel implements
 	 *
 	 * @return a BillingManager Instance.
 	 */
+	@NonNull
 	public BillingManager getBillingManager() {
 		return billingManager;
 	}
 
 	@Override
-	public void onBillingError(String error) {
+	public void onBillingError(@NonNull String error) {
 		BaseActivity.showToast(this.getApplication(), error);
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-	public void onCreate() {
+	void onCreate() {
 		NetworkManager.registerNetworkBrReceiver(this.getApplication(), networkBrReceiver);
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-	public void onDestroy() {
+	void onDestroy() {
 		billingManager.destroy();
 		NetworkManager.unregisterNetworkBrReceiver(this.getApplication(), networkBrReceiver);
 	}

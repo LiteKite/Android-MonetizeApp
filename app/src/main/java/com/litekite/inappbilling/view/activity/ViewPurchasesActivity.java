@@ -16,16 +16,18 @@
 
 package com.litekite.inappbilling.view.activity;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.databinding.ActivityViewPurchasesBinding;
@@ -73,7 +75,7 @@ public class ViewPurchasesActivity extends BaseActivity {
 	 *
 	 * @param context An Activity Context.
 	 */
-	public static void start(Context context) {
+	public static void start(@NonNull Context context) {
 		if (context instanceof AppCompatActivity) {
 			Intent intent = new Intent(context, ViewPurchasesActivity.class);
 			context.startActivity(intent);

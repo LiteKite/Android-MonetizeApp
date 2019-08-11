@@ -17,9 +17,11 @@
 package com.litekite.inappbilling.viewmodel;
 
 import android.content.Context;
-import android.databinding.BindingAdapter;
-import android.databinding.ObservableField;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
+import androidx.databinding.ObservableField;
 
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.billing.BillingConstants;
@@ -53,8 +55,8 @@ public class PurchaseItemVM {
 	 * @param productRelatedPurchases contains Products with its Sku Details and its related
 	 *                                Purchases.
 	 */
-	public PurchaseItemVM(Context context,
-	                      BillingSkuRelatedPurchases productRelatedPurchases) {
+	public PurchaseItemVM(@NonNull Context context,
+	                      @NonNull BillingSkuRelatedPurchases productRelatedPurchases) {
 		this.context = context;
 		this.skuProductDetails = productRelatedPurchases.billingSkuDetails;
 		this.productPurchaseDetails = productRelatedPurchases.billingPurchaseDetails;
@@ -108,7 +110,8 @@ public class PurchaseItemVM {
 	}
 
 	@BindingAdapter("purchaseItemSrcCompat")
-	public static void setPurchaseItemSrcCompat(ImageView iv, String skuProductName) {
+	public static void setPurchaseItemSrcCompat(@NonNull ImageView iv,
+	                                            @NonNull String skuProductName) {
 		iv.setImageResource(
 				skuProductName.equals(iv.getContext().getString(R.string.unlimited_popcorn))
 						? R.drawable.ic_popcorn

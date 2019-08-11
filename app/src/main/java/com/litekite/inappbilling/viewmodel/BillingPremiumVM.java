@@ -18,22 +18,25 @@ package com.litekite.inappbilling.viewmodel;
 
 import android.app.Activity;
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.ContextWrapper;
-import android.support.annotation.NonNull;
 import android.view.View;
 
-import com.android.billingclient.api.BillingClient;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.OnLifecycleEvent;
+
+import com.android.billingclient.api.SkuDetails;
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.billing.BillingConstants;
 import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.room.database.AppDatabase;
 import com.litekite.inappbilling.room.entity.BillingSkuDetails;
+
+import org.json.JSONException;
 
 /**
  * BillingPremiumVM, a view model which gets Premium Feature Sku Details from local database, It
@@ -74,7 +77,7 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 	 * @param billingManager Provides access to BillingClient which perform Product Purchases from
 	 *                       Google Play Billing Library.
 	 */
-	public void setBillingManager(BillingManager billingManager) {
+	public void setBillingManager(@NonNull BillingManager billingManager) {
 		this.billingManager = billingManager;
 	}
 
@@ -83,16 +86,21 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 	 *
 	 * @param v A view in which the click action performed.
 	 */
-	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.btn_billing_buy:
-				// Performs Premium Feature Purchase Flow through BillingClient of Google Play
-				// Billing Library.
-				billingManager.initiatePurchaseFlow(
-						(Activity) (((ContextWrapper) v.getContext()).getBaseContext()),
-						BillingConstants.SKU_UNLOCK_APP_FEATURES,
-						BillingClient.SkuType.INAPP);
-				break;
+	public void onClick(@NonNull View v) {
+		if (v.getId() == R.id.btn_billing_buy) {
+			// Performs Premium Feature Purchase Flow through BillingClient of Google Play
+			// Billing Library.
+			if (premiumSkuDetails.getValue() != null) {
+				BillingSkuDetails billingSkuDetails = premiumSkuDetails.getValue();
+				try {
+					SkuDetails skuDetails = new SkuDetails(billingSkuDetails.originalJson);
+					billingManager.initiatePurchaseFlow(
+							(Activity) (((ContextWrapper) v.getContext()).getBaseContext()),
+							skuDetails);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -101,6 +109,7 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 	 *
 	 * @return a LiveData of Premium Feature Sku Details.
 	 */
+	@NonNull
 	public LiveData<BillingSkuDetails> getPremiumSkuDetails() {
 		if (premiumSkuDetails == null) {
 			premiumSkuDetails = new MutableLiveData<>();
@@ -109,7 +118,7 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-	public void onDestroy() {
+	void onDestroy() {
 		AppDatabase.destroyAppDatabase();
 	}
 

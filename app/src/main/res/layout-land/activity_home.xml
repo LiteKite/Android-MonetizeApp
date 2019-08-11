@@ -27,7 +27,7 @@
 
     </data>
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -74,9 +74,9 @@
                     android:layout_gravity="top"
                     android:drawableEnd=
                         "@{safeUnbox(presenter.isPremiumPurchased), default=@drawable/ic_lock_outline_white}"
-                    android:drawablePadding="@dimen/sizeMinus20"
                     android:drawableRight=
                         "@{safeUnbox(presenter.isPremiumPurchased), default=@drawable/ic_lock_outline_white}"
+                    android:drawablePadding="@dimen/sizeMinus20"
                     android:onClick="@{(view) -> presenter.onClick(view)}"
                     android:text="@string/buy_from_store" />
 
@@ -91,9 +91,9 @@
                     android:layout_height="wrap_content"
                     android:drawableEnd=
                         "@{safeUnbox(presenter.isPremiumPurchased), default=@drawable/ic_lock_outline_white}"
-                    android:drawablePadding="@dimen/sizeMinus20"
                     android:drawableRight=
                         "@{safeUnbox(presenter.isPremiumPurchased), default=@drawable/ic_lock_outline_white}"
+                    android:drawablePadding="@dimen/sizeMinus20"
                     android:onClick="@{(view) -> presenter.onClick(view)}"
                     android:text="@string/view_your_purchases" />
 
@@ -101,6 +101,6 @@
 
         </LinearLayout>
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

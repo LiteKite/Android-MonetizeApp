@@ -16,6 +16,8 @@
 
 package com.litekite.inappbilling.billing;
 
+import androidx.annotation.NonNull;
+
 /**
  * Listener to the updates that happens when purchases list was updated or consumption of the
  * item was finished, updates the Billing Client responses and errors to the implemented classes.
@@ -31,6 +33,6 @@ public interface BillingUpdatesListener {
 	 *
 	 * @param error billing client error message.
 	 */
-	void onBillingError(String error);
+	void onBillingError(@NonNull String error);
 
 }

@@ -17,13 +17,14 @@
 package com.litekite.inappbilling.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.OnLifecycleEvent;
 
 /**
  * SplashVM, which notifies {@link #splashTimeDelay} to the view when the
@@ -51,6 +52,7 @@ public class SplashVM extends AndroidViewModel implements LifecycleObserver {
 	 * @return whether the {@link #splashTimeDelay} whether the {@link #SPLASH_TIME_DELAY_IN_MS}
 	 * completed or not.
 	 */
+	@NonNull
 	public MutableLiveData<Boolean> getSplashTimeDelay() {
 		if (splashTimeDelay == null) {
 			splashTimeDelay = new MutableLiveData<>();
@@ -59,7 +61,7 @@ public class SplashVM extends AndroidViewModel implements LifecycleObserver {
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-	public void initHandler() {
+	void initHandler() {
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {

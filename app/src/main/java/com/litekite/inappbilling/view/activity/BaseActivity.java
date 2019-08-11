@@ -18,15 +18,17 @@ package com.litekite.inappbilling.view.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.StringRes;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.material.snackbar.Snackbar;
 import com.litekite.inappbilling.R;
 
 /**
@@ -44,7 +46,7 @@ public class BaseActivity extends AppCompatActivity {
 	 *
 	 * @param context An activity context.
 	 */
-	protected static void startActivityAnimation(Context context) {
+	protected static void startActivityAnimation(@NonNull Context context) {
 		if (context instanceof AppCompatActivity) {
 			((AppCompatActivity) context)
 					.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
@@ -57,7 +59,7 @@ public class BaseActivity extends AppCompatActivity {
 	 * @param tag     TAG is a class name in which the log come from.
 	 * @param message Type of a Log Message.
 	 */
-	public static void printLog(String tag, String message) {
+	public static void printLog(@NonNull String tag, @NonNull String message) {
 		Log.d(tag, message);
 	}
 
@@ -66,7 +68,7 @@ public class BaseActivity extends AppCompatActivity {
 	 *                    screen.
 	 * @param stringResID A message that to be displayed inside a SnackBar.
 	 */
-	public static void showSnackBar(View v, @StringRes int stringResID) {
+	public static void showSnackBar(@NonNull View v, @StringRes int stringResID) {
 		Snackbar.make(v, stringResID, Snackbar.LENGTH_LONG).show();
 	}
 
@@ -74,7 +76,7 @@ public class BaseActivity extends AppCompatActivity {
 	 * @param context An Activity or Application Context.
 	 * @param message A message that to be displayed inside a Toast.
 	 */
-	public static void showToast(Context context, String message) {
+	public static void showToast(@NonNull Context context, @NonNull String message) {
 		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 	}
 
@@ -87,26 +89,24 @@ public class BaseActivity extends AppCompatActivity {
 	 * @param toolbarTitle   The title of a Toolbar.
 	 * @param tvToolbarTitle A TextView in which the title of a Toolbar is displayed.
 	 */
-	protected void setToolbar(Toolbar toolbar,
+	protected void setToolbar(@NonNull Toolbar toolbar,
 	                          boolean backBtnVisible,
-	                          String toolbarTitle,
-	                          TextView tvToolbarTitle) {
-		if (toolbar != null) {
-			toolbar.setTitle("");
-			if (backBtnVisible) {
-				toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-			}
-			toolbar.setContentInsetsAbsolute(0, 0);
-			tvToolbarTitle.setText(toolbarTitle);
-			setSupportActionBar(toolbar);
-			if (backBtnVisible) {
-				toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						onBackPressed();
-					}
-				});
-			}
+	                          @NonNull String toolbarTitle,
+	                          @NonNull TextView tvToolbarTitle) {
+		toolbar.setTitle("");
+		if (backBtnVisible) {
+			toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+		}
+		toolbar.setContentInsetsAbsolute(0, 0);
+		tvToolbarTitle.setText(toolbarTitle);
+		setSupportActionBar(toolbar);
+		if (backBtnVisible) {
+			toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					onBackPressed();
+				}
+			});
 		}
 	}
 

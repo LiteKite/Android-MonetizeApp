@@ -18,12 +18,14 @@ package com.litekite.inappbilling.viewmodel;
 
 import android.app.Activity;
 import android.content.Context;
-import android.databinding.BindingAdapter;
-import android.databinding.ObservableField;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.android.billingclient.api.BillingClient;
+import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
+import androidx.databinding.ObservableField;
+
+import com.android.billingclient.api.SkuDetails;
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.billing.BillingConstants;
 import com.litekite.inappbilling.billing.BillingManager;
@@ -31,6 +33,8 @@ import com.litekite.inappbilling.room.entity.BillingPurchaseDetails;
 import com.litekite.inappbilling.room.entity.BillingSkuDetails;
 import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
 import com.litekite.inappbilling.util.DateTimeUtil;
+
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -63,9 +67,9 @@ public class StoreItemVM {
 	 * @param productRelatedPurchases contains Products with its Sku Details and its related
 	 *                                Purchases.
 	 */
-	public StoreItemVM(Context context,
-	                   BillingManager billingManager,
-	                   BillingSkuRelatedPurchases productRelatedPurchases) {
+	public StoreItemVM(@NonNull Context context,
+	                   @NonNull BillingManager billingManager,
+	                   @NonNull BillingSkuRelatedPurchases productRelatedPurchases) {
 		this.context = context;
 		this.billingManager = billingManager;
 		this.skuProductDetails = productRelatedPurchases.billingSkuDetails;
@@ -119,7 +123,8 @@ public class StoreItemVM {
 	}
 
 	@BindingAdapter("storeItemSrcCompat")
-	public static void setStoreItemSrcCompat(ImageView iv, String skuProductName) {
+	public static void setStoreItemSrcCompat(@NonNull ImageView iv,
+	                                         @NonNull String skuProductName) {
 		iv.setImageResource(skuProductName.equals(iv.getContext().getString(R.string.one_apple))
 				? R.drawable.ic_apple
 				: R.drawable.ic_popcorn);
@@ -130,11 +135,9 @@ public class StoreItemVM {
 	 *
 	 * @param v A view in which the click action performed.
 	 */
-	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.btn_product_buy:
-				initPurchaseFlow();
-				break;
+	public void onClick(@NonNull View v) {
+		if (v.getId() == R.id.btn_product_buy) {
+			initPurchaseFlow();
 		}
 	}
 
@@ -142,17 +145,12 @@ public class StoreItemVM {
 	 * Performs Purchase Flow through BillingClient of Google Play Billing Library.
 	 */
 	private void initPurchaseFlow() {
-		String skuProductID, skuType;
-		// Apple is an inApp Product.
-		if (skuProductDetails.skuID.equals(BillingConstants.SKU_BUY_APPLE)) {
-			skuProductID = BillingConstants.SKU_BUY_APPLE;
-			skuType = BillingClient.SkuType.INAPP;
-		} else {
-			// Popcorn is a subscription based product.
-			skuProductID = BillingConstants.SKU_POPCORN_UNLIMITED_MONTHLY;
-			skuType = BillingClient.SkuType.SUBS;
+		try {
+			SkuDetails skuDetails = new SkuDetails(skuProductDetails.originalJson);
+			billingManager.initiatePurchaseFlow((Activity) context, skuDetails);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
-		billingManager.initiatePurchaseFlow((Activity) context, skuProductID, skuType);
 	}
 
 }

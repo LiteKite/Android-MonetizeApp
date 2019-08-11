@@ -18,18 +18,23 @@ package com.litekite.inappbilling.billing;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.Nullable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.android.billingclient.api.AcknowledgePurchaseParams;
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
-import com.android.billingclient.api.BillingClient.BillingResponse;
+import com.android.billingclient.api.BillingClient.BillingResponseCode;
 import com.android.billingclient.api.BillingClient.FeatureType;
 import com.android.billingclient.api.BillingClient.SkuType;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.Purchase.PurchasesResult;
-import com.android.billingclient.api.PurchaseHistoryResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
@@ -41,8 +46,10 @@ import com.litekite.inappbilling.room.entity.BillingSkuDetails;
 import com.litekite.inappbilling.view.activity.BaseActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -85,32 +92,45 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 *                               errors.
 	 * @param context                activity or application context.
 	 */
-	public BillingManager(BillingUpdatesListener billingUpdatesListener, Context context) {
+	public BillingManager(@NonNull BillingUpdatesListener billingUpdatesListener,
+	                      @NonNull Context context) {
 		this.context = context;
 		this.billingUpdatesListener = billingUpdatesListener;
 		BaseActivity.printLog(TAG, "Creating Billing client.");
-		myBillingClient = BillingClient.newBuilder(context).setListener(this).build();
-		BaseActivity.printLog(TAG, "Starting setup.");
-		startServiceConnection(new Runnable() {
-			@Override
-			public void run() {
-				// IAB is fully set up. Now, let's get an inventory of stuff we own.
-				BaseActivity.printLog(TAG, "Setup successful. Querying inventory.");
-				queryPurchasesLocally();
-				queryPurchases();
-				querySkuDetails();
-			}
-		});
+		myBillingClient = BillingClient.newBuilder(context)
+				.enablePendingPurchases()
+				.setListener(this)
+				.build();
+		connectToPlayBillingService();
+	}
+
+	/**
+	 * Initiates Google Play Billing Service.
+	 */
+	private void connectToPlayBillingService() {
+		BaseActivity.printLog(TAG, "connectToPlayBillingService");
+		if (!myBillingClient.isReady()) {
+			startServiceConnection(new Runnable() {
+				@Override
+				public void run() {
+					// IAB is fully set up. Now, let's get an inventory of stuff we own.
+					BaseActivity.printLog(TAG, "Setup successful. Querying inventory.");
+					querySkuDetails();
+					queryPurchasesAsync();
+				}
+			});
+		}
 	}
 
 	/**
 	 * Query purchases across various use cases and deliver the result in a formalized way through
 	 * a listener
 	 */
-	private void queryPurchasesLocally() {
+	private void queryPurchasesAsync() {
 		Runnable queryToExecute = new Runnable() {
 			@Override
 			public void run() {
+				myPurchasesResultList.clear();
 				PurchasesResult purchasesResult =
 						myBillingClient.queryPurchases(SkuType.INAPP);
 				// If there are subscriptions supported, we add subscription rows as well
@@ -120,14 +140,14 @@ public class BillingManager implements PurchasesUpdatedListener {
 					BaseActivity.printLog(TAG, "Querying subscriptions result code: "
 							+ subscriptionResult.getResponseCode()
 							+ " res: " + subscriptionResult.getPurchasesList().size());
-					if (subscriptionResult.getResponseCode() == BillingResponse.OK) {
+					if (subscriptionResult.getResponseCode() == BillingResponseCode.OK) {
 						purchasesResult.getPurchasesList().addAll(
 								subscriptionResult.getPurchasesList());
 					} else {
 						BaseActivity.printLog(TAG, "Got an error response "
 								+ "trying to query subscription purchases");
 					}
-				} else if (purchasesResult.getResponseCode() == BillingResponse.OK) {
+				} else if (purchasesResult.getResponseCode() == BillingResponseCode.OK) {
 					BaseActivity.printLog(TAG, "Skipped subscription purchases query "
 							+ "since they are not supported");
 				} else {
@@ -136,209 +156,225 @@ public class BillingManager implements PurchasesUpdatedListener {
 				}
 				BaseActivity.printLog(TAG, "Local Query Purchase List Size: "
 						+ purchasesResult.getPurchasesList().size());
-				storePurchaseResultsLocally(purchasesResult.getPurchasesList());
+				processPurchases(purchasesResult.getPurchasesList());
 			}
 		};
 		executeServiceRequest(queryToExecute);
 	}
 
 	/**
-	 * Has runnable implementation of querying InApp and Subscription purchases from Google Play
-	 * Remote Server.
+	 * Stores Purchased Items, consumes consumable items, acknowledges non-consumable items.
+	 *
+	 * @param purchases list of Purchase Details returned from the queries.
 	 */
-	private void queryPurchases() {
-		final List<Purchase> purchasesResultList = new ArrayList<>();
-		queryPurchaseHistoryAsync(purchasesResultList, SkuType.INAPP, new Runnable() {
-			@Override
-			public void run() {
-				if (areSubscriptionsSupported()) {
-					queryPurchaseHistoryAsync(purchasesResultList,
-							SkuType.SUBS, null);
-				}
+	private void processPurchases(List<Purchase> purchases) {
+		if (purchases.size() > 0) {
+			BaseActivity.printLog(TAG, "purchase list size: " + purchases.size());
+		}
+		for (Purchase purchase : purchases) {
+			if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+				handlePurchase(purchase);
+			} else if (purchase.getPurchaseState() == Purchase.PurchaseState.PENDING) {
+				BaseActivity.printLog(TAG, "Received a pending purchase of SKU: "
+						+ purchase.getSku());
+				// handle pending purchases, e.g. confirm with users about the pending
+				// purchases, prompt them to complete it, etc.
+				// TODO handle this in the next release.
 			}
-		});
+		}
+		storePurchaseResultsLocally(myPurchasesResultList);
+		for (Purchase purchase : purchases) {
+			if (purchase.getSku().equals(BillingConstants.SKU_BUY_APPLE)) {
+				handleConsumablePurchasesAsync(purchase);
+			} else {
+				acknowledgeNonConsumablePurchasesAsync(purchase);
+			}
+		}
 	}
 
 	/**
-	 * Queries InApp and Subscribed purchase results from Google Play Remote Server.
+	 * If you do not acknowledge a purchase, the Google Play Store will provide a refund to the
+	 * users within a few days of the transaction. Therefore you have to implement
+	 * [BillingClient.acknowledgePurchaseAsync] inside your app.
 	 *
-	 * @param purchasesResultList this list contains all the product purchases made, has InApp and
-	 *                            Subscription purchased results.
-	 * @param skuType             InApp or Subscription.
-	 * @param executeWhenFinished Once the InApp product purchase results are given, then
-	 *                            subscription based purchase results are queried and results are
-	 *                            placed into the {@link #myPurchasesResultList}
+	 * @param purchase list of Purchase Details returned from the queries.
 	 */
-	private void queryPurchaseHistoryAsync(final List<Purchase> purchasesResultList,
-	                                       final @SkuType String skuType,
-	                                       final Runnable executeWhenFinished) {
-		Runnable queryPurchases = new Runnable() {
+	private void acknowledgeNonConsumablePurchasesAsync(final Purchase purchase) {
+		Runnable acknowledgePurchaseRunnable = new Runnable() {
 			@Override
 			public void run() {
-				myBillingClient.queryPurchaseHistoryAsync(skuType,
-						new PurchaseHistoryResponseListener() {
-							@Override
-							public void onPurchaseHistoryResponse(@BillingResponse int responseCode,
-							                                      List<Purchase> purchasesList) {
-								if (responseCode == BillingResponse.OK && purchasesList != null) {
-									purchasesResultList.addAll(purchasesList);
-									if (executeWhenFinished != null) {
-										executeWhenFinished.run();
-									}
-								} else {
-									BaseActivity.printLog(TAG,
-											"queryPurchases() got an error response code: "
-													+ responseCode);
-									logErrorType(responseCode);
-								}
-								if (executeWhenFinished == null) {
-									onQueryPurchasesFinished(purchasesResultList, responseCode);
-								}
-							}
-						});
+				AcknowledgePurchaseParams params = AcknowledgePurchaseParams.newBuilder()
+						.setPurchaseToken(purchase.getPurchaseToken())
+						.build();
+				myBillingClient.acknowledgePurchase(params, new AcknowledgePurchaseResponseListener() {
+					@Override
+					public void onAcknowledgePurchaseResponse(BillingResult billingResult) {
+						if (billingResult.getResponseCode() == BillingResponseCode.OK) {
+							BaseActivity.printLog(TAG,
+									"onAcknowledgePurchaseResponse: "
+											+ billingResult.getResponseCode());
+						} else {
+							BaseActivity.printLog(TAG,
+									"onAcknowledgePurchaseResponse: "
+											+ billingResult.getDebugMessage());
+						}
+					}
+				});
 			}
 		};
-		executeServiceRequest(queryPurchases);
+		executeServiceRequest(acknowledgePurchaseRunnable);
+	}
+
+	@Override
+	public void onPurchasesUpdated(@NonNull BillingResult billingResult,
+	                               @Nullable List<Purchase> purchases) {
+		BaseActivity.printLog(TAG, "onPurchasesUpdate() responseCode: "
+				+ billingResult.getResponseCode());
+		if (billingResult.getResponseCode() == BillingResponseCode.OK && purchases != null) {
+			processPurchases(purchases);
+		} else {
+			// Handle any other error codes.
+			logErrorType(billingResult);
+		}
 	}
 
 	/**
-	 * Handle a result from querying of purchases and report an updated list to the listener.
+	 * Adds purchase results to the {@link #myPurchasesResultList} after successful purchase.
 	 *
-	 * @param result       Purchase result returned from the query.
-	 * @param responseCode BillingClient response code about the success or failure result.
+	 * @param purchase the purchase result contains Purchase Details.
 	 */
-	private void onQueryPurchasesFinished(List<Purchase> result,
-	                                      @BillingResponse int responseCode) {
-		// Have we been disposed of in the meantime? If so, or bad result code, then quit
-		if (myBillingClient == null) {
-			BaseActivity.printLog(TAG, "Billing client was null or result code ("
-					+ responseCode + ") was bad - quitting");
+	private void handlePurchase(Purchase purchase) {
+		BaseActivity.printLog(TAG, "Got a purchase: " + purchase);
+		myPurchasesResultList.add(purchase);
+	}
+
+	/**
+	 * Stores Purchase Details on local storage.
+	 *
+	 * @param purchases list of Purchase Details returned from the queries.
+	 */
+	private void storePurchaseResultsLocally(List<Purchase> purchases) {
+		final List<BillingPurchaseDetails> billingPurchaseDetailsList = new ArrayList<>();
+		for (Purchase purchase : purchases) {
+			BillingPurchaseDetails billingPurchaseDetails = new BillingPurchaseDetails();
+			billingPurchaseDetails.purchaseToken = purchase.getPurchaseToken();
+			billingPurchaseDetails.orderID = purchase.getOrderId();
+			billingPurchaseDetails.skuID = purchase.getSku();
+			billingPurchaseDetails.purchaseTime = purchase.getPurchaseTime();
+			billingPurchaseDetailsList.add(billingPurchaseDetails);
+		}
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				AppDatabase.getAppDatabase(context)
+						.getBillingDao().insertPurchaseDetails(billingPurchaseDetailsList);
+			}
+		}).start();
+	}
+
+	/**
+	 * Consumes InApp Product Purchase after successful purchase of InApp Product Purchase. InApp
+	 * Products cannot be bought after a purchase was made. We need to consume it after a
+	 * successful purchase, so that we can purchase again and it will become available for the
+	 * next time we make purchase of the same product that was bought before.
+	 *
+	 * @param purchase the purchase result contains Purchase Details.
+	 */
+	private void handleConsumablePurchasesAsync(final Purchase purchase) {
+		// If we've already scheduled to consume this token - no action is needed (this could happen
+		// if you received the token when querying purchases inside onReceive() and later from
+		// onActivityResult()
+		if (tokensToBeConsumed == null) {
+			tokensToBeConsumed = new HashSet<>();
+		} else if (tokensToBeConsumed.contains(purchase.getPurchaseToken())) {
+			BaseActivity.printLog(TAG,
+					"Token was already scheduled to be consumed - skipping...");
 			return;
 		}
-		BaseActivity.printLog(TAG, "Query inventory was successful.");
-		// Update the UI and purchases inventory with new list of purchases
-		myPurchasesResultList.clear();
-		onPurchasesUpdated(BillingResponse.OK, result);
-	}
-
-	/**
-	 * Queries for in-app and subscriptions SKU details.
-	 */
-	private void querySkuDetails() {
-		final List<SkuDetails> skuResultList = new ArrayList<>();
-		List<String> subscriptionSkuList = BillingConstants.getSkuList(SkuType.SUBS);
-		SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
-		params.setSkusList(subscriptionSkuList).setType(SkuType.SUBS);
-		querySkuDetailsAsync(skuResultList, params, SkuType.SUBS, new Runnable() {
+		tokensToBeConsumed.add(purchase.getPurchaseToken());
+		// Generating Consume Response listener
+		final ConsumeResponseListener onConsumeListener = new ConsumeResponseListener() {
 			@Override
-			public void run() {
-				List<String> inAppSkuList = BillingConstants.getSkuList(SkuType.INAPP);
-				SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
-				params.setSkusList(inAppSkuList).setType(SkuType.INAPP);
-				querySkuDetailsAsync(skuResultList, params, SkuType.INAPP, null);
-			}
-		});
-	}
-
-	/**
-	 * Queries SKU Details from Google Play Remote Server of SKU Types (InApp and Subscription).
-	 *
-	 * @param skuResultList       contains SKU ID and Price Details returned by the sku details
-	 *                            query.
-	 * @param params              contains list of SKU IDs and SKU Type (InApp or Subscription).
-	 * @param billingType         InApp or Subscription.
-	 * @param executeWhenFinished contains query for InApp SKU Details that will be run after
-	 *                            getting results of Subscription based SKU Details.
-	 */
-	private void querySkuDetailsAsync(final List<SkuDetails> skuResultList,
-	                                  final SkuDetailsParams.Builder params,
-	                                  final @SkuType String billingType,
-	                                  final Runnable executeWhenFinished) {
-		// Creating a runnable from the request to use it inside our connection retry policy below
-		final Runnable queryRequest = new Runnable() {
-			@Override
-			public void run() {
-				myBillingClient.querySkuDetailsAsync(params.build(),
-						new SkuDetailsResponseListener() {
-							@Override
-							public void onSkuDetailsResponse(int responseCode,
-							                                 List<SkuDetails> skuDetailsList) {
-								// Process the result.
-								if (responseCode != BillingResponse.OK) {
-									BaseActivity.printLog(TAG,
-											"Unsuccessful query for type: " + billingType
-													+ ". Error code: " + responseCode);
-								} else if (skuDetailsList != null && skuDetailsList.size() > 0) {
-									skuResultList.addAll(skuDetailsList);
-								}
-								if (executeWhenFinished != null) {
-									executeWhenFinished.run();
-									return;
-								}
-								if (skuResultList.size() == 0) {
-									BaseActivity.printLog(TAG, "sku error: "
-											+ context.getString(R.string.err_no_sku));
-								} else {
-									BaseActivity.printLog(TAG, "storing sku list locally");
-									storeSkuDetailsLocally(skuResultList);
-								}
-							}
-						});
+			public void onConsumeResponse(BillingResult billingResult, String purchaseToken) {
+				// If billing service was disconnected, we try to reconnect 1 time
+				// (feel free to introduce your retry policy here).
+				if (billingResult.getResponseCode() == BillingResponseCode.OK) {
+					BaseActivity.printLog(TAG,
+							"onConsumeResponse, Purchase Token: " + purchaseToken);
+				} else {
+					BaseActivity.printLog(TAG, "onConsumeResponse: "
+							+ billingResult.getDebugMessage());
+				}
 			}
 		};
-		executeServiceRequest(queryRequest);
+		// Creating a runnable from the request to use it inside our connection retry policy below
+		Runnable consumeRequest = new Runnable() {
+			@Override
+			public void run() {
+				// Consume the purchase async
+				ConsumeParams consumeParams = ConsumeParams.newBuilder()
+						.setPurchaseToken(purchase.getPurchaseToken())
+						.build();
+				myBillingClient.consumeAsync(consumeParams, onConsumeListener);
+			}
+		};
+		executeServiceRequest(consumeRequest);
 	}
 
 	/**
-	 * Start a purchase flow.
+	 * Logs Billing Client Success, Failure and error responses.
 	 *
-	 * @param activity    requires activity class to initiate purchase flow.
-	 * @param skuId       The SKU ID registered in the Google Play Developer Console.
-	 * @param billingType InApp or Subscription based Product.
-	 */
-	public void initiatePurchaseFlow(final Activity activity,
-	                                 final String skuId,
-	                                 final @SkuType String billingType) {
-		if (areSubscriptionsSupported()) {
-			Runnable purchaseFlowRequest = new Runnable() {
-				@Override
-				public void run() {
-					BaseActivity.printLog(TAG, "Launching in-app purchase flow.");
-					BillingFlowParams purchaseParams =
-							BillingFlowParams.newBuilder()
-									.setSku(skuId)
-									.setType(billingType)
-									.build();
-					myBillingClient.launchBillingFlow(activity, purchaseParams);
-				}
-			};
-			executeServiceRequest(purchaseFlowRequest);
-		}
-	}
-
-	/**
-	 * Checks if subscriptions are supported for current client.
-	 * <p>
-	 * Note: This method does not automatically retry for RESULT_SERVICE_DISCONNECTED.
-	 * It is only used in unit tests and after queryPurchases execution, which already has
-	 * a retry-mechanism implemented.
-	 * </p>
+	 * @param billingResult to identify the states of Billing Client Responses.
 	 *
-	 * @return boolean value of whether the subscription is supported or not.
+	 * @see <a href="https://developer.android.com/google/play/billing/billing_reference.html">
+	 * Google Play InApp Purchase Response Types Guide</a>
 	 */
-	private boolean areSubscriptionsSupported() {
-		if (myBillingClient == null) {
-			BaseActivity.printLog(TAG, "Billing client was null and quitting");
-			return false;
+	private void logErrorType(BillingResult billingResult) {
+		switch (billingResult.getResponseCode()) {
+			case BillingResponseCode.DEVELOPER_ERROR:
+			case BillingResponseCode.BILLING_UNAVAILABLE:
+				BaseActivity.printLog(TAG, "Billing unavailable. "
+						+ "Make sure your Google Play app is setup correctly");
+				break;
+			case BillingResponseCode.SERVICE_DISCONNECTED:
+				billingUpdatesListener
+						.onBillingError(context.getString(R.string.err_service_disconnected));
+				connectToPlayBillingService();
+				break;
+			case BillingResponseCode.OK:
+				BaseActivity.printLog(TAG, "Setup successful!");
+				break;
+			case BillingResponseCode.USER_CANCELED:
+				BaseActivity.printLog(TAG, "User has cancelled Purchase!");
+				break;
+			case BillingResponseCode.SERVICE_UNAVAILABLE:
+				billingUpdatesListener
+						.onBillingError(context.getString(R.string.err_no_internet));
+				break;
+			case BillingResponseCode.ITEM_UNAVAILABLE:
+				BaseActivity.printLog(TAG, "Product is not available for purchase");
+				break;
+			case BillingResponseCode.ERROR:
+				BaseActivity.printLog(TAG, "fatal error during API action");
+				break;
+			case BillingResponseCode.ITEM_ALREADY_OWNED:
+				BaseActivity.printLog(TAG,
+						"Failure to purchase since item is already owned");
+				queryPurchasesAsync();
+				break;
+			case BillingResponseCode.ITEM_NOT_OWNED:
+				BaseActivity.printLog(TAG, "Failure to consume since item is not owned");
+				break;
+			case BillingResponseCode.FEATURE_NOT_SUPPORTED:
+				BaseActivity.printLog(TAG, "Billing feature is not supported on your device");
+				break;
+			case BillingResponseCode.SERVICE_TIMEOUT:
+				BaseActivity.printLog(TAG, "Billing service timeout occurred");
+				break;
+			default:
+				BaseActivity.printLog(TAG, "Billing unavailable. Please check your device");
+				break;
 		}
-		int responseCode = myBillingClient.isFeatureSupported(FeatureType.SUBSCRIPTIONS);
-		if (responseCode != BillingResponse.OK) {
-			BaseActivity.printLog(TAG,
-					"areSubscriptionsSupported() got an error response: " + responseCode);
-			billingUpdatesListener
-					.onBillingError(context.getString(R.string.err_subscription_not_supported));
-		}
-		return responseCode == BillingResponse.OK;
 	}
 
 	/**
@@ -365,16 +401,16 @@ public class BillingManager implements PurchasesUpdatedListener {
 	private void startServiceConnection(final Runnable executeOnSuccess) {
 		myBillingClient.startConnection(new BillingClientStateListener() {
 			@Override
-			public void onBillingSetupFinished(@BillingResponse int billingResponseCode) {
+			public void onBillingSetupFinished(BillingResult billingResult) {
 				// The billing client is ready. You can query purchases here.
 				BaseActivity.printLog(TAG, "Setup finished");
-				if (billingResponseCode == BillingResponse.OK) {
+				if (billingResult.getResponseCode() == BillingResponseCode.OK) {
 					isServiceConnected = true;
 					if (executeOnSuccess != null) {
 						executeOnSuccess.run();
 					}
 				}
-				logErrorType(billingResponseCode);
+				logErrorType(billingResult);
 			}
 
 			@Override
@@ -387,178 +423,148 @@ public class BillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
-	 * Logs Billing Client Success, Failure and error responses.
-	 *
-	 * @param responseCode Billing Client Response code to identify the states of Billing Client
-	 *                     Responses.
-	 *
-	 * @see <a href="https://developer.android.com/google/play/billing/billing_reference.html">
-	 * Google Play InApp Purchase Response Types Guide</a>
+	 * Queries for in-app and subscriptions SKU details.
 	 */
-	private void logErrorType(int responseCode) {
-		switch (responseCode) {
-			case BillingResponse.DEVELOPER_ERROR:
-			case BillingResponse.BILLING_UNAVAILABLE:
-				BaseActivity.printLog(TAG, "Billing unavailable. "
-						+ "Make sure your Google Play app is setup correctly");
-				break;
-			case BillingResponse.SERVICE_DISCONNECTED:
-				billingUpdatesListener
-						.onBillingError(context.getString(R.string.err_service_disconnected));
-				break;
-			case BillingResponse.OK:
-				BaseActivity.printLog(TAG, "Setup successful!");
-				break;
-			case BillingResponse.USER_CANCELED:
-				BaseActivity.printLog(TAG, "User has cancelled Purchase!");
-				break;
-			case BillingResponse.SERVICE_UNAVAILABLE:
-				billingUpdatesListener
-						.onBillingError(context.getString(R.string.err_no_internet));
-				break;
-			case BillingResponse.ITEM_UNAVAILABLE:
-				BaseActivity.printLog(TAG, "Product is not available for purchase");
-				break;
-			case BillingResponse.ERROR:
-				BaseActivity.printLog(TAG, "fatal error during API action");
-				break;
-			case BillingResponse.ITEM_ALREADY_OWNED:
-				BaseActivity.printLog(TAG,
-						"Failure to purchase since item is already owned");
-				break;
-			case BillingResponse.ITEM_NOT_OWNED:
-				BaseActivity.printLog(TAG, "Failure to consume since item is not owned");
-				break;
-			default:
-				BaseActivity.printLog(TAG, "Billing unavailable. Please check your device");
-				break;
-		}
-	}
-
-	@Override
-	public void onPurchasesUpdated(@BillingResponse int responseCode,
-	                               @Nullable List<Purchase> purchases) {
-		if (responseCode == BillingResponse.OK && purchases != null) {
-			for (Purchase purchase : purchases) {
-				handlePurchase(purchase);
-			}
-			storePurchaseResultsLocally(myPurchasesResultList);
-			for (Purchase purchase : purchases) {
-				if (purchase.getSku().equals(BillingConstants.SKU_BUY_APPLE)) {
-					consumeAsync(purchase.getPurchaseToken());
-				}
-			}
-			if (purchases.size() > 0) {
-				BaseActivity.printLog(TAG, "purchase list size: " + purchases.size());
-			}
-		} else if (responseCode == BillingResponse.USER_CANCELED) {
-			// Handle an error caused by a user cancelling the purchase flow.
-			BaseActivity.printLog(TAG,
-					"onPurchasesUpdate() - user cancelled the purchase flow - skipping");
-		} else {
-			// Handle any other error codes.
-			BaseActivity.printLog(TAG,
-					"onPurchasesUpdate() got unknown responseCode: " + responseCode);
-			logErrorType(responseCode);
-		}
-	}
-
-	/**
-	 * Adds purchase results to the {@link #myPurchasesResultList} after successful purchase.
-	 *
-	 * @param purchase the purchase result contains Purchase Details.
-	 */
-	private void handlePurchase(Purchase purchase) {
-		BaseActivity.printLog(TAG, "Got a purchase: " + purchase);
-		myPurchasesResultList.add(purchase);
-	}
-
-	/**
-	 * Consumes InApp Product Purchase after successful purchase of InApp Product Purchase. InApp
-	 * Products cannot be bought after a purchase was made. We need to consume it after a
-	 * successful purchase, so that we can purchase again and it will become available for the
-	 * next time we make purchase of the same product that was bought before.
-	 *
-	 * @param purchaseToken a token that uniquely identifies a purchase for a given item and user
-	 *                      pair.
-	 */
-	private void consumeAsync(final String purchaseToken) {
-		// If we've already scheduled to consume this token - no action is needed (this could happen
-		// if you received the token when querying purchases inside onReceive() and later from
-		// onActivityResult()
-		if (tokensToBeConsumed == null) {
-			tokensToBeConsumed = new HashSet<>();
-		} else if (tokensToBeConsumed.contains(purchaseToken)) {
-			BaseActivity.printLog(TAG,
-					"Token was already scheduled to be consumed - skipping...");
-			return;
-		}
-		tokensToBeConsumed.add(purchaseToken);
-		// Generating Consume Response listener
-		final ConsumeResponseListener onConsumeListener = new ConsumeResponseListener() {
-			@Override
-			public void onConsumeResponse(@BillingResponse int responseCode, String purchaseToken) {
-				// If billing service was disconnected, we try to reconnect 1 time
-				// (feel free to introduce your retry policy here).
-				BaseActivity.printLog(TAG,
-						"Consume Response, Purchase Token: " + purchaseToken);
-				logErrorType(responseCode);
-			}
-		};
-		// Creating a runnable from the request to use it inside our connection retry policy below
-		Runnable consumeRequest = new Runnable() {
+	private void querySkuDetails() {
+		final Map<String, SkuDetails> skuResultMap = new HashMap<>();
+		List<String> subscriptionSkuList = BillingConstants.getSkuList(SkuType.SUBS);
+		SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
+		params.setSkusList(subscriptionSkuList).setType(SkuType.SUBS);
+		querySkuDetailsAsync(skuResultMap, params, SkuType.SUBS, new Runnable() {
 			@Override
 			public void run() {
-				// Consume the purchase async
-				myBillingClient.consumeAsync(purchaseToken, onConsumeListener);
+				List<String> inAppSkuList = BillingConstants.getSkuList(SkuType.INAPP);
+				SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
+				params.setSkusList(inAppSkuList).setType(SkuType.INAPP);
+				querySkuDetailsAsync(skuResultMap, params, SkuType.INAPP, null);
+			}
+		});
+	}
+
+	/**
+	 * Queries SKU Details from Google Play Remote Server of SKU Types (InApp and Subscription).
+	 *
+	 * @param skuResultLMap       contains SKU ID and Price Details returned by the sku details
+	 *                            query.
+	 * @param params              contains list of SKU IDs and SKU Type (InApp or Subscription).
+	 * @param billingType         InApp or Subscription.
+	 * @param executeWhenFinished contains query for InApp SKU Details that will be run after
+	 */
+	private void querySkuDetailsAsync(final Map<String, SkuDetails> skuResultLMap,
+	                                  final SkuDetailsParams.Builder params,
+	                                  final @SkuType String billingType,
+	                                  final Runnable executeWhenFinished) {
+		// Creating a runnable from the request to use it inside our connection retry policy below
+		final Runnable queryRequest = new Runnable() {
+			@Override
+			public void run() {
+				myBillingClient.querySkuDetailsAsync(params.build(),
+						new SkuDetailsResponseListener() {
+							@Override
+							public void onSkuDetailsResponse(BillingResult billingResult,
+							                                 List<SkuDetails> skuDetailsList) {
+								// Process the result.
+								if (billingResult.getResponseCode() != BillingResponseCode.OK) {
+									BaseActivity.printLog(TAG, "Unsuccessful query for type: "
+											+ billingType
+											+ ". Error code: "
+											+ billingResult.getResponseCode());
+								} else if (skuDetailsList != null && skuDetailsList.size() > 0) {
+									for (SkuDetails skuDetails : skuDetailsList) {
+										skuResultLMap.put(skuDetails.getSku(), skuDetails);
+									}
+								}
+								if (executeWhenFinished != null) {
+									executeWhenFinished.run();
+									return;
+								}
+								if (skuResultLMap.size() == 0) {
+									BaseActivity.printLog(TAG, "sku error: "
+											+ context.getString(R.string.err_no_sku));
+								} else {
+									BaseActivity.printLog(TAG, "storing sku list locally");
+									storeSkuDetailsLocally(skuResultLMap);
+								}
+							}
+						});
 			}
 		};
-		executeServiceRequest(consumeRequest);
+		executeServiceRequest(queryRequest);
+	}
+
+	/**
+	 * Start a purchase flow.
+	 *
+	 * @param activity   requires activity class to initiate purchase flow.
+	 * @param skuDetails The SKU Details registered in the Google Play Developer Console.
+	 */
+	public void initiatePurchaseFlow(@NonNull final Activity activity,
+	                                 @NonNull final SkuDetails skuDetails) {
+		if (areSubscriptionsSupported()) {
+			Runnable purchaseFlowRequest = new Runnable() {
+				@Override
+				public void run() {
+					BaseActivity.printLog(TAG, "Launching in-app purchase flow.");
+					BillingFlowParams purchaseParams = BillingFlowParams.newBuilder()
+							.setSkuDetails(skuDetails)
+							.build();
+					myBillingClient.launchBillingFlow(activity, purchaseParams);
+				}
+			};
+			executeServiceRequest(purchaseFlowRequest);
+		}
+	}
+
+	/**
+	 * Checks if subscriptions are supported for current client.
+	 * <p>
+	 * Note: This method does not automatically retry for RESULT_SERVICE_DISCONNECTED.
+	 * It is only used in unit tests and after queryPurchases execution, which already has
+	 * a retry-mechanism implemented.
+	 * </p>
+	 *
+	 * @return boolean value of whether the subscription is supported or not.
+	 */
+	private boolean areSubscriptionsSupported() {
+		if (myBillingClient == null) {
+			BaseActivity.printLog(TAG, "Billing client was null and quitting");
+			return false;
+		}
+		BillingResult billingResult = myBillingClient.isFeatureSupported(FeatureType.SUBSCRIPTIONS);
+		if (billingResult.getResponseCode() != BillingResponseCode.OK) {
+			BaseActivity.printLog(TAG, "areSubscriptionsSupported() got an error response: "
+					+ billingResult.getResponseCode());
+			billingUpdatesListener
+					.onBillingError(context.getString(R.string.err_subscription_not_supported));
+		}
+		return billingResult.getResponseCode() == BillingResponseCode.OK;
 	}
 
 	/**
 	 * Stores SKU Details on local storage.
 	 *
-	 * @param skuDetailsList list of SKU Details returned from the queries.
+	 * @param skuDetailsMap Map of SKU Details returned from the queries.
 	 */
-	private void storeSkuDetailsLocally(List<SkuDetails> skuDetailsList) {
+	private void storeSkuDetailsLocally(Map<String, SkuDetails> skuDetailsMap) {
 		final List<BillingSkuDetails> billingSkuDetailsList = new ArrayList<>();
-		for (SkuDetails skuDetails : skuDetailsList) {
-			BillingSkuDetails billingSkuDetails = new BillingSkuDetails();
-			billingSkuDetails.skuID = skuDetails.getSku();
-			billingSkuDetails.skuType = skuDetails.getType();
-			billingSkuDetails.skuPrice = skuDetails.getPrice();
-			billingSkuDetailsList.add(billingSkuDetails);
+		for (String key : skuDetailsMap.keySet()) {
+			SkuDetails skuDetail = skuDetailsMap.get(key);
+			if (skuDetail != null) {
+				BillingSkuDetails billingSkuDetails = new BillingSkuDetails();
+				billingSkuDetails.skuID = skuDetail.getSku();
+				billingSkuDetails.skuType = skuDetail.getType().equals(SkuType.SUBS)
+						? SkuType.SUBS
+						: SkuType.INAPP;
+				billingSkuDetails.skuPrice = skuDetail.getPrice();
+				billingSkuDetails.originalJson = skuDetail.getOriginalJson();
+				billingSkuDetailsList.add(billingSkuDetails);
+			}
 		}
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				AppDatabase.getAppDatabase(context)
 						.getBillingDao().insertSkuDetails(billingSkuDetailsList);
-			}
-		}).start();
-	}
-
-	/**
-	 * Stores Purchase Details on local storage.
-	 *
-	 * @param purchasesResultList list of Purchase Details returned from the queries.
-	 */
-	private void storePurchaseResultsLocally(List<Purchase> purchasesResultList) {
-		final List<BillingPurchaseDetails> billingPurchaseDetailsList = new ArrayList<>();
-		for (Purchase purchase : purchasesResultList) {
-			BillingPurchaseDetails billingPurchaseDetails = new BillingPurchaseDetails();
-			billingPurchaseDetails.purchaseToken = purchase.getPurchaseToken();
-			billingPurchaseDetails.orderID = purchase.getOrderId();
-			billingPurchaseDetails.skuID = purchase.getSku();
-			billingPurchaseDetails.purchaseTime = purchase.getPurchaseTime();
-			billingPurchaseDetailsList.add(billingPurchaseDetails);
-		}
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				AppDatabase.getAppDatabase(context)
-						.getBillingDao().insertPurchaseDetails(billingPurchaseDetailsList);
 			}
 		}).start();
 	}

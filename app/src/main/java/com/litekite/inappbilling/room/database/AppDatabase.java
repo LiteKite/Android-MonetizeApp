@@ -16,10 +16,12 @@
 
 package com.litekite.inappbilling.room.database;
 
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
 
 import com.litekite.inappbilling.room.dao.BillingDao;
 import com.litekite.inappbilling.room.entity.BillingPurchaseDetails;
@@ -50,7 +52,8 @@ public abstract class AppDatabase extends RoomDatabase {
 	 *
 	 * @return {@link #APP_DATABASE_INSTANCE}
 	 */
-	public static AppDatabase getAppDatabase(Context context) {
+	@NonNull
+	public static AppDatabase getAppDatabase(@NonNull Context context) {
 		if (APP_DATABASE_INSTANCE == null) {
 			APP_DATABASE_INSTANCE =
 					Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).build();
@@ -70,6 +73,7 @@ public abstract class AppDatabase extends RoomDatabase {
 	 *
 	 * @return BillingDao abstract implementation.
 	 */
+	@NonNull
 	public abstract BillingDao getBillingDao();
 
 }

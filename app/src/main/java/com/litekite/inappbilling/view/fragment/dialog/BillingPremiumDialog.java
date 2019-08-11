@@ -16,19 +16,20 @@
 
 package com.litekite.inappbilling.view.fragment.dialog;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialogFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.databinding.DialogBillingPremiumBinding;
 import com.litekite.inappbilling.room.entity.BillingSkuDetails;
@@ -74,7 +75,7 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
 	 *
 	 * @param context An Activity Context.
 	 */
-	public static void show(Context context) {
+	public static void show(@NonNull Context context) {
 		if (context instanceof AppCompatActivity) {
 			BillingPremiumDialog billingPremiumDialog = new BillingPremiumDialog();
 			billingPremiumDialog.setStyle(BottomSheetDialogFragment.STYLE_NORMAL,
@@ -89,7 +90,7 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
 	 *
 	 * @param context An Activity Context.
 	 */
-	public static void dismiss(Context context) {
+	public static void dismiss(@NonNull Context context) {
 		if (context instanceof AppCompatActivity) {
 			BillingPremiumDialog billingPremiumDialog =
 					(BillingPremiumDialog) ((AppCompatActivity) context)
@@ -105,12 +106,11 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
 	public View onCreateView(@NonNull LayoutInflater inflater,
 	                         @Nullable ViewGroup container,
 	                         @Nullable Bundle savedInstanceState) {
-		dialogBillingPremiumBinding =
-				DataBindingUtil.inflate(
-						inflater,
-						R.layout.dialog_billing_premium,
-						container,
-						false);
+		dialogBillingPremiumBinding = DataBindingUtil.inflate(
+				inflater,
+				R.layout.dialog_billing_premium,
+				container,
+				false);
 		return dialogBillingPremiumBinding.getRoot();
 	}
 

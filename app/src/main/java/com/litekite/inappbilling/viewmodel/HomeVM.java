@@ -17,16 +17,17 @@
 package com.litekite.inappbilling.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.OnLifecycleEvent;
-import android.databinding.BindingAdapter;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.billing.BillingConstants;
@@ -70,7 +71,8 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	}
 
 	@BindingAdapter("android:drawableEnd")
-	public static void setDrawableEnd(Button button, Boolean isPremiumPurchased) {
+	public static void setDrawableEnd(@NonNull Button button,
+	                                  @NonNull Boolean isPremiumPurchased) {
 		setBtnDrawableRightEnd(button, isPremiumPurchased);
 	}
 
@@ -83,7 +85,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	 *                           purchased or not.
 	 */
 	private static void setBtnDrawableRightEnd(Button button, Boolean isPremiumPurchased) {
-		if (isPremiumPurchased != null && isPremiumPurchased) {
+		if (isPremiumPurchased) {
 			button.setCompoundDrawablesWithIntrinsicBounds(
 					0,
 					0,
@@ -99,7 +101,8 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	}
 
 	@BindingAdapter("android:drawableRight")
-	public static void setDrawableRight(Button button, Boolean isPremiumPurchased) {
+	public static void setDrawableRight(@NonNull Button button,
+	                                    @NonNull Boolean isPremiumPurchased) {
 		setBtnDrawableRightEnd(button, isPremiumPurchased);
 	}
 
@@ -109,6 +112,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	 *
 	 * @return a LiveData of Premium Feature Purchased or not.
 	 */
+	@NonNull
 	public LiveData<Boolean> getIsPremiumPurchased() {
 		if (isPremiumPurchased == null) {
 			isPremiumPurchased = new MutableLiveData<>();
@@ -121,7 +125,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	 *
 	 * @param v A view in which the click action performed.
 	 */
-	public void onClick(View v) {
+	public void onClick(@NonNull View v) {
 		switch (v.getId()) {
 			case R.id.btn_buy_from_store:
 				if (checkIsPremiumPurchased(v)) {
@@ -151,7 +155,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 				BaseActivity.showSnackBar(v, R.string.err_no_internet);
 				return false;
 			}
-			if (!isPurchased && NetworkManager.isNetworkConnected) {
+			if (!isPurchased) {
 				BillingPremiumDialog.show(v.getContext());
 				return false;
 			}
@@ -161,7 +165,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-	public void onDestroy() {
+	void onDestroy() {
 		AppDatabase.destroyAppDatabase();
 	}
 

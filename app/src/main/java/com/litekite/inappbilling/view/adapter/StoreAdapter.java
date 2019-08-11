@@ -17,11 +17,12 @@
 package com.litekite.inappbilling.view.adapter;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.billing.BillingManager;
@@ -56,9 +57,9 @@ public class StoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 	 * @param billingManager              Provides access to BillingClient which perform Product
 	 *                                    Purchases from Google Play Billing Library.
 	 */
-	public StoreAdapter(Context context,
-	                    List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList,
-	                    BillingManager billingManager) {
+	public StoreAdapter(@NonNull Context context,
+	                    @NonNull List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList,
+	                    @NonNull BillingManager billingManager) {
 		this.context = context;
 		this.skuProductsAndPurchasesList = skuProductsAndPurchasesList;
 		this.billingManager = billingManager;

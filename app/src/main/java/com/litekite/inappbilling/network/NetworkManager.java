@@ -22,6 +22,8 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import androidx.annotation.NonNull;
+
 /**
  * Handles Network Connectivity, checks whether network is available and notifies network
  * connectivity status to the registered receivers.
@@ -49,7 +51,7 @@ public class NetworkManager {
 	 *
 	 * @return boolean value of whether the network has internet connectivity or not.
 	 */
-	public static boolean isOnline(Context context) {
+	public static boolean isOnline(@NonNull Context context) {
 		ConnectivityManager connMgr = (ConnectivityManager)
 				context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo;
@@ -70,8 +72,8 @@ public class NetworkManager {
 	 * @param networkBrReceiver which will be called when any network connectivity actions or
 	 *                          changes made.
 	 */
-	public static void registerNetworkBrReceiver(Context context,
-	                                             BroadcastReceiver networkBrReceiver) {
+	public static void registerNetworkBrReceiver(@NonNull Context context,
+	                                             @NonNull BroadcastReceiver networkBrReceiver) {
 		IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 		context.registerReceiver(networkBrReceiver, intentFilter);
 	}
@@ -83,8 +85,8 @@ public class NetworkManager {
 	 * @param networkBrReceiver which will be called when any network connectivity actions or
 	 *                          changes made.
 	 */
-	public static void unregisterNetworkBrReceiver(Context context,
-	                                               BroadcastReceiver networkBrReceiver) {
+	public static void unregisterNetworkBrReceiver(@NonNull Context context,
+	                                               @NonNull BroadcastReceiver networkBrReceiver) {
 		context.unregisterReceiver(networkBrReceiver);
 	}
 

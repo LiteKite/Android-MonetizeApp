@@ -16,9 +16,11 @@
 
 package com.litekite.inappbilling.room.entity;
 
-import android.arch.persistence.room.Embedded;
-import android.arch.persistence.room.Relation;
+import androidx.annotation.NonNull;
+import androidx.room.Embedded;
+import androidx.room.Relation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +32,14 @@ import java.util.List;
  */
 public class BillingSkuRelatedPurchases {
 
+	@NonNull
 	@Embedded
-	public BillingSkuDetails billingSkuDetails;
+	public BillingSkuDetails billingSkuDetails = new BillingSkuDetails();
 
+	@NonNull
 	@Relation(parentColumn = "sku_id",
 			entityColumn = "sku_id",
 			entity = BillingPurchaseDetails.class)
-	public List<BillingPurchaseDetails> billingPurchaseDetails;
+	public List<BillingPurchaseDetails> billingPurchaseDetails = new ArrayList<>();
 
 }

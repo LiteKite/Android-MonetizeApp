@@ -17,11 +17,12 @@
 package com.litekite.inappbilling.view.adapter;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.databinding.AdapterPurchaseItemBinding;
@@ -51,8 +52,8 @@ public class ViewPurchasesAdapter extends RecyclerView.Adapter<RecyclerView.View
 	 * @param context                     An Activity Context.
 	 * @param skuProductsAndPurchasesList Has Sku Products and its related purchases.
 	 */
-	public ViewPurchasesAdapter(Context context,
-	                            List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList) {
+	public ViewPurchasesAdapter(@NonNull Context context,
+	                            @NonNull List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList) {
 		this.context = context;
 		this.skuProductsAndPurchasesList = skuProductsAndPurchasesList;
 	}

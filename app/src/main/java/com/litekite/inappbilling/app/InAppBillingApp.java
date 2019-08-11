@@ -18,7 +18,9 @@ package com.litekite.inappbilling.app;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDex;
+
+import androidx.annotation.Nullable;
+import androidx.multidex.MultiDex;
 
 /**
  * Application class.
@@ -43,7 +45,7 @@ public class InAppBillingApp extends Application {
 	}
 
 	@Override
-	protected void attachBaseContext(Context base) {
+	protected void attachBaseContext(@Nullable Context base) {
 		super.attachBaseContext(base);
 		MultiDex.install(this);
 	}

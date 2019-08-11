@@ -17,12 +17,14 @@
 package com.litekite.inappbilling.viewmodel;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.OnLifecycleEvent;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.litekite.inappbilling.room.database.AppDatabase;
 import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
@@ -66,12 +68,16 @@ public class ProductsAndPurchasesVM extends AndroidViewModel implements Lifecycl
 	 *
 	 * @return a LiveData of Sku Products List and its related Purchases.
 	 */
+	@NonNull
 	public LiveData<List<BillingSkuRelatedPurchases>> getSkuProductsAndPurchasesList() {
+		if (skuProductsAndPurchasesList == null) {
+			skuProductsAndPurchasesList = new MutableLiveData<>();
+		}
 		return skuProductsAndPurchasesList;
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-	public void onDestroy() {
+	void onDestroy() {
 		AppDatabase.destroyAppDatabase();
 	}
 

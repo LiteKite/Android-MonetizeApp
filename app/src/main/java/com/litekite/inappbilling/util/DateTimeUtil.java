@@ -16,6 +16,8 @@
 
 package com.litekite.inappbilling.util;
 
+import androidx.annotation.NonNull;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,6 +49,7 @@ public class DateTimeUtil {
 	 *
 	 * @return formatted Date of the given Date in Millis.
 	 */
+	@NonNull
 	public static String getDateTime(long dateInMillis) {
 		DateFormat dateFormat =
 				new SimpleDateFormat("dd-MM-yyyy, hh:mm a", Locale.getDefault());

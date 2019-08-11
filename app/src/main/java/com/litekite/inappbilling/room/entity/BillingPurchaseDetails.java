@@ -16,11 +16,11 @@
 
 package com.litekite.inappbilling.room.entity;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 
 /**
  * Database Entity, has Schema about Purchase Details.
@@ -38,11 +38,13 @@ public class BillingPurchaseDetails {
 	@ColumnInfo(name = "purchase_token")
 	public String purchaseToken = "";
 
+	@NonNull
 	@ColumnInfo(name = "order_id")
 	public String orderID = "";
 
+	@NonNull
 	@ColumnInfo(name = "sku_id")
-	public String skuID;
+	public String skuID = "";
 
 	@ColumnInfo(name = "purchase_time")
 	public long purchaseTime;

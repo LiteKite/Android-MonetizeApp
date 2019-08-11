@@ -16,10 +16,10 @@
 
 package com.litekite.inappbilling.room.entity;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 /**
  * Database Entity, has Schema about SKU Details.
@@ -36,10 +36,16 @@ public class BillingSkuDetails {
 	@ColumnInfo(name = "sku_id")
 	public String skuID = "";
 
+	@NonNull
 	@ColumnInfo(name = "sku_type")
-	public String skuType;
+	public String skuType = "";
 
+	@NonNull
 	@ColumnInfo(name = "sku_price")
-	public String skuPrice;
+	public String skuPrice = "";
+
+	@NonNull
+	@ColumnInfo(name = "original_json")
+	public String originalJson = "";
 
 }

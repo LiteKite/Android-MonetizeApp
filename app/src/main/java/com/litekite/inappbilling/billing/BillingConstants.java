@@ -37,7 +37,7 @@ public final class BillingConstants {
 	//can be purchased many times by consuming
 	public static final String SKU_BUY_APPLE = "one_apple";
 	// SKU for our subscription
-	public static final String SKU_POPCORN_UNLIMITED_MONTHLY = "unlimited_popcorn_monthly";
+	private static final String SKU_POPCORN_UNLIMITED_MONTHLY = "unlimited_popcorn_monthly";
 	private static final String[] IN_APP_SKU = {SKU_UNLOCK_APP_FEATURES, SKU_BUY_APPLE};
 	private static final String[] SUBSCRIPTIONS_SKU = {SKU_POPCORN_UNLIMITED_MONTHLY};
 
@@ -53,7 +53,8 @@ public final class BillingConstants {
 	 * @return the list of all SKUs for the billing type specified.
 	 */
 	static List<String> getSkuList(@SkuType String billingType) {
-		return (billingType.equals(BillingClient.SkuType.INAPP)) ? Arrays.asList(IN_APP_SKU)
+		return (billingType.equals(BillingClient.SkuType.INAPP))
+				? Arrays.asList(IN_APP_SKU)
 				: Arrays.asList(SUBSCRIPTIONS_SKU);
 	}
 
