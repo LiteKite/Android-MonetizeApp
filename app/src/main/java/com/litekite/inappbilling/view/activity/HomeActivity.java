@@ -19,12 +19,10 @@ package com.litekite.inappbilling.view.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -96,10 +94,10 @@ public class HomeActivity extends BaseActivity {
 	 * Observes Premium Purchase.
 	 */
 	private void init() {
-		setToolbar((Toolbar) homeBinding.tbWidget.findViewById(R.id.toolbar),
+		setToolbar(homeBinding.tbWidget.findViewById(R.id.toolbar),
 				false,
 				getString(R.string.home),
-				(TextView) homeBinding.tbWidget.findViewById(R.id.tv_toolbar_title));
+				homeBinding.tbWidget.findViewById(R.id.tv_toolbar_title));
 		HomeVM homeVM = ViewModelProviders.of(this).get(HomeVM.class);
 		BillingVM billingVM = ViewModelProviders.of(this).get(BillingVM.class);
 		homeBinding.setPresenter(homeVM);

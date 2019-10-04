@@ -17,12 +17,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 29
+    buildToolsVersion '29.0.2'
     defaultConfig {
         applicationId "com.litekite.inappbilling"
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -52,11 +52,15 @@ android {
         warningsAsErrors true
         enable "Interoperability"
     }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
@@ -64,13 +68,13 @@ dependencies {
     api 'androidx.multidex:multidex:2.0.1'
     api 'com.android.billingclient:billing:2.0.3'
     // ViewModel and LiveData
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
-    annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.0.0"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    annotationProcessor "androidx.lifecycle:lifecycle-common-java8:2.1.0"
     // Room
     implementation 'androidx.room:room-runtime:2.1.0'
     annotationProcessor "androidx.room:room-compiler:2.1.0"
     // Test helpers for LiveData
-    testImplementation 'androidx.arch.core:core-testing:2.0.1'
+    testImplementation 'androidx.arch.core:core-testing:2.1.0'
     // Test helpers for Room
     testImplementation 'androidx.room:room-testing:2.1.0'
     // Core library

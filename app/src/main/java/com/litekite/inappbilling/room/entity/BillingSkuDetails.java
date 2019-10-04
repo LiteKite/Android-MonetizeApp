@@ -19,6 +19,7 @@ package com.litekite.inappbilling.room.entity;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 /**
@@ -28,7 +29,8 @@ import androidx.room.PrimaryKey;
  * @version 1.0, 04/03/2018
  * @since 1.0
  */
-@Entity(tableName = "billing_sku_details")
+@Entity(tableName = "billing_sku_details",
+		indices = @Index("sku_id"))
 public class BillingSkuDetails {
 
 	@NonNull

@@ -73,6 +73,7 @@ public abstract class AppDatabase extends RoomDatabase {
 	 *
 	 * @return BillingDao abstract implementation.
 	 */
+	@SuppressWarnings("NullableProblems")
 	@NonNull
 	public abstract BillingDao getBillingDao();
 

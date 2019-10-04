@@ -76,6 +76,7 @@ public class ProductsAndPurchasesVM extends AndroidViewModel implements Lifecycl
 		return skuProductsAndPurchasesList;
 	}
 
+	@SuppressWarnings("unused")
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	void onDestroy() {
 		AppDatabase.destroyAppDatabase();

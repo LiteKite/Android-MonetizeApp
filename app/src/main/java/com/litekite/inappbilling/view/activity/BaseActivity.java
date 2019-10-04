@@ -101,12 +101,7 @@ public class BaseActivity extends AppCompatActivity {
 		tvToolbarTitle.setText(toolbarTitle);
 		setSupportActionBar(toolbar);
 		if (backBtnVisible) {
-			toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					onBackPressed();
-				}
-			});
+			toolbar.setNavigationOnClickListener(v -> onBackPressed());
 		}
 	}
 

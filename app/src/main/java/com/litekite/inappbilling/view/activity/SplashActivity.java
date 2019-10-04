@@ -38,12 +38,9 @@ public class SplashActivity extends BaseActivity {
 	 * Observes whether the SplashTimeDelay 3 secs of delay has finished. If it was finished,
 	 * then it moves to the HomeActivity.
 	 */
-	private Observer<Boolean> splashTimeDelayObserver = new Observer<Boolean>() {
-		@Override
-		public void onChanged(@Nullable Boolean aBoolean) {
-			if (aBoolean != null && aBoolean) {
-				startActivityHome();
-			}
+	private Observer<Boolean> splashTimeDelayObserver = aBoolean -> {
+		if (aBoolean != null && aBoolean) {
+			startActivityHome();
 		}
 	};
 

@@ -42,6 +42,7 @@ import static com.litekite.inappbilling.billing.BillingConstants.SKU_UNLOCK_APP_
  * Single Transaction Guide</a>
  * @since 1.0
  */
+@SuppressWarnings("NullableProblems")
 @Dao
 public interface BillingDao {
 

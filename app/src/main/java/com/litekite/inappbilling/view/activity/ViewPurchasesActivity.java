@@ -19,12 +19,10 @@ package com.litekite.inappbilling.view.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -57,16 +55,12 @@ public class ViewPurchasesActivity extends BaseActivity {
 	 * Updates observed changes to the products list.
 	 */
 	private Observer<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesObserver =
-			new Observer<List<BillingSkuRelatedPurchases>>() {
-				@Override
-				public void onChanged(
-						@Nullable List<BillingSkuRelatedPurchases> skuRelatedPurchasesList) {
-					if (skuRelatedPurchasesList != null && skuRelatedPurchasesList.size() > 0) {
-						ViewPurchasesActivity.this.skuProductsAndPurchasesList.clear();
-						ViewPurchasesActivity.this.skuProductsAndPurchasesList
-								.addAll(skuRelatedPurchasesList);
-						ViewPurchasesActivity.this.viewPurchasesAdapter.notifyDataSetChanged();
-					}
+			skuRelatedPurchasesList -> {
+				if (skuRelatedPurchasesList != null && skuRelatedPurchasesList.size() > 0) {
+					ViewPurchasesActivity.this.skuProductsAndPurchasesList.clear();
+					ViewPurchasesActivity.this.skuProductsAndPurchasesList
+							.addAll(skuRelatedPurchasesList);
+					ViewPurchasesActivity.this.viewPurchasesAdapter.notifyDataSetChanged();
 				}
 			};
 
@@ -98,10 +92,10 @@ public class ViewPurchasesActivity extends BaseActivity {
 	 * Initializes RecyclerView Products List and its adapter.
 	 */
 	private void init() {
-		setToolbar((Toolbar) viewPurchasesBinding.tbWidget.findViewById(R.id.toolbar),
+		setToolbar(viewPurchasesBinding.tbWidget.findViewById(R.id.toolbar),
 				true,
 				getString(R.string.your_purchases),
-				(TextView) viewPurchasesBinding.tbWidget.findViewById(R.id.tv_toolbar_title));
+				viewPurchasesBinding.tbWidget.findViewById(R.id.tv_toolbar_title));
 		ProductsAndPurchasesVM productsAndPurchasesVM =
 				ViewModelProviders.of(this).get(ProductsAndPurchasesVM.class);
 		this.getLifecycle().addObserver(productsAndPurchasesVM);
