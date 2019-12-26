@@ -6,6 +6,8 @@
 
 ### A sample which uses Google's Play Billing Library and it does InApp Purchases and Subscriptions.
 
+<a href="https://codeclimate.com/github/LiteKite/Android-InAppBilling/maintainability"><img src="https://api.codeclimate.com/v1/badges/9086ce3ec1082cb455fa/maintainability" /></a>
+
 ##
 
 <div align="center">
