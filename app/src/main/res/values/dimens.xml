@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-   Copyright 2018 LiteKite Startup. All rights reserved.
+   Copyright 2020 LiteKite Startup. All rights reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
    limitations under the License.
 -->
 <resources>
+
     <dimen name="size0">0dp</dimen>
     <dimen name="size2">2dp</dimen>
     <dimen name="size4">4dp</dimen>
@@ -32,4 +33,5 @@
     <dimen name="text16">16sp</dimen>
     <dimen name="text18">18sp</dimen>
     <dimen name="text40">40sp</dimen>
+
 </resources>

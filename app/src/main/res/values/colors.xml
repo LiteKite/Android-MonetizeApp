@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-   Copyright 2018 LiteKite Startup. All rights reserved.
+   Copyright 2020 LiteKite Startup. All rights reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
    limitations under the License.
 -->
 <resources>
+
     <color name="black">#000000</color>
     <color name="teal_a100">#A7FFEB</color>
     <color name="teal_a400">#1DE9B6</color>
@@ -22,4 +23,5 @@
     <color name="teal_500">#009688</color>
     <color name="teal_600">#00897B</color>
     <color name="teal_700">#00796B</color>
+
 </resources>

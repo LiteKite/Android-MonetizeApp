@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 LiteKite Startup. All rights reserved.
+ * Copyright 2020 LiteKite Startup. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,10 @@ import static junit.framework.TestCase.assertEquals;
  * Instrumented test, which will execute on an Android device.
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ *
+ * @author Vignesh S
+ * @version 1.0, 04/03/2018
+ * @since 1.0
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
