@@ -87,7 +87,7 @@ public class ViewPurchasesAdapter extends RecyclerView.Adapter<RecyclerView.View
 	/**
 	 * ViewHolderPurchasedProduct, which provides product view item.
 	 */
-	class ViewHolderPurchaseProduct extends RecyclerView.ViewHolder {
+	static class ViewHolderPurchaseProduct extends RecyclerView.ViewHolder {
 
 		AdapterPurchaseItemBinding adapterPurchaseItemBinding;
 

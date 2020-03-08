@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.databinding.ActivityHomeBinding;
@@ -98,8 +98,8 @@ public class HomeActivity extends BaseActivity {
 				false,
 				getString(R.string.home),
 				homeBinding.tbWidget.findViewById(R.id.tv_toolbar_title));
-		HomeVM homeVM = ViewModelProviders.of(this).get(HomeVM.class);
-		BillingVM billingVM = ViewModelProviders.of(this).get(BillingVM.class);
+		HomeVM homeVM = new ViewModelProvider(this).get(HomeVM.class);
+		BillingVM billingVM = new ViewModelProvider(this).get(BillingVM.class);
 		homeBinding.setPresenter(homeVM);
 		this.getLifecycle().addObserver(homeVM);
 		this.getLifecycle().addObserver(billingVM);

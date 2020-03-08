@@ -27,7 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.litekite.inappbilling.R;
@@ -126,15 +126,15 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
 	 * Observes Premium Feature Product Sku Details.
 	 */
 	private void init() {
-		BillingPremiumVM billingPremiumVM = ViewModelProviders.of(this)
-				.get(BillingPremiumVM.class);
-		BillingVM billingVM = ViewModelProviders.of(this).get(BillingVM.class);
+		BillingPremiumVM billingPremiumVM =
+				new ViewModelProvider(this).get(BillingPremiumVM.class);
+		BillingVM billingVM = new ViewModelProvider(this).get(BillingVM.class);
 		dialogBillingPremiumBinding.setPresenter(billingPremiumVM);
 		billingPremiumVM.setBillingManager(billingVM.getBillingManager());
 		this.getLifecycle().addObserver(billingPremiumVM);
 		this.getLifecycle().addObserver(billingVM);
 		billingPremiumVM.getPremiumSkuDetails()
-				.observe(this, premiumSkuDetailsObserver);
+				.observe(getViewLifecycleOwner(), premiumSkuDetailsObserver);
 	}
 
 }

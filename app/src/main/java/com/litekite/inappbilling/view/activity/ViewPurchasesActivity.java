@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.databinding.ActivityViewPurchasesBinding;
@@ -97,7 +97,7 @@ public class ViewPurchasesActivity extends BaseActivity {
 				getString(R.string.your_purchases),
 				viewPurchasesBinding.tbWidget.findViewById(R.id.tv_toolbar_title));
 		ProductsAndPurchasesVM productsAndPurchasesVM =
-				ViewModelProviders.of(this).get(ProductsAndPurchasesVM.class);
+				new ViewModelProvider(this).get(ProductsAndPurchasesVM.class);
 		this.getLifecycle().addObserver(productsAndPurchasesVM);
 		skuProductsAndPurchasesList = new ArrayList<>();
 		viewPurchasesAdapter = new ViewPurchasesAdapter(this, skuProductsAndPurchasesList);

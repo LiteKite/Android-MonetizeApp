@@ -93,7 +93,7 @@ public class StoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 	/**
 	 * ViewHolderStoreProduct, which provides product view item.
 	 */
-	class ViewHolderStoreProduct extends RecyclerView.ViewHolder {
+	static class ViewHolderStoreProduct extends RecyclerView.ViewHolder {
 
 		AdapterStoreItemBinding adapterStoreItemBinding;
 

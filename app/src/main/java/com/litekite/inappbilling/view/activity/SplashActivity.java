@@ -20,7 +20,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.viewmodel.SplashVM;
@@ -56,7 +56,7 @@ public class SplashActivity extends BaseActivity {
 	 * Observes the SplashTimeDelay.
 	 */
 	private void init() {
-		SplashVM splashVM = ViewModelProviders.of(this).get(SplashVM.class);
+		SplashVM splashVM = new ViewModelProvider(this).get(SplashVM.class);
 		this.getLifecycle().addObserver(splashVM);
 		splashVM.getSplashTimeDelay().observe(this, splashTimeDelayObserver);
 	}
