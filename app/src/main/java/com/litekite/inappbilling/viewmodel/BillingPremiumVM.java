@@ -117,7 +117,6 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 		return premiumSkuDetails;
 	}
 
-	@SuppressWarnings("unused")
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	void onDestroy() {
 		AppDatabase.destroyAppDatabase();

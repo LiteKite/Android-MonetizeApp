@@ -35,7 +35,7 @@ public class DateTimeUtil {
 
 	public static long FIVE_MINUTES_IN_MILLIS = 5 * 60 * 1000;
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({"unused", "RedundantSuppression"})
 	public static long THIRTY_DAYS_IN_MILLIS = 30 * 24 * 60 * 60 * 1000L;
 
 	private DateTimeUtil() {

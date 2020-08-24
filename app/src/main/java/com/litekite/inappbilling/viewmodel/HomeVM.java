@@ -164,7 +164,6 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 		return false;
 	}
 
-	@SuppressWarnings("unused")
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	void onDestroy() {
 		AppDatabase.destroyAppDatabase();

@@ -94,13 +94,11 @@ public class BillingVM extends AndroidViewModel implements
 		BaseActivity.showToast(this.getApplication(), error);
 	}
 
-	@SuppressWarnings("unused")
 	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
 	void onCreate() {
 		NetworkManager.registerNetworkBrReceiver(this.getApplication(), networkBrReceiver);
 	}
 
-	@SuppressWarnings("unused")
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	void onDestroy() {
 		billingManager.destroy();

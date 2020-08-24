@@ -124,32 +124,27 @@ public class BillingManager implements PurchasesUpdatedListener {
 	private void queryPurchasesAsync() {
 		Runnable queryToExecute = () -> {
 			myPurchasesResultList.clear();
-			PurchasesResult purchasesResult =
-					myBillingClient.queryPurchases(SkuType.INAPP);
+			PurchasesResult purchasesResult = myBillingClient.queryPurchases(SkuType.INAPP);
+			List<Purchase> purchases = new ArrayList<>();
+			if (purchasesResult.getPurchasesList() != null) {
+				purchases.addAll(purchasesResult.getPurchasesList());
+			}
 			// If there are subscriptions supported, we add subscription rows as well
 			if (areSubscriptionsSupported()) {
 				PurchasesResult subscriptionResult
 						= myBillingClient.queryPurchases(SkuType.SUBS);
-				BaseActivity.printLog(TAG, "Querying subscriptions result code: "
-						+ subscriptionResult.getResponseCode()
-						+ " res: " + subscriptionResult.getPurchasesList().size());
-				if (subscriptionResult.getResponseCode() == BillingResponseCode.OK) {
-					purchasesResult.getPurchasesList().addAll(
-							subscriptionResult.getPurchasesList());
+				List<Purchase> subscriptionPurchases = subscriptionResult.getPurchasesList();
+				if (subscriptionPurchases != null) {
+					BaseActivity.printLog(TAG, "Subscription purchase result size: "
+							+ subscriptionPurchases.size());
+					purchases.addAll(subscriptionPurchases);
 				} else {
-					BaseActivity.printLog(TAG, "Got an error response "
-							+ "trying to query subscription purchases");
+					BaseActivity.printLog(TAG, "Subscription purchase result is null:");
 				}
-			} else if (purchasesResult.getResponseCode() == BillingResponseCode.OK) {
-				BaseActivity.printLog(TAG, "Skipped subscription purchases query "
-						+ "since they are not supported");
-			} else {
-				BaseActivity.printLog(TAG, "queryPurchases() got an error response code: "
-						+ purchasesResult.getResponseCode());
 			}
 			BaseActivity.printLog(TAG, "Local Query Purchase List Size: "
-					+ purchasesResult.getPurchasesList().size());
-			processPurchases(purchasesResult.getPurchasesList());
+					+ purchases.size());
+			processPurchases(purchases);
 		};
 		executeServiceRequest(queryToExecute);
 	}
@@ -159,7 +154,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 *
 	 * @param purchases list of Purchase Details returned from the queries.
 	 */
-	private void processPurchases(List<Purchase> purchases) {
+	private void processPurchases(@NonNull List<Purchase> purchases) {
 		if (purchases.size() > 0) {
 			BaseActivity.printLog(TAG, "purchase list size: " + purchases.size());
 		}
@@ -171,7 +166,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 						+ purchase.getSku());
 				// handle pending purchases, e.g. confirm with users about the pending
 				// purchases, prompt them to complete it, etc.
-				// TODO handle this in the next release.
+				// TODO: 8/24/2020 handle this in the next release.
 			}
 		}
 		storePurchaseResultsLocally(myPurchasesResultList);
@@ -229,7 +224,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 *
 	 * @param purchase the purchase result contains Purchase Details.
 	 */
-	private void handlePurchase(Purchase purchase) {
+	private void handlePurchase(@NonNull Purchase purchase) {
 		BaseActivity.printLog(TAG, "Got a purchase: " + purchase);
 		myPurchasesResultList.add(purchase);
 	}
@@ -376,7 +371,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 	private void startServiceConnection(final Runnable executeOnSuccess) {
 		myBillingClient.startConnection(new BillingClientStateListener() {
 			@Override
-			public void onBillingSetupFinished(BillingResult billingResult) {
+			public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
 				// The billing client is ready. You can query purchases here.
 				BaseActivity.printLog(TAG, "Setup finished");
 				if (billingResult.getResponseCode() == BillingResponseCode.OK) {

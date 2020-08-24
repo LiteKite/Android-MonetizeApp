@@ -63,13 +63,11 @@ public class SplashVM extends AndroidViewModel implements LifecycleObserver {
 		return splashTimeDelay;
 	}
 
-	@SuppressWarnings("unused")
 	@OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
 	void onCreate() {
 		handler.postDelayed(splashTimeOutRunnable, SPLASH_TIME_DELAY_IN_MS);
 	}
 
-	@SuppressWarnings("unused")
 	@OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
 	void onPause() {
 		handler.removeCallbacks(splashTimeOutRunnable);
