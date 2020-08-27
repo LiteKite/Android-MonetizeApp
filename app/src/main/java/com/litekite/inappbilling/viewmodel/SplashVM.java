@@ -18,6 +18,7 @@ package com.litekite.inappbilling.viewmodel;
 
 import android.app.Application;
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -46,7 +47,7 @@ public class SplashVM extends AndroidViewModel implements LifecycleObserver {
 	 */
 	public SplashVM(@NonNull Application application) {
 		super(application);
-		handler = new Handler();
+		handler = new Handler(Looper.getMainLooper());
 	}
 
 	/**
