@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 LiteKite Startup. All rights reserved.
+ * Copyright 2021 LiteKite Startup. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
+import com.litekite.inappbilling.billing.BillingCallback;
 import com.litekite.inappbilling.billing.BillingManager;
-import com.litekite.inappbilling.billing.BillingUpdatesListener;
 import com.litekite.inappbilling.network.NetworkManager;
 import com.litekite.inappbilling.view.activity.BaseActivity;
 
@@ -41,12 +41,12 @@ import com.litekite.inappbilling.view.activity.BaseActivity;
  */
 public class BillingVM extends AndroidViewModel implements
 		LifecycleObserver,
-		BillingUpdatesListener,
+		BillingCallback,
 		NetworkManager.NetworkStateCallback {
 
 	private static final String TAG = BillingVM.class.getName();
 	private final NetworkManager networkManager;
-	private BillingManager billingManager;
+	private final BillingManager billingManager;
 
 	/**
 	 * Initializes BillingManager.
@@ -54,17 +54,12 @@ public class BillingVM extends AndroidViewModel implements
 	 * @param application An Application Instance.
 	 */
 	@ViewModelInject
-	public BillingVM(@NonNull Application application, @NonNull NetworkManager networkManager) {
+	public BillingVM(@NonNull Application application,
+	                 @NonNull NetworkManager networkManager,
+	                 @NonNull BillingManager billingManager) {
 		super(application);
 		this.networkManager = networkManager;
-		initPlayBilling();
-	}
-
-	/**
-	 * Initializes BillingManager.
-	 */
-	private void initPlayBilling() {
-		billingManager = new BillingManager(this.getApplication(), this);
+		this.billingManager = billingManager;
 	}
 
 	/**
@@ -80,7 +75,14 @@ public class BillingVM extends AndroidViewModel implements
 	@Override
 	public void onNetworkAvailable() {
 		BaseActivity.printLog(TAG, "onNetworkAvailable: Network Connected");
-		initPlayBilling();
+		connectPlayBilling();
+	}
+
+	/**
+	 * Connects BillingManager's Play Billing Service if it was not ready.
+	 */
+	private void connectPlayBilling() {
+		billingManager.connectToPlayBillingService();
 	}
 
 	@Override
@@ -91,11 +93,12 @@ public class BillingVM extends AndroidViewModel implements
 	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
 	void onCreate() {
 		networkManager.addCallback(this);
+		billingManager.addCallback(this);
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	void onDestroy() {
-		billingManager.destroy();
+		billingManager.removeCallback(this);
 		networkManager.removeCallback(this);
 	}
 

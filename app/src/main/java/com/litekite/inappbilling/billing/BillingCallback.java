@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 LiteKite Startup. All rights reserved.
+ * Copyright 2021 LiteKite Startup. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import androidx.annotation.NonNull;
  * @version 1.0, 04/03/2018
  * @since 1.0
  */
-public interface BillingUpdatesListener {
+public interface BillingCallback {
 
 	/**
 	 * Notifies the error messages of Billing Client.

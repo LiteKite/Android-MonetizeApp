@@ -92,7 +92,7 @@ submitting a pull request through GitHub.
 
 ~~~
 
-Copyright 2020 LiteKite Startup.
+Copyright 2021 LiteKite Startup.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

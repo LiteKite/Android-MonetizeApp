@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 LiteKite Startup. All rights reserved.
+ * Copyright 2021 LiteKite Startup. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,11 @@ public class NetworkManager implements CallbackProvider<NetworkManager.NetworkSt
 
 	};
 
+	/**
+	 * Checks the network availability state and notifies the state to all the registered clients.
+	 *
+	 * @param network An active network object.
+	 */
 	private void notifyNetworkState(@NonNull Network network) {
 		boolean isAvailable = connMgr.getNetworkCapabilities(network)
 				.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);

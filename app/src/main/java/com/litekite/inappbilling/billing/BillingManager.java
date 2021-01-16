@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 LiteKite Startup. All rights reserved.
+ * Copyright 2021 LiteKite Startup. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 import com.android.billingclient.api.AcknowledgePurchaseParams;
 import com.android.billingclient.api.BillingClient;
@@ -38,6 +39,7 @@ import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
 import com.litekite.inappbilling.R;
+import com.litekite.inappbilling.base.CallbackProvider;
 import com.litekite.inappbilling.room.database.AppDatabase;
 import com.litekite.inappbilling.room.entity.BillingPurchaseDetails;
 import com.litekite.inappbilling.room.entity.BillingSkuDetails;
@@ -49,6 +51,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Provides access to BillingClient {@link #myBillingClient}, handles and performs InApp Purchases.
@@ -65,7 +70,10 @@ import java.util.Set;
  * Google's InAppBilling Sample Project</a>
  * @since 1.0
  */
-public class BillingManager implements PurchasesUpdatedListener {
+@Singleton
+public class BillingManager implements
+		PurchasesUpdatedListener,
+		CallbackProvider<BillingCallback> {
 
 	private static final String TAG = BillingManager.class.getName();
 	// Default value of mBillingClientResponseCode until BillingManager was not yet initialized
@@ -73,39 +81,45 @@ public class BillingManager implements PurchasesUpdatedListener {
 	/**
 	 * A reference to BillingClient
 	 **/
-	private BillingClient myBillingClient;
-	/**
-	 * True if billing service is connected now.
-	 */
-	private boolean isServiceConnected;
+	private final BillingClient myBillingClient;
 	private final Context context;
 	private Set<String> tokensToBeConsumed;
-	private final BillingUpdatesListener billingUpdatesListener;
+	private final List<BillingCallback> billingCallbacks = new ArrayList<>();
 
 	/**
 	 * Initializes BillingClient, makes connection and queries sku details, purchase details from
 	 * Google Play Remote Server, gets purchase details from Google Play Cache.
 	 *
-	 * @param context                activity or application context.
-	 * @param billingUpdatesListener listener that updates implemented classes about the billing
-	 *                               errors.
+	 * @param context activity or application context.
 	 */
-	public BillingManager(@NonNull Context context,
-	                      @NonNull BillingUpdatesListener billingUpdatesListener) {
+	@Inject
+	public BillingManager(@NonNull Context context) {
 		this.context = context;
-		this.billingUpdatesListener = billingUpdatesListener;
 		BaseActivity.printLog(TAG, "Creating Billing client.");
 		myBillingClient = BillingClient.newBuilder(context)
 				.enablePendingPurchases()
 				.setListener(this)
 				.build();
+	}
+
+	@Override
+	public void addCallback(@NonNull BillingCallback cb) {
+		billingCallbacks.add(cb);
 		connectToPlayBillingService();
+	}
+
+	@Override
+	public void removeCallback(@NonNull BillingCallback cb) {
+		billingCallbacks.remove(cb);
+		if (billingCallbacks.size() == 0) {
+			destroy();
+		}
 	}
 
 	/**
 	 * Initiates Google Play Billing Service.
 	 */
-	private void connectToPlayBillingService() {
+	public void connectToPlayBillingService() {
 		BaseActivity.printLog(TAG, "connectToPlayBillingService");
 		if (!myBillingClient.isReady()) {
 			startServiceConnection(() -> {
@@ -307,8 +321,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 						+ "Make sure your Google Play app is setup correctly");
 				break;
 			case BillingResponseCode.SERVICE_DISCONNECTED:
-				billingUpdatesListener
-						.onBillingError(context.getString(R.string.err_service_disconnected));
+				notifyBillingError(R.string.err_service_disconnected);
 				connectToPlayBillingService();
 				break;
 			case BillingResponseCode.OK:
@@ -318,8 +331,7 @@ public class BillingManager implements PurchasesUpdatedListener {
 				BaseActivity.printLog(TAG, "User has cancelled Purchase!");
 				break;
 			case BillingResponseCode.SERVICE_UNAVAILABLE:
-				billingUpdatesListener
-						.onBillingError(context.getString(R.string.err_no_internet));
+				notifyBillingError(R.string.err_no_internet);
 				break;
 			case BillingResponseCode.ITEM_UNAVAILABLE:
 				BaseActivity.printLog(TAG, "Product is not available for purchase");
@@ -348,13 +360,22 @@ public class BillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
+	 * Notifies billing error message to all the registered clients.
+	 *
+	 * @param id A StringResID {@link StringRes}
+	 */
+	private void notifyBillingError(@StringRes int id) {
+		billingCallbacks.forEach(cb -> cb.onBillingError(context.getString(id)));
+	}
+
+	/**
 	 * Starts BillingClient Service if not connected already, Or does the tasks written inside
 	 * the runnable implementation.
 	 *
 	 * @param runnable A runnable implementation.
 	 */
 	private void executeServiceRequest(Runnable runnable) {
-		if (isServiceConnected) {
+		if (myBillingClient.isReady()) {
 			runnable.run();
 		} else {
 			// If billing service was disconnected, we try to reconnect 1 time.
@@ -375,7 +396,6 @@ public class BillingManager implements PurchasesUpdatedListener {
 				// The billing client is ready. You can query purchases here.
 				BaseActivity.printLog(TAG, "Setup finished");
 				if (billingResult.getResponseCode() == BillingResponseCode.OK) {
-					isServiceConnected = true;
 					if (executeOnSuccess != null) {
 						executeOnSuccess.run();
 					}
@@ -387,7 +407,6 @@ public class BillingManager implements PurchasesUpdatedListener {
 			public void onBillingServiceDisconnected() {
 				// Try to restart the connection on the next request to
 				// Google Play by calling the startConnection() method.
-				isServiceConnected = false;
 			}
 		});
 	}
@@ -458,7 +477,8 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 */
 	public void initiatePurchaseFlow(@NonNull final Activity activity,
 	                                 @NonNull final SkuDetails skuDetails) {
-		if (areSubscriptionsSupported()) {
+		if (skuDetails.getType().equals(SkuType.SUBS) && areSubscriptionsSupported()
+				|| skuDetails.getType().equals(SkuType.INAPP)) {
 			Runnable purchaseFlowRequest = () -> {
 				BaseActivity.printLog(TAG, "Launching in-app purchase flow.");
 				BillingFlowParams purchaseParams = BillingFlowParams.newBuilder()
@@ -481,16 +501,11 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 * @return boolean value of whether the subscription is supported or not.
 	 */
 	private boolean areSubscriptionsSupported() {
-		if (myBillingClient == null) {
-			BaseActivity.printLog(TAG, "Billing client was null and quitting");
-			return false;
-		}
 		BillingResult billingResult = myBillingClient.isFeatureSupported(FeatureType.SUBSCRIPTIONS);
 		if (billingResult.getResponseCode() != BillingResponseCode.OK) {
 			BaseActivity.printLog(TAG, "areSubscriptionsSupported() got an error response: "
 					+ billingResult.getResponseCode());
-			billingUpdatesListener
-					.onBillingError(context.getString(R.string.err_subscription_not_supported));
+			notifyBillingError(R.string.err_subscription_not_supported);
 		}
 		return billingResult.getResponseCode() == BillingResponseCode.OK;
 	}
@@ -522,11 +537,10 @@ public class BillingManager implements PurchasesUpdatedListener {
 	/**
 	 * Clears the resources
 	 */
-	public void destroy() {
+	private void destroy() {
 		BaseActivity.printLog(TAG, "Destroying the manager.");
 		if (myBillingClient != null && myBillingClient.isReady()) {
 			myBillingClient.endConnection();
-			myBillingClient = null;
 		}
 	}
 
