@@ -22,6 +22,8 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.multidex.MultiDex;
 
+import dagger.hilt.android.HiltAndroidApp;
+
 /**
  * Application class.
  *
@@ -32,16 +34,12 @@ import androidx.multidex.MultiDex;
  * Library) and Data Binding Library</a>
  * @since 1.0
  */
+@HiltAndroidApp
 public class InAppBillingApp extends Application {
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-	}
-
-	@Override
-	public void onTerminate() {
-		super.onTerminate();
 	}
 
 	@Override

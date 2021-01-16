@@ -36,6 +36,8 @@ import com.litekite.inappbilling.room.entity.BillingSkuDetails;
 import com.litekite.inappbilling.viewmodel.BillingPremiumVM;
 import com.litekite.inappbilling.viewmodel.BillingVM;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * BillingPremiumDialog, A PremiumPurchaseDialog which is a BottomSheet which lets user to buy
  * Premium Feature and perform purchase actions from Google Play Billing Library. This Premium
@@ -47,6 +49,7 @@ import com.litekite.inappbilling.viewmodel.BillingVM;
  * @version 1.0, 10/03/2018
  * @since 1.0
  */
+@AndroidEntryPoint
 public class BillingPremiumDialog extends BottomSheetDialogFragment {
 
 	private static final String TAG = BillingPremiumDialog.class.getName();
@@ -58,7 +61,7 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
 	 * <p>
 	 * Sets Premium Feature Product Price.
 	 */
-	private Observer<BillingSkuDetails> premiumSkuDetailsObserver =
+	private final Observer<BillingSkuDetails> premiumSkuDetailsObserver =
 			new Observer<BillingSkuDetails>() {
 				@Override
 				public void onChanged(@Nullable BillingSkuDetails billingSkuDetails) {

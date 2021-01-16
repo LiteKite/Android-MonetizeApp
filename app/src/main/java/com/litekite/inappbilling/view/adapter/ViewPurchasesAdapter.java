@@ -43,8 +43,8 @@ import java.util.List;
  */
 public class ViewPurchasesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-	private Context context;
-	private List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList;
+	private final Context context;
+	private final List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList;
 
 	/**
 	 * Initializes attributes.

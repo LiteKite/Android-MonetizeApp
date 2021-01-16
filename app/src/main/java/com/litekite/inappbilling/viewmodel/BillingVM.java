@@ -17,11 +17,9 @@
 package com.litekite.inappbilling.viewmodel;
 
 import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -43,32 +41,22 @@ import com.litekite.inappbilling.view.activity.BaseActivity;
  */
 public class BillingVM extends AndroidViewModel implements
 		LifecycleObserver,
-		BillingUpdatesListener {
+		BillingUpdatesListener,
+		NetworkManager.NetworkStateCallback {
 
 	private static final String TAG = BillingVM.class.getName();
+	private final NetworkManager networkManager;
 	private BillingManager billingManager;
-
-	/**
-	 * A Broadcast Receiver which will be called if there was a Network Connectivity Change.
-	 * Initiates BillingManager if there is a Network Connection.
-	 */
-	private BroadcastReceiver networkBrReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			if (NetworkManager.isOnline(context)) {
-				BaseActivity.printLog(TAG, "Network Connected");
-				initPlayBilling();
-			}
-		}
-	};
 
 	/**
 	 * Initializes BillingManager.
 	 *
 	 * @param application An Application Instance.
 	 */
-	public BillingVM(@NonNull Application application) {
+	@ViewModelInject
+	public BillingVM(@NonNull Application application, @NonNull NetworkManager networkManager) {
 		super(application);
+		this.networkManager = networkManager;
 		initPlayBilling();
 	}
 
@@ -90,19 +78,25 @@ public class BillingVM extends AndroidViewModel implements
 	}
 
 	@Override
+	public void onNetworkAvailable() {
+		BaseActivity.printLog(TAG, "onNetworkAvailable: Network Connected");
+		initPlayBilling();
+	}
+
+	@Override
 	public void onBillingError(@NonNull String error) {
 		BaseActivity.showToast(this.getApplication(), error);
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
 	void onCreate() {
-		NetworkManager.registerNetworkBrReceiver(this.getApplication(), networkBrReceiver);
+		networkManager.addCallback(this);
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	void onDestroy() {
 		billingManager.destroy();
-		NetworkManager.unregisterNetworkBrReceiver(this.getApplication(), networkBrReceiver);
+		networkManager.removeCallback(this);
 	}
 
 }

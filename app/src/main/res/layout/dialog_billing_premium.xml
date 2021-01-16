@@ -29,7 +29,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@null">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -55,12 +56,9 @@
                 android:layout_height="@dimen/size4"
                 android:layout_below="@id/tv_subscribe"
                 android:layout_alignEnd="@+id/tv_subscribe"
-                android:layout_alignRight="@+id/tv_subscribe"
                 android:layout_marginStart="@dimen/size2"
-                android:layout_marginLeft="@dimen/size2"
                 android:layout_marginTop="@dimen/size10"
                 android:layout_marginEnd="@dimen/size24"
-                android:layout_marginRight="@dimen/size24"
                 android:background="@color/black" />
 
             <TextView
@@ -105,9 +103,7 @@
                 android:layout_height="@dimen/size4"
                 android:layout_below="@id/btn_billing_buy"
                 android:layout_alignStart="@+id/btn_billing_buy"
-                android:layout_alignLeft="@+id/btn_billing_buy"
                 android:layout_alignEnd="@+id/btn_billing_buy"
-                android:layout_alignRight="@+id/btn_billing_buy"
                 android:layout_marginStart="@dimen/size40"
                 android:layout_marginTop="@dimen/size20"
                 android:layout_marginEnd="@dimen/size40"
@@ -121,10 +117,8 @@
             android:layout_width="@dimen/size64"
             android:layout_height="@dimen/size64"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/size24"
             android:layout_marginEnd="@dimen/size24"
-            android:layout_marginRight="@dimen/size24"
             android:background="@drawable/ic_launcher_background"
             android:contentDescription="@string/fruit_store_img"
             android:padding="@dimen/size10"

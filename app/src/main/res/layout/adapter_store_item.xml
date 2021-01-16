@@ -62,9 +62,7 @@
                 android:layout_marginLeft="@dimen/size10"
                 android:layout_marginRight="@dimen/size10"
                 android:layout_toStartOf="@id/rv_purchase_box"
-                android:layout_toLeftOf="@id/rv_purchase_box"
                 android:layout_toEndOf="@id/iv_product_item"
-                android:layout_toRightOf="@id/iv_product_item"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -100,7 +98,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true">
 
                 <Button

@@ -27,11 +27,11 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="MyBottomSheetDialogTheme" parent="Theme.MaterialComponents.BottomSheetDialog">
+    <style name="MyBottomSheetDialogTheme" parent="Theme.Design.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/MyBottomSheetDialogStyle</item>
     </style>
 
-    <style name="MyBottomSheetDialogStyle" parent="Widget.MaterialComponents.BottomSheet.Modal">
+    <style name="MyBottomSheetDialogStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
         <item name="behavior_peekHeight">@dimen/size350</item>
     </style>

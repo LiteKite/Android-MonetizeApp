@@ -53,10 +53,10 @@ public class StoreItemVM {
 	public final ObservableField<String> skuProductName = new ObservableField<>();
 	public final ObservableField<String> skuProductPrice = new ObservableField<>();
 	public final ObservableField<Boolean> isAlreadyPurchased = new ObservableField<>();
-	private Context context;
-	private BillingManager billingManager;
-	private List<BillingPurchaseDetails> productPurchaseDetails;
-	private BillingSkuDetails skuProductDetails;
+	private final Context context;
+	private final BillingManager billingManager;
+	private final List<BillingPurchaseDetails> productPurchaseDetails;
+	private final BillingSkuDetails skuProductDetails;
 
 	/**
 	 * Initializes Store Product Item attributes.

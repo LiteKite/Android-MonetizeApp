@@ -44,9 +44,9 @@ public class PurchaseItemVM {
 
 	public final ObservableField<String> skuProductName = new ObservableField<>();
 	public final ObservableField<String> skuProductState = new ObservableField<>();
-	private Context context;
-	private BillingSkuDetails skuProductDetails;
-	private List<BillingPurchaseDetails> productPurchaseDetails;
+	private final Context context;
+	private final BillingSkuDetails skuProductDetails;
+	private final List<BillingPurchaseDetails> productPurchaseDetails;
 
 	/**
 	 * Initializes Product Item attributes.

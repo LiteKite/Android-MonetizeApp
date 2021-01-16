@@ -22,6 +22,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BindingAdapter;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -56,6 +57,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	 *
 	 * @param application An Application Instance.
 	 */
+	@ViewModelInject
 	public HomeVM(@NonNull Application application) {
 		super(application);
 		fetchFromDB();
@@ -126,17 +128,15 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	 * @param v A view in which the click action performed.
 	 */
 	public void onClick(@NonNull View v) {
-		switch (v.getId()) {
-			case R.id.btn_buy_from_store:
-				if (checkIsPremiumPurchased(v)) {
-					StoreActivity.start(v.getContext());
-				}
-				break;
-			case R.id.btn_view_your_purchases:
-				if (checkIsPremiumPurchased(v)) {
-					ViewPurchasesActivity.start(v.getContext());
-				}
-				break;
+		final int id = v.getId();
+		if (id == R.id.btn_buy_from_store) {
+			if (checkIsPremiumPurchased(v)) {
+				StoreActivity.start(v.getContext());
+			}
+		} else if (id == R.id.btn_view_your_purchases) {
+			if (checkIsPremiumPurchased(v)) {
+				ViewPurchasesActivity.start(v.getContext());
+			}
 		}
 	}
 
@@ -151,7 +151,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	private boolean checkIsPremiumPurchased(View v) {
 		Boolean isPurchased = isPremiumPurchased.getValue();
 		if (isPurchased != null) {
-			if (!isPurchased && !NetworkManager.isNetworkConnected) {
+			if (!isPurchased && !NetworkManager.isOnline(v.getContext())) {
 				BaseActivity.showSnackBar(v, R.string.err_no_internet);
 				return false;
 			}

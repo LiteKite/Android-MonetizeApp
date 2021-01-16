@@ -45,9 +45,9 @@ import java.util.List;
  */
 public class StoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-	private Context context;
-	private List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList;
-	private BillingManager billingManager;
+	private final Context context;
+	private final List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList;
+	private final BillingManager billingManager;
 
 	/**
 	 * Initializes attributes.

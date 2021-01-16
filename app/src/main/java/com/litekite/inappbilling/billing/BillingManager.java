@@ -78,9 +78,9 @@ public class BillingManager implements PurchasesUpdatedListener {
 	 * True if billing service is connected now.
 	 */
 	private boolean isServiceConnected;
-	private Context context;
+	private final Context context;
 	private Set<String> tokensToBeConsumed;
-	private BillingUpdatesListener billingUpdatesListener;
+	private final BillingUpdatesListener billingUpdatesListener;
 
 	/**
 	 * Initializes BillingClient, makes connection and queries sku details, purchase details from

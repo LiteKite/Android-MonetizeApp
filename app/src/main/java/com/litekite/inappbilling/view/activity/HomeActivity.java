@@ -33,6 +33,8 @@ import com.litekite.inappbilling.view.fragment.dialog.BillingPremiumDialog;
 import com.litekite.inappbilling.viewmodel.BillingVM;
 import com.litekite.inappbilling.viewmodel.HomeVM;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * HomeActivity, users can view their purchases and buy products from store by tapping respective
  * buttons on the ViewGroup.
@@ -41,6 +43,7 @@ import com.litekite.inappbilling.viewmodel.HomeVM;
  * @version 1.0, 08/03/2018
  * @since 1.0
  */
+@AndroidEntryPoint
 public class HomeActivity extends BaseActivity {
 
 	private ActivityHomeBinding homeBinding;
@@ -51,7 +54,7 @@ public class HomeActivity extends BaseActivity {
 	 * Your Purchases and Buy From Store. These two features are locked otherwise, and the user
 	 * needs to purchase this in order to use those features.
 	 */
-	private Observer<Boolean> isPremiumPurchasedObserver = new Observer<Boolean>() {
+	private final Observer<Boolean> isPremiumPurchasedObserver = new Observer<Boolean>() {
 		@Override
 		public void onChanged(@Nullable Boolean aBoolean) {
 			if (aBoolean != null) {

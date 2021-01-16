@@ -58,11 +58,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/size10"
-                android:layout_marginLeft="@dimen/size10"
                 android:layout_marginEnd="@dimen/size0"
-                android:layout_marginRight="@dimen/size0"
                 android:layout_toEndOf="@id/iv_product_item"
-                android:layout_toRightOf="@id/iv_product_item"
                 android:gravity="center"
                 android:orientation="vertical">
 

@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -39,12 +40,13 @@ public class SplashVM extends AndroidViewModel implements LifecycleObserver {
 
 	private static final int SPLASH_TIME_DELAY_IN_MS = 3000;
 	private MutableLiveData<Boolean> splashTimeDelay;
-	private Handler handler;
-	private Runnable splashTimeOutRunnable = () -> splashTimeDelay.postValue(true);
+	private final Handler handler;
+	private final Runnable splashTimeOutRunnable = () -> splashTimeDelay.postValue(true);
 
 	/**
 	 * @param application application An Application Instance.
 	 */
+	@ViewModelInject
 	public SplashVM(@NonNull Application application) {
 		super(application);
 		handler = new Handler(Looper.getMainLooper());

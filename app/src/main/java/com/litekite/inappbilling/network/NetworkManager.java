@@ -16,13 +16,22 @@
 
 package com.litekite.inappbilling.network;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 
 import androidx.annotation.NonNull;
+
+import com.litekite.inappbilling.base.CallbackProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import static android.net.ConnectivityManager.NetworkCallback;
 
 /**
  * Handles Network Connectivity, checks whether network is available and notifies network
@@ -36,12 +45,49 @@ import androidx.annotation.NonNull;
  * Checking Network Connectivity Status Guide</a>
  * @since 1.0
  */
-public class NetworkManager {
+@Singleton
+public class NetworkManager implements CallbackProvider<NetworkManager.NetworkStateCallback> {
 
-	public static boolean isNetworkConnected = false;
+	private final ConnectivityManager connMgr;
+	private boolean networkCallbackRegistered = false;
+	private final List<NetworkStateCallback> networkStateCallbacks = new ArrayList<>();
 
-	private NetworkManager() {
+	private final NetworkCallback networkCallback = new NetworkCallback() {
 
+		@Override
+		public void onAvailable(@NonNull Network network) {
+			super.onAvailable(network);
+			notifyNetworkState(network);
+		}
+
+		@Override
+		public void onCapabilitiesChanged(@NonNull Network network,
+		                                  @NonNull NetworkCapabilities networkCapabilities) {
+			super.onCapabilitiesChanged(network, networkCapabilities);
+			notifyNetworkState(network);
+		}
+
+		@Override
+		public void onLost(@NonNull Network network) {
+			super.onLost(network);
+			notifyNetworkState(network);
+		}
+
+	};
+
+	private void notifyNetworkState(@NonNull Network network) {
+		boolean isAvailable = connMgr.getNetworkCapabilities(network)
+				.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+		if (isAvailable) {
+			networkStateCallbacks.forEach(NetworkStateCallback::onNetworkAvailable);
+		} else {
+			networkStateCallbacks.forEach(NetworkStateCallback::onNetworkLost);
+		}
+	}
+
+	@Inject
+	public NetworkManager(@NonNull Context context) {
+		connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 	}
 
 	/**
@@ -54,40 +100,54 @@ public class NetworkManager {
 	public static boolean isOnline(@NonNull Context context) {
 		ConnectivityManager connMgr = (ConnectivityManager)
 				context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo;
-		if (connMgr != null) {
-			networkInfo = connMgr.getActiveNetworkInfo();
-			isNetworkConnected = networkInfo != null && networkInfo.isConnected();
-			return isNetworkConnected;
+		if (connMgr.getActiveNetwork() != null) {
+			return connMgr.getNetworkCapabilities(connMgr.getActiveNetwork())
+					.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
 		}
 		return false;
 	}
 
 	/**
-	 * Registers a Broadcast Receiver that will be triggered whenever there's a network
-	 * connectivity actions occurs and connectivity change happens. This receivers which are
-	 * registered in the manifest will not be triggered.
-	 *
-	 * @param context           Activity or Application Context.
-	 * @param networkBrReceiver which will be called when any network connectivity actions or
-	 *                          changes made.
+	 * Registers a Default Network Callback
+	 * that will be notified whenever there's a network change happens.
 	 */
-	public static void registerNetworkBrReceiver(@NonNull Context context,
-	                                             @NonNull BroadcastReceiver networkBrReceiver) {
-		IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-		context.registerReceiver(networkBrReceiver, intentFilter);
+	public void registerNetworkCallback() {
+		if (!networkCallbackRegistered && networkStateCallbacks.size() > 0) {
+			networkCallbackRegistered = true;
+			connMgr.registerDefaultNetworkCallback(networkCallback);
+		}
 	}
 
 	/**
-	 * Unregisters Broadcast receiver.
-	 *
-	 * @param context           Activity or Application Context.
-	 * @param networkBrReceiver which will be called when any network connectivity actions or
-	 *                          changes made.
+	 * Unregisters Default Network Callback.
 	 */
-	public static void unregisterNetworkBrReceiver(@NonNull Context context,
-	                                               @NonNull BroadcastReceiver networkBrReceiver) {
-		context.unregisterReceiver(networkBrReceiver);
+	public void unregisterNetworkCallback() {
+		if (networkCallbackRegistered && networkStateCallbacks.size() == 0) {
+			networkCallbackRegistered = false;
+			connMgr.unregisterNetworkCallback(networkCallback);
+		}
+	}
+
+	@Override
+	public void addCallback(@NonNull NetworkStateCallback cb) {
+		networkStateCallbacks.add(cb);
+		registerNetworkCallback();
+	}
+
+	@Override
+	public void removeCallback(@NonNull NetworkStateCallback cb) {
+		networkStateCallbacks.remove(cb);
+		unregisterNetworkCallback();
+	}
+
+	public interface NetworkStateCallback {
+
+		default void onNetworkAvailable() {
+		}
+
+		default void onNetworkLost() {
+		}
+
 	}
 
 }

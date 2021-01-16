@@ -14,7 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/teal_700" android:state_pressed="true" />
-    <item android:drawable="@android:color/transparent" android:state_pressed="false" />
-</selector>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/teal_700">
+    <item android:id="@android:id/mask" android:drawable="@color/teal_700" />
+    <item android:drawable="@android:color/transparent" />
+</ripple>

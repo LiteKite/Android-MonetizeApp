@@ -37,6 +37,8 @@ import com.litekite.inappbilling.viewmodel.ProductsAndPurchasesVM;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * StoreActivity, which displays inApp and subscription products as a list and each products has
  * its own name and price and users buy them by tapping buy button. Purchases made from Google
@@ -46,6 +48,7 @@ import java.util.List;
  * @version 1.0, 10/03/2018
  * @since 1.0
  */
+@AndroidEntryPoint
 public class StoreActivity extends BaseActivity {
 
 	private ActivityStoreBinding storeBinding;
@@ -56,7 +59,7 @@ public class StoreActivity extends BaseActivity {
 	 * Observes changes and updates of Sku Products and Purchases which is stored in local database.
 	 * Updates observed changes to the products list.
 	 */
-	private Observer<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesObserver =
+	private final Observer<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesObserver =
 			skuRelatedPurchasesList -> {
 				if (skuRelatedPurchasesList != null && skuRelatedPurchasesList.size() > 0) {
 					StoreActivity.this.skuProductsAndPurchasesList.clear();

@@ -25,6 +25,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.viewmodel.SplashVM;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * This is an app SplashActivity that lasts 3 secs.
  *
@@ -32,13 +34,14 @@ import com.litekite.inappbilling.viewmodel.SplashVM;
  * @version 1.0, 08/03/2018
  * @since 1.0
  */
+@AndroidEntryPoint
 public class SplashActivity extends BaseActivity {
 
 	/**
 	 * Observes whether the SplashTimeDelay 3 secs of delay has finished. If it was finished,
 	 * then it moves to the HomeActivity.
 	 */
-	private Observer<Boolean> splashTimeDelayObserver = aBoolean -> {
+	private final Observer<Boolean> splashTimeDelayObserver = aBoolean -> {
 		if (aBoolean != null && aBoolean) {
 			startActivityHome();
 		}

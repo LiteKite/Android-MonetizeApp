@@ -22,6 +22,7 @@ import android.content.ContextWrapper;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -56,6 +57,7 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 	 *
 	 * @param application An Application Instance.
 	 */
+	@ViewModelInject
 	public BillingPremiumVM(@NonNull Application application) {
 		super(application);
 		fetchFromDB();

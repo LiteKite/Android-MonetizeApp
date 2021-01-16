@@ -19,6 +19,7 @@ package com.litekite.inappbilling.viewmodel;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -48,6 +49,7 @@ public class ProductsAndPurchasesVM extends AndroidViewModel implements Lifecycl
 	 *
 	 * @param application application An Application Instance.
 	 */
+	@ViewModelInject
 	public ProductsAndPurchasesVM(@NonNull Application application) {
 		super(application);
 		fetchFromDB();
