@@ -68,6 +68,8 @@
 
 `Room Persistence Storage` -> An ORM for SQLite Database.</br>
 
+`Hilt DI` -> Dependency Injection Library for Android.</br>
+
 ## References
 
 [Google's Trivial Drive Sample](https://github.com/googlesamples/android-play-billing/tree/master/TrivialDrive_v2) -> A Sample provided by Google for implementing In-app purchases.
