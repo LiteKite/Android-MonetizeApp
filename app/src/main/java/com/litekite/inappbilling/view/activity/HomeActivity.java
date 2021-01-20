@@ -97,10 +97,10 @@ public class HomeActivity extends BaseActivity {
 	 * Observes Premium Purchase.
 	 */
 	private void init() {
-		setToolbar(homeBinding.tbWidget.findViewById(R.id.toolbar),
+		setToolbar(homeBinding.tbWidget.toolbar,
 				false,
 				getString(R.string.home),
-				homeBinding.tbWidget.findViewById(R.id.tv_toolbar_title));
+				homeBinding.tbWidget.tvToolbarTitle);
 		HomeVM homeVM = new ViewModelProvider(this).get(HomeVM.class);
 		BillingVM billingVM = new ViewModelProvider(this).get(BillingVM.class);
 		homeBinding.setPresenter(homeVM);

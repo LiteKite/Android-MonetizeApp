@@ -97,10 +97,10 @@ public class StoreActivity extends BaseActivity {
 	 * Initializes RecyclerView Products List and its adapter.
 	 */
 	private void init() {
-		setToolbar(storeBinding.tbWidget.findViewById(R.id.toolbar),
+		setToolbar(storeBinding.tbWidget.toolbar,
 				true,
 				getString(R.string.store),
-				storeBinding.tbWidget.findViewById(R.id.tv_toolbar_title));
+				storeBinding.tbWidget.tvToolbarTitle);
 		BillingVM billingVM = new ViewModelProvider(this).get(BillingVM.class);
 		ProductsAndPurchasesVM productsAndPurchasesVM =
 				new ViewModelProvider(this).get(ProductsAndPurchasesVM.class);

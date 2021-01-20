@@ -95,10 +95,10 @@ public class ViewPurchasesActivity extends BaseActivity {
 	 * Initializes RecyclerView Products List and its adapter.
 	 */
 	private void init() {
-		setToolbar(viewPurchasesBinding.tbWidget.findViewById(R.id.toolbar),
+		setToolbar(viewPurchasesBinding.tbWidget.toolbar,
 				true,
 				getString(R.string.your_purchases),
-				viewPurchasesBinding.tbWidget.findViewById(R.id.tv_toolbar_title));
+				viewPurchasesBinding.tbWidget.tvToolbarTitle);
 		ProductsAndPurchasesVM productsAndPurchasesVM =
 				new ViewModelProvider(this).get(ProductsAndPurchasesVM.class);
 		this.getLifecycle().addObserver(productsAndPurchasesVM);

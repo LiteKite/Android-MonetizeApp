@@ -45,7 +45,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    buildFeatures.dataBinding = true
+    buildFeatures {
+        viewBinding = true
+        dataBinding = true
+    }
     lintOptions {
         baseline file("lint-baseline.xml")
         warningsAsErrors true
@@ -109,9 +112,6 @@ dependencies {
 
     // Test helpers for LiveData
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
-
-    // Test helpers for Room
-    testImplementation 'androidx.room:room-testing:2.2.6'
 
     // JUnit
     testImplementation 'junit:junit:4.13.1'
