@@ -44,6 +44,7 @@ import com.litekite.inappbilling.room.database.AppDatabase;
 import com.litekite.inappbilling.room.entity.BillingPurchaseDetails;
 import com.litekite.inappbilling.room.entity.BillingSkuDetails;
 import com.litekite.inappbilling.view.activity.BaseActivity;
+import com.litekite.inappbilling.worker.WorkExecutor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +55,11 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import dagger.hilt.EntryPoint;
+import dagger.hilt.EntryPoints;
+import dagger.hilt.InstallIn;
+import dagger.hilt.components.SingletonComponent;
 
 /**
  * Provides access to BillingClient {@link #myBillingClient}, handles and performs InApp Purchases.
@@ -75,9 +81,20 @@ public class BillingManager implements
 		PurchasesUpdatedListener,
 		CallbackProvider<BillingCallback> {
 
+	@EntryPoint
+	@InstallIn(SingletonComponent.class)
+	public interface BillingManagerEntryPoint {
+
+		@NonNull
+		WorkExecutor getWorkExecutor();
+
+	}
+
 	private static final String TAG = BillingManager.class.getName();
 	// Default value of mBillingClientResponseCode until BillingManager was not yet initialized
 	private final List<Purchase> myPurchasesResultList = new ArrayList<>();
+	// Background work executor
+	private final WorkExecutor workExecutor;
 	/**
 	 * A reference to BillingClient
 	 **/
@@ -95,11 +112,17 @@ public class BillingManager implements
 	@Inject
 	public BillingManager(@NonNull Context context) {
 		this.context = context;
+		// Gets WorkExecutor for background works.
+		workExecutor = getEntryPoint().getWorkExecutor();
 		BaseActivity.printLog(TAG, "Creating Billing client.");
 		myBillingClient = BillingClient.newBuilder(context)
 				.enablePendingPurchases()
 				.setListener(this)
 				.build();
+	}
+
+	private BillingManagerEntryPoint getEntryPoint() {
+		return EntryPoints.get(context, BillingManagerEntryPoint.class);
 	}
 
 	@Override
@@ -258,8 +281,8 @@ public class BillingManager implements
 			billingPurchaseDetails.purchaseTime = purchase.getPurchaseTime();
 			billingPurchaseDetailsList.add(billingPurchaseDetails);
 		}
-		new Thread(() -> AppDatabase.getAppDatabase(context)
-				.getBillingDao().insertPurchaseDetails(billingPurchaseDetailsList)).start();
+		workExecutor.execute(() -> AppDatabase.getAppDatabase(context)
+				.getBillingDao().insertPurchaseDetails(billingPurchaseDetailsList));
 	}
 
 	/**
@@ -530,8 +553,8 @@ public class BillingManager implements
 				billingSkuDetailsList.add(billingSkuDetails);
 			}
 		}
-		new Thread(() -> AppDatabase.getAppDatabase(context)
-				.getBillingDao().insertSkuDetails(billingSkuDetailsList)).start();
+		workExecutor.execute(() -> AppDatabase.getAppDatabase(context)
+				.getBillingDao().insertSkuDetails(billingSkuDetailsList));
 	}
 
 	/**

@@ -20,14 +20,15 @@ import android.content.Context;
 
 import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.network.NetworkManager;
+import com.litekite.inappbilling.worker.WorkExecutor;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ApplicationComponent;
 import dagger.hilt.android.qualifiers.ApplicationContext;
+import dagger.hilt.components.SingletonComponent;
 
 /**
  * Provides dependencies for the whole application components
@@ -38,13 +39,19 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
  * @since 1.0
  */
 @Module
-@InstallIn(ApplicationComponent.class)
+@InstallIn(SingletonComponent.class)
 class AppComponents {
 
 	@Singleton
 	@Provides
 	static NetworkManager provideNetworkManager(@ApplicationContext Context context) {
 		return new NetworkManager(context);
+	}
+
+	@Singleton
+	@Provides
+	static WorkExecutor provideWorkExecutor() {
+		return new WorkExecutor();
 	}
 
 	@Singleton
