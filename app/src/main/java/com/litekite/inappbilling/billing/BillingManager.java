@@ -68,27 +68,17 @@ import dagger.hilt.components.SingletonComponent;
  * @version 1.0, 04/03/2018
  * @see <a href="https://developer.android.com/google/play/billing/billing_library.html">
  * Google Play Billing Library Guide</a>
- * @see <a href="https://developer.android.com/training/play-billing-library/index.html"> Google
+ * @see <a href="https://developer.android.com/training/play-billing-library/index.html">Google
  * Play Billing Training Guide</a>
- * @see <a href="https://developer.android.com/google/play/billing/billing_testing.html"> Testing
+ * @see <a href="https://developer.android.com/google/play/billing/billing_testing.html">Testing
  * InApp and Subscription purchases and Renewal Timing Guide</a>
- * @see <a href="https://github.com/googlesamples/android-play-billing/tree/master/TrivialDrive_v2">
- * Google's InAppBilling Sample Project</a>
+ * @see <a href="https://github.com/android/play-billing-samples">Google's Play Billing Sample</a>
  * @since 1.0
  */
 @Singleton
 public class BillingManager implements
 		PurchasesUpdatedListener,
 		CallbackProvider<BillingCallback> {
-
-	@EntryPoint
-	@InstallIn(SingletonComponent.class)
-	public interface BillingManagerEntryPoint {
-
-		@NonNull
-		WorkExecutor getWorkExecutor();
-
-	}
 
 	private static final String TAG = BillingManager.class.getName();
 	// Default value of mBillingClientResponseCode until BillingManager was not yet initialized
@@ -100,8 +90,8 @@ public class BillingManager implements
 	 **/
 	private final BillingClient myBillingClient;
 	private final Context context;
-	private Set<String> tokensToBeConsumed;
 	private final List<BillingCallback> billingCallbacks = new ArrayList<>();
+	private Set<String> tokensToBeConsumed;
 
 	/**
 	 * Initializes BillingClient, makes connection and queries sku details, purchase details from
@@ -136,6 +126,16 @@ public class BillingManager implements
 		billingCallbacks.remove(cb);
 		if (billingCallbacks.size() == 0) {
 			destroy();
+		}
+	}
+
+	/**
+	 * Clears the resources
+	 */
+	private void destroy() {
+		BaseActivity.printLog(TAG, "Destroying the manager.");
+		if (myBillingClient != null && myBillingClient.isReady()) {
+			myBillingClient.endConnection();
 		}
 	}
 
@@ -557,14 +557,13 @@ public class BillingManager implements
 				.getBillingDao().insertSkuDetails(billingSkuDetailsList));
 	}
 
-	/**
-	 * Clears the resources
-	 */
-	private void destroy() {
-		BaseActivity.printLog(TAG, "Destroying the manager.");
-		if (myBillingClient != null && myBillingClient.isReady()) {
-			myBillingClient.endConnection();
-		}
+	@EntryPoint
+	@InstallIn(SingletonComponent.class)
+	public interface BillingManagerEntryPoint {
+
+		@NonNull
+		WorkExecutor getWorkExecutor();
+
 	}
 
 }
