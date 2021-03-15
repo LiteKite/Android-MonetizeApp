@@ -19,7 +19,6 @@ package com.litekite.inappbilling.viewmodel;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -30,6 +29,10 @@ import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.network.NetworkManager;
 import com.litekite.inappbilling.view.activity.BaseActivity;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
 /**
  * BillingVM, a view model which provides BillingManager which has BillingClient, a Google Play
  * Billing Library helps to make purchases, gets Sku Details, gets recent purchases list and the
@@ -39,6 +42,7 @@ import com.litekite.inappbilling.view.activity.BaseActivity;
  * @version 1.0, 10/03/2018
  * @since 1.0
  */
+@HiltViewModel
 public class BillingVM extends AndroidViewModel implements
 		LifecycleObserver,
 		BillingCallback,
@@ -53,7 +57,7 @@ public class BillingVM extends AndroidViewModel implements
 	 *
 	 * @param application An Application Instance.
 	 */
-	@ViewModelInject
+	@Inject
 	public BillingVM(@NonNull Application application,
 	                 @NonNull NetworkManager networkManager,
 	                 @NonNull BillingManager billingManager) {

@@ -21,12 +21,15 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
 
 /**
  * SplashVM, which notifies {@link #splashTimeDelay} to the view when the
@@ -36,17 +39,18 @@ import androidx.lifecycle.OnLifecycleEvent;
  * @version 1.0, 10/03/2018
  * @since 1.0
  */
+@HiltViewModel
 public class SplashVM extends AndroidViewModel implements LifecycleObserver {
 
 	private static final int SPLASH_TIME_DELAY_IN_MS = 3000;
-	private MutableLiveData<Boolean> splashTimeDelay;
 	private final Handler handler;
+	private MutableLiveData<Boolean> splashTimeDelay;
 	private final Runnable splashTimeOutRunnable = () -> splashTimeDelay.postValue(true);
 
 	/**
 	 * @param application application An Application Instance.
 	 */
-	@ViewModelInject
+	@Inject
 	public SplashVM(@NonNull Application application) {
 		super(application);
 		handler = new Handler(Looper.getMainLooper());

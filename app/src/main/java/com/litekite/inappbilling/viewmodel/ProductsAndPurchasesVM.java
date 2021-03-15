@@ -19,7 +19,6 @@ package com.litekite.inappbilling.viewmodel;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -32,6 +31,10 @@ import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
 /**
  * ProductsAndPurchasesVM, a view model which gets Sku Products List and its related Purchases
  * from local database and updates it to the observing view.
@@ -40,6 +43,7 @@ import java.util.List;
  * @version 1.0, 10/03/2018
  * @since 1.0
  */
+@HiltViewModel
 public class ProductsAndPurchasesVM extends AndroidViewModel implements LifecycleObserver {
 
 	private LiveData<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesList;
@@ -49,7 +53,7 @@ public class ProductsAndPurchasesVM extends AndroidViewModel implements Lifecycl
 	 *
 	 * @param application application An Application Instance.
 	 */
-	@ViewModelInject
+	@Inject
 	public ProductsAndPurchasesVM(@NonNull Application application) {
 		super(application);
 		fetchFromDB();

@@ -22,7 +22,6 @@ import android.content.ContextWrapper;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -39,6 +38,10 @@ import com.litekite.inappbilling.room.entity.BillingSkuDetails;
 
 import org.json.JSONException;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
 /**
  * BillingPremiumVM, a view model which gets Premium Feature Sku Details from local database, It
  * tells to the view about the changes and updates, Handles View Click Event Actions.
@@ -47,6 +50,7 @@ import org.json.JSONException;
  * @version 1.0, 10/03/2018
  * @since 1.0
  */
+@HiltViewModel
 public class BillingPremiumVM extends AndroidViewModel implements LifecycleObserver {
 
 	private LiveData<BillingSkuDetails> premiumSkuDetails;
@@ -57,7 +61,7 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 	 *
 	 * @param application An Application Instance.
 	 */
-	@ViewModelInject
+	@Inject
 	public BillingPremiumVM(@NonNull Application application) {
 		super(application);
 		fetchFromDB();

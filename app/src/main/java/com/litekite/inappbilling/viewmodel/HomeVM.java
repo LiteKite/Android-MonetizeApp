@@ -22,7 +22,6 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BindingAdapter;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -39,6 +38,10 @@ import com.litekite.inappbilling.view.activity.StoreActivity;
 import com.litekite.inappbilling.view.activity.ViewPurchasesActivity;
 import com.litekite.inappbilling.view.fragment.dialog.BillingPremiumDialog;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
 /**
  * HomeVM, a view model that gives Premium Feature Purchase Status from local database to View,
  * Handles View's Click Event Actions.
@@ -47,6 +50,7 @@ import com.litekite.inappbilling.view.fragment.dialog.BillingPremiumDialog;
  * @version 1.0, 10/03/2018
  * @since 1.0
  */
+@HiltViewModel
 public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 
 	private LiveData<Boolean> isPremiumPurchased = new MutableLiveData<>();
@@ -57,7 +61,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	 *
 	 * @param application An Application Instance.
 	 */
-	@ViewModelInject
+	@Inject
 	public HomeVM(@NonNull Application application) {
 		super(application);
 		fetchFromDB();
