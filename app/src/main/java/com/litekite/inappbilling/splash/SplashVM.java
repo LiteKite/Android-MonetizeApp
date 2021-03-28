@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.viewmodel;
+package com.litekite.inappbilling.splash;
 
 import android.app.Application;
 import android.os.Handler;

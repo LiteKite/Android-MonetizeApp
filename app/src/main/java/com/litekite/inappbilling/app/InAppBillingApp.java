@@ -18,9 +18,12 @@ package com.litekite.inappbilling.app;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.multidex.MultiDex;
+import androidx.annotation.StringRes;
 
 import dagger.hilt.android.HiltAndroidApp;
 
@@ -37,15 +40,36 @@ import dagger.hilt.android.HiltAndroidApp;
 @HiltAndroidApp
 public class InAppBillingApp extends Application {
 
+	private static final String TAG = InAppBillingApp.class.getName();
+
+	/**
+	 * Logs messages for Debugging Purposes.
+	 *
+	 * @param tag     TAG is a class name in which the log come from.
+	 * @param message Type of a Log Message.
+	 */
+	public static void printLog(@NonNull String tag, @NonNull String message) {
+		Log.d(tag, message);
+	}
+
+	/**
+	 * @param context An Activity or Application Context.
+	 * @param resId A message resId that to be displayed inside a Toast.
+	 */
+	public static void showToast(@NonNull Context context, @StringRes int resId) {
+		Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
+	}
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		printLog(TAG, "onCreate:");
 	}
 
 	@Override
 	protected void attachBaseContext(@Nullable Context base) {
 		super.attachBaseContext(base);
-		MultiDex.install(this);
+		printLog(TAG, "attachBaseContext:");
 	}
 
 }

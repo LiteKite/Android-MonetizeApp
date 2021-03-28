@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.view.adapter;
+package com.litekite.inappbilling.store;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -28,7 +28,6 @@ import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.databinding.AdapterStoreItemBinding;
 import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
-import com.litekite.inappbilling.viewmodel.StoreItemVM;
 
 import java.util.List;
 

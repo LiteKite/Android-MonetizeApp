@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.viewmodel;
+package com.litekite.inappbilling.store;
 
 import android.app.Activity;
 import android.content.Context;

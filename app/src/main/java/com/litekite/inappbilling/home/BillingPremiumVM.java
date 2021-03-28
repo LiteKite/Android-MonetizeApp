@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.viewmodel;
+package com.litekite.inappbilling.home;
 
 import android.app.Activity;
 import android.app.Application;
@@ -31,6 +31,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.android.billingclient.api.SkuDetails;
 import com.litekite.inappbilling.R;
+import com.litekite.inappbilling.billing.BillingCallback;
 import com.litekite.inappbilling.billing.BillingConstants;
 import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.room.database.AppDatabase;
@@ -51,20 +52,28 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
  * @since 1.0
  */
 @HiltViewModel
-public class BillingPremiumVM extends AndroidViewModel implements LifecycleObserver {
+public class BillingPremiumVM extends AndroidViewModel implements
+		LifecycleObserver,
+		BillingCallback {
 
+	private final AppDatabase appDatabase;
+	private final BillingManager billingManager;
 	private LiveData<BillingSkuDetails> premiumSkuDetails;
-	private BillingManager billingManager;
 
 	/**
 	 * Makes a call to get Premium Feature Sku Details from local database.
 	 *
-	 * @param application An Application Instance.
+	 * @param application    An Application Instance.
+	 * @param billingManager Provides access to BillingClient which perform Product Purchases
+	 *                       from Google Play Billing Library.
 	 */
 	@Inject
-	public BillingPremiumVM(@NonNull Application application) {
+	public BillingPremiumVM(@NonNull Application application,
+	                        @NonNull AppDatabase appDatabase,
+	                        @NonNull BillingManager billingManager) {
 		super(application);
-		fetchFromDB();
+		this.appDatabase = appDatabase;
+		this.billingManager = billingManager;
 	}
 
 	/**
@@ -72,19 +81,7 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 	 * {@link #premiumSkuDetails} LiveData.
 	 */
 	private void fetchFromDB() {
-		premiumSkuDetails = AppDatabase.getAppDatabase(this.getApplication())
-				.getBillingDao()
-				.getSkuDetails(BillingConstants.SKU_UNLOCK_APP_FEATURES);
-	}
-
-	/**
-	 * Sets BillingManager.
-	 *
-	 * @param billingManager Provides access to BillingClient which perform Product Purchases from
-	 *                       Google Play Billing Library.
-	 */
-	public void setBillingManager(@NonNull BillingManager billingManager) {
-		this.billingManager = billingManager;
+		premiumSkuDetails = appDatabase.getSkuDetails(BillingConstants.SKU_UNLOCK_APP_FEATURES);
 	}
 
 	/**
@@ -123,9 +120,18 @@ public class BillingPremiumVM extends AndroidViewModel implements LifecycleObser
 		return premiumSkuDetails;
 	}
 
+	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+	void onCreate() {
+		// listens play billing manager changes
+		billingManager.addCallback(this);
+		// Sync with the local database
+		fetchFromDB();
+	}
+
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	void onDestroy() {
-		AppDatabase.destroyAppDatabase();
+		// Removes play billing manager
+		billingManager.removeCallback(this);
 	}
 
 }

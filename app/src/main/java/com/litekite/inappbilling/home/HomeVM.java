@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.viewmodel;
+package com.litekite.inappbilling.home;
 
 import android.app.Application;
 import android.view.View;
@@ -30,13 +30,14 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.litekite.inappbilling.R;
+import com.litekite.inappbilling.base.BaseActivity;
+import com.litekite.inappbilling.billing.BillingCallback;
 import com.litekite.inappbilling.billing.BillingConstants;
+import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.network.NetworkManager;
+import com.litekite.inappbilling.purchase.PurchasesActivity;
 import com.litekite.inappbilling.room.database.AppDatabase;
-import com.litekite.inappbilling.view.activity.BaseActivity;
-import com.litekite.inappbilling.view.activity.StoreActivity;
-import com.litekite.inappbilling.view.activity.ViewPurchasesActivity;
-import com.litekite.inappbilling.view.fragment.dialog.BillingPremiumDialog;
+import com.litekite.inappbilling.store.StoreActivity;
 
 import javax.inject.Inject;
 
@@ -51,8 +52,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
  * @since 1.0
  */
 @HiltViewModel
-public class HomeVM extends AndroidViewModel implements LifecycleObserver {
+public class HomeVM extends AndroidViewModel implements LifecycleObserver, BillingCallback {
 
+	private final AppDatabase appDatabase;
+	private final BillingManager billingManager;
 	private LiveData<Boolean> isPremiumPurchased = new MutableLiveData<>();
 
 	/**
@@ -62,9 +65,12 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	 * @param application An Application Instance.
 	 */
 	@Inject
-	public HomeVM(@NonNull Application application) {
+	public HomeVM(@NonNull Application application,
+	              @NonNull AppDatabase appDatabase,
+	              @NonNull BillingManager billingManager) {
 		super(application);
-		fetchFromDB();
+		this.appDatabase = appDatabase;
+		this.billingManager = billingManager;
 	}
 
 	/**
@@ -72,8 +78,9 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	 * database and assigns it to {@link #isPremiumPurchased} LiveData.
 	 */
 	private void fetchFromDB() {
-		isPremiumPurchased = AppDatabase.getAppDatabase(this.getApplication()).getBillingDao()
-				.getIsThisSkuPurchased(BillingConstants.SKU_UNLOCK_APP_FEATURES);
+		isPremiumPurchased = appDatabase.getIsThisSkuPurchased(
+				BillingConstants.SKU_UNLOCK_APP_FEATURES
+		);
 	}
 
 	@BindingAdapter("android:drawableEnd")
@@ -120,9 +127,6 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 	 */
 	@NonNull
 	public LiveData<Boolean> getIsPremiumPurchased() {
-		if (isPremiumPurchased == null) {
-			isPremiumPurchased = new MutableLiveData<>();
-		}
 		return isPremiumPurchased;
 	}
 
@@ -139,7 +143,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 			}
 		} else if (id == R.id.btn_view_your_purchases) {
 			if (checkIsPremiumPurchased(v)) {
-				ViewPurchasesActivity.start(v.getContext());
+				PurchasesActivity.start(v.getContext());
 			}
 		}
 	}
@@ -168,9 +172,18 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver {
 		return false;
 	}
 
+	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+	void onCreate() {
+		// listens play billing manager changes
+		billingManager.addCallback(this);
+		// Sync with the local database
+		fetchFromDB();
+	}
+
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	void onDestroy() {
-		AppDatabase.destroyAppDatabase();
+		// Removes play billing manager
+		billingManager.removeCallback(this);
 	}
 
 }

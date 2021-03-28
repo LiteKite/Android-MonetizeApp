@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.view.activity;
+package com.litekite.inappbilling.home;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,10 +28,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.litekite.inappbilling.R;
+import com.litekite.inappbilling.base.BaseActivity;
 import com.litekite.inappbilling.databinding.ActivityHomeBinding;
-import com.litekite.inappbilling.view.fragment.dialog.BillingPremiumDialog;
-import com.litekite.inappbilling.viewmodel.BillingVM;
-import com.litekite.inappbilling.viewmodel.HomeVM;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -102,10 +100,8 @@ public class HomeActivity extends BaseActivity {
 				getString(R.string.home),
 				homeBinding.tbWidget.tvToolbarTitle);
 		HomeVM homeVM = new ViewModelProvider(this).get(HomeVM.class);
-		BillingVM billingVM = new ViewModelProvider(this).get(BillingVM.class);
 		homeBinding.setPresenter(homeVM);
 		this.getLifecycle().addObserver(homeVM);
-		this.getLifecycle().addObserver(billingVM);
 		homeVM.getIsPremiumPurchased().observe(this, isPremiumPurchasedObserver);
 	}
 

@@ -33,7 +33,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".view.activity.SplashActivity"
+            android:name=".splash.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,13 +52,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.activity.HomeActivity"
+            android:name=".home.HomeActivity"
             android:configChanges="keyboardHidden|screenSize" />
         <activity
-            android:name=".view.activity.StoreActivity"
+            android:name=".store.StoreActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".view.activity.ViewPurchasesActivity"
+            android:name=".purchase.PurchasesActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
     </application>
 

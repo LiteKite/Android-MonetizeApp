@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.viewmodel;
+package com.litekite.inappbilling.store;
 
 import android.app.Application;
 
@@ -26,6 +26,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
 
+import com.litekite.inappbilling.billing.BillingCallback;
+import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.room.database.AppDatabase;
 import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
 
@@ -36,7 +38,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 
 /**
- * ProductsAndPurchasesVM, a view model which gets Sku Products List and its related Purchases
+ * StoreVM, a view model which gets Sku Products List and its related Purchases
  * from local database and updates it to the observing view.
  *
  * @author Vignesh S
@@ -44,9 +46,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
  * @since 1.0
  */
 @HiltViewModel
-public class ProductsAndPurchasesVM extends AndroidViewModel implements LifecycleObserver {
+public class StoreVM extends AndroidViewModel implements LifecycleObserver, BillingCallback {
 
-	private LiveData<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesList;
+	private final AppDatabase appDatabase;
+	private final BillingManager billingManager;
+	private LiveData<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesList =
+			new MutableLiveData<>();
 
 	/**
 	 * Makes a call to get Sku Product Details and its related Purchases from local database.
@@ -54,9 +59,12 @@ public class ProductsAndPurchasesVM extends AndroidViewModel implements Lifecycl
 	 * @param application application An Application Instance.
 	 */
 	@Inject
-	public ProductsAndPurchasesVM(@NonNull Application application) {
+	public StoreVM(@NonNull Application application,
+	               @NonNull AppDatabase appDatabase,
+	               @NonNull BillingManager billingManager) {
 		super(application);
-		fetchFromDB();
+		this.appDatabase = appDatabase;
+		this.billingManager = billingManager;
 	}
 
 	/**
@@ -64,8 +72,7 @@ public class ProductsAndPurchasesVM extends AndroidViewModel implements Lifecycl
 	 * it to {@link #skuProductsAndPurchasesList} LiveData.
 	 */
 	private void fetchFromDB() {
-		skuProductsAndPurchasesList = AppDatabase.getAppDatabase(this.getApplication())
-				.getBillingDao().getSkuRelatedPurchases();
+		skuProductsAndPurchasesList = appDatabase.getSkuRelatedPurchases();
 	}
 
 	/**
@@ -76,15 +83,21 @@ public class ProductsAndPurchasesVM extends AndroidViewModel implements Lifecycl
 	 */
 	@NonNull
 	public LiveData<List<BillingSkuRelatedPurchases>> getSkuProductsAndPurchasesList() {
-		if (skuProductsAndPurchasesList == null) {
-			skuProductsAndPurchasesList = new MutableLiveData<>();
-		}
 		return skuProductsAndPurchasesList;
+	}
+
+	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+	void onCreate() {
+		// listens play billing manager changes
+		billingManager.addCallback(this);
+		// Sync with the local database
+		fetchFromDB();
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	void onDestroy() {
-		AppDatabase.destroyAppDatabase();
+		// Removes play billing manager
+		billingManager.removeCallback(this);
 	}
 
 }

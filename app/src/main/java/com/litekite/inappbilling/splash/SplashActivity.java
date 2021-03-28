@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.view.activity;
+package com.litekite.inappbilling.splash;
 
 import android.os.Bundle;
 
@@ -23,7 +23,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.litekite.inappbilling.R;
-import com.litekite.inappbilling.viewmodel.SplashVM;
+import com.litekite.inappbilling.base.BaseActivity;
+import com.litekite.inappbilling.home.HomeActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 

@@ -20,6 +20,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
@@ -48,6 +50,7 @@ import static android.net.ConnectivityManager.NetworkCallback;
 @Singleton
 public class NetworkManager implements CallbackProvider<NetworkManager.NetworkStateCallback> {
 
+	private final Handler handler = new Handler(Looper.getMainLooper());
 	private final ConnectivityManager connMgr;
 	private boolean networkCallbackRegistered = false;
 	private final List<NetworkStateCallback> networkStateCallbacks = new ArrayList<>();
@@ -84,9 +87,13 @@ public class NetworkManager implements CallbackProvider<NetworkManager.NetworkSt
 		boolean isAvailable = connMgr.getNetworkCapabilities(network)
 				.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
 		if (isAvailable) {
-			networkStateCallbacks.forEach(NetworkStateCallback::onNetworkAvailable);
+			handler.post(
+					() -> networkStateCallbacks.forEach(NetworkStateCallback::onNetworkAvailable)
+			);
 		} else {
-			networkStateCallbacks.forEach(NetworkStateCallback::onNetworkLost);
+			handler.post(
+					() -> networkStateCallbacks.forEach(NetworkStateCallback::onNetworkLost)
+			);
 		}
 	}
 
@@ -135,14 +142,17 @@ public class NetworkManager implements CallbackProvider<NetworkManager.NetworkSt
 
 	@Override
 	public void addCallback(@NonNull NetworkStateCallback cb) {
-		networkStateCallbacks.add(cb);
-		registerNetworkCallback();
+		if (!networkStateCallbacks.contains(cb)) {
+			networkStateCallbacks.add(cb);
+			registerNetworkCallback();
+		}
 	}
 
 	@Override
 	public void removeCallback(@NonNull NetworkStateCallback cb) {
-		networkStateCallbacks.remove(cb);
-		unregisterNetworkCallback();
+		if (networkStateCallbacks.remove(cb)) {
+			unregisterNetworkCallback();
+		}
 	}
 
 	public interface NetworkStateCallback {

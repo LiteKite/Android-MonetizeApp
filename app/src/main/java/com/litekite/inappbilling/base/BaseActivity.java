@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.view.activity;
+package com.litekite.inappbilling.base;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
@@ -54,30 +52,12 @@ public class BaseActivity extends AppCompatActivity {
 	}
 
 	/**
-	 * Logs messages for Debugging Purposes.
-	 *
-	 * @param tag     TAG is a class name in which the log come from.
-	 * @param message Type of a Log Message.
-	 */
-	public static void printLog(@NonNull String tag, @NonNull String message) {
-		Log.d(tag, message);
-	}
-
-	/**
 	 * @param v           A View in which the SnackBar should be displayed at the bottom of the
 	 *                    screen.
 	 * @param stringResID A message that to be displayed inside a SnackBar.
 	 */
 	public static void showSnackBar(@NonNull View v, @StringRes int stringResID) {
 		Snackbar.make(v, stringResID, Snackbar.LENGTH_LONG).show();
-	}
-
-	/**
-	 * @param context An Activity or Application Context.
-	 * @param message A message that to be displayed inside a Toast.
-	 */
-	public static void showToast(@NonNull Context context, @NonNull String message) {
-		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 	}
 
 	/**

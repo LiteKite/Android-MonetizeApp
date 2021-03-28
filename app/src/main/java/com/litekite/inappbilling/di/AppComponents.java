@@ -20,6 +20,7 @@ import android.content.Context;
 
 import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.network.NetworkManager;
+import com.litekite.inappbilling.room.database.AppDatabase;
 import com.litekite.inappbilling.worker.WorkExecutor;
 
 import javax.inject.Singleton;
@@ -40,7 +41,13 @@ import dagger.hilt.components.SingletonComponent;
  */
 @Module
 @InstallIn(SingletonComponent.class)
-class AppComponents {
+public class AppComponents {
+
+	@Singleton
+	@Provides
+	static AppDatabase provideAppDatabase(@ApplicationContext Context context) {
+		return AppDatabase.getAppDatabase(context);
+	}
 
 	@Singleton
 	@Provides
@@ -56,8 +63,11 @@ class AppComponents {
 
 	@Singleton
 	@Provides
-	static BillingManager provideBillingManager(@ApplicationContext Context context) {
-		return new BillingManager(context);
+	static BillingManager provideBillingManager(@ApplicationContext Context context,
+	                                            AppDatabase appDatabase,
+	                                            NetworkManager networkManager,
+	                                            WorkExecutor workExecutor) {
+		return new BillingManager(context, appDatabase, networkManager, workExecutor);
 	}
 
 }

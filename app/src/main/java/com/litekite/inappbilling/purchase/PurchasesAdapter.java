@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.view.adapter;
+package com.litekite.inappbilling.purchase;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -27,12 +27,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.databinding.AdapterPurchaseItemBinding;
 import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
-import com.litekite.inappbilling.viewmodel.PurchaseItemVM;
 
 import java.util.List;
 
 /**
- * ViewPurchasesAdapter, a RecyclerViewAdapter which provides product item and each product item has
+ * PurchasesAdapter, a RecyclerViewAdapter which provides product item and each product item has
  * its own name and represents its purchases. For inApp Products, quantity of product purchases will
  * be displayed. For subscription based products, the date of expiration will be displayed if it was
  * already purchased. Otherwise "Not Purchased Yet" will be displayed.
@@ -41,7 +40,7 @@ import java.util.List;
  * @version 1.0, 10/03/2018
  * @since 1.0
  */
-public class ViewPurchasesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class PurchasesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 	private final Context context;
 	private final List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList;
@@ -52,8 +51,8 @@ public class ViewPurchasesAdapter extends RecyclerView.Adapter<RecyclerView.View
 	 * @param context                     An Activity Context.
 	 * @param skuProductsAndPurchasesList Has Sku Products and its related purchases.
 	 */
-	public ViewPurchasesAdapter(@NonNull Context context,
-	                            @NonNull List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList) {
+	public PurchasesAdapter(@NonNull Context context,
+	                        @NonNull List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList) {
 		this.context = context;
 		this.skuProductsAndPurchasesList = skuProductsAndPurchasesList;
 	}

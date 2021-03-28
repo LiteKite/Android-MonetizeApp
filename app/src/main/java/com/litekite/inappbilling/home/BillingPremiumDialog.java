@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.view.fragment.dialog;
+package com.litekite.inappbilling.home;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -33,8 +33,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.databinding.DialogBillingPremiumBinding;
 import com.litekite.inappbilling.room.entity.BillingSkuDetails;
-import com.litekite.inappbilling.viewmodel.BillingPremiumVM;
-import com.litekite.inappbilling.viewmodel.BillingVM;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -131,11 +129,8 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
 	private void init() {
 		BillingPremiumVM billingPremiumVM =
 				new ViewModelProvider(this).get(BillingPremiumVM.class);
-		BillingVM billingVM = new ViewModelProvider(this).get(BillingVM.class);
 		dialogBillingPremiumBinding.setPresenter(billingPremiumVM);
-		billingPremiumVM.setBillingManager(billingVM.getBillingManager());
 		this.getLifecycle().addObserver(billingPremiumVM);
-		this.getLifecycle().addObserver(billingVM);
 		billingPremiumVM.getPremiumSkuDetails()
 				.observe(getViewLifecycleOwner(), premiumSkuDetailsObserver);
 	}

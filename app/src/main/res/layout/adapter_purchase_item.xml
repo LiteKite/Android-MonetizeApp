@@ -17,13 +17,13 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".view.adapter.ViewPurchasesAdapter">
+    tools:context=".purchase.PurchasesAdapter">
 
     <data>
 
         <variable
             name="presenter"
-            type="com.litekite.inappbilling.viewmodel.PurchaseItemVM" />
+            type="com.litekite.inappbilling.purchase.PurchaseItemVM" />
 
     </data>
 

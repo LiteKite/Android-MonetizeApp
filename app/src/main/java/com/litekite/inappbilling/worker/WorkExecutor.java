@@ -18,7 +18,7 @@ package com.litekite.inappbilling.worker;
 
 import androidx.annotation.NonNull;
 
-import com.litekite.inappbilling.view.activity.BaseActivity;
+import com.litekite.inappbilling.app.InAppBillingApp;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -84,7 +84,7 @@ public class WorkExecutor implements Executor {
 				pool.shutdownNow(); // Cancel currently executing tasks
 				// Wait a while for tasks to respond to being cancelled
 				if (!pool.awaitTermination(TERMINATION_AWAIT_TIMEOUT, TimeUnit.SECONDS)) {
-					BaseActivity.printLog(TAG, "Pool did not terminate");
+					InAppBillingApp.printLog(TAG, "Pool did not terminate");
 				}
 			}
 		} catch (InterruptedException ie) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.viewmodel;
+package com.litekite.inappbilling.purchase;
 
 import android.content.Context;
 import android.widget.ImageView;

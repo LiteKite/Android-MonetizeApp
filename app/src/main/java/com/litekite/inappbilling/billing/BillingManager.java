@@ -39,11 +39,12 @@ import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
 import com.litekite.inappbilling.R;
+import com.litekite.inappbilling.app.InAppBillingApp;
 import com.litekite.inappbilling.base.CallbackProvider;
+import com.litekite.inappbilling.network.NetworkManager;
 import com.litekite.inappbilling.room.database.AppDatabase;
 import com.litekite.inappbilling.room.entity.BillingPurchaseDetails;
 import com.litekite.inappbilling.room.entity.BillingSkuDetails;
-import com.litekite.inappbilling.view.activity.BaseActivity;
 import com.litekite.inappbilling.worker.WorkExecutor;
 
 import java.util.ArrayList;
@@ -55,11 +56,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import dagger.hilt.EntryPoint;
-import dagger.hilt.EntryPoints;
-import dagger.hilt.InstallIn;
-import dagger.hilt.components.SingletonComponent;
 
 /**
  * Provides access to BillingClient {@link #myBillingClient}, handles and performs InApp Purchases.
@@ -78,18 +74,21 @@ import dagger.hilt.components.SingletonComponent;
 @Singleton
 public class BillingManager implements
 		PurchasesUpdatedListener,
-		CallbackProvider<BillingCallback> {
+		CallbackProvider<BillingCallback>,
+		NetworkManager.NetworkStateCallback {
 
-	private static final String TAG = BillingManager.class.getName();
+	public static final String TAG = BillingManager.class.getName();
 	// Default value of mBillingClientResponseCode until BillingManager was not yet initialized
 	private final List<Purchase> myPurchasesResultList = new ArrayList<>();
 	// Background work executor
+	private final Context context;
+	private final AppDatabase appDatabase;
+	private final NetworkManager networkManager;
 	private final WorkExecutor workExecutor;
 	/**
 	 * A reference to BillingClient
 	 **/
 	private final BillingClient myBillingClient;
-	private final Context context;
 	private final List<BillingCallback> billingCallbacks = new ArrayList<>();
 	private Set<String> tokensToBeConsumed;
 
@@ -97,34 +96,42 @@ public class BillingManager implements
 	 * Initializes BillingClient, makes connection and queries sku details, purchase details from
 	 * Google Play Remote Server, gets purchase details from Google Play Cache.
 	 *
-	 * @param context activity or application context.
+	 * @param context      activity or application context.
+	 * @param workExecutor An executor with fixed thread pool handles background works.
 	 */
 	@Inject
-	public BillingManager(@NonNull Context context) {
+	public BillingManager(@NonNull Context context,
+	                      @NonNull AppDatabase appDatabase,
+	                      @NonNull NetworkManager networkManager,
+	                      @NonNull WorkExecutor workExecutor) {
 		this.context = context;
-		// Gets WorkExecutor for background works.
-		workExecutor = getEntryPoint().getWorkExecutor();
-		BaseActivity.printLog(TAG, "Creating Billing client.");
+		this.appDatabase = appDatabase;
+		this.networkManager = networkManager;
+		this.workExecutor = workExecutor;
+		InAppBillingApp.printLog(TAG, "Creating Billing client.");
 		myBillingClient = BillingClient.newBuilder(context)
 				.enablePendingPurchases()
 				.setListener(this)
 				.build();
 	}
 
-	private BillingManagerEntryPoint getEntryPoint() {
-		return EntryPoints.get(context, BillingManagerEntryPoint.class);
-	}
-
 	@Override
-	public void addCallback(@NonNull BillingCallback cb) {
-		billingCallbacks.add(cb);
+	public void onNetworkAvailable() {
+		InAppBillingApp.printLog(TAG, "onNetworkAvailable: Network Connected");
 		connectToPlayBillingService();
 	}
 
 	@Override
+	public void addCallback(@NonNull BillingCallback cb) {
+		if (!billingCallbacks.contains(cb)) {
+			billingCallbacks.add(cb);
+			connectToPlayBillingService();
+		}
+	}
+
+	@Override
 	public void removeCallback(@NonNull BillingCallback cb) {
-		billingCallbacks.remove(cb);
-		if (billingCallbacks.size() == 0) {
+		if (billingCallbacks.remove(cb) && billingCallbacks.size() == 0) {
 			destroy();
 		}
 	}
@@ -133,24 +140,30 @@ public class BillingManager implements
 	 * Clears the resources
 	 */
 	private void destroy() {
-		BaseActivity.printLog(TAG, "Destroying the manager.");
-		if (myBillingClient != null && myBillingClient.isReady()) {
+		InAppBillingApp.printLog(TAG, "Destroying the billing manager.");
+		if (myBillingClient.isReady()) {
 			myBillingClient.endConnection();
 		}
+		this.networkManager.removeCallback(this);
+		// Destroys app local database
+		appDatabase.destroyAppDatabase();
 	}
 
 	/**
 	 * Initiates Google Play Billing Service.
 	 */
-	public void connectToPlayBillingService() {
-		BaseActivity.printLog(TAG, "connectToPlayBillingService");
-		if (!myBillingClient.isReady()) {
+	private void connectToPlayBillingService() {
+		InAppBillingApp.printLog(TAG, "connectToPlayBillingService");
+		if (!myBillingClient.isReady() && billingCallbacks.size() > 0) {
 			startServiceConnection(() -> {
 				// IAB is fully set up. Now, let's get an inventory of stuff we own.
-				BaseActivity.printLog(TAG, "Setup successful. Querying inventory.");
+				InAppBillingApp.printLog(TAG, "Setup successful. Querying inventory.");
 				querySkuDetails();
 				queryPurchasesAsync();
 			});
+			// Watches network changes and initiates billing service connection
+			// if not started before...
+			this.networkManager.addCallback(this);
 		}
 	}
 
@@ -172,14 +185,14 @@ public class BillingManager implements
 						= myBillingClient.queryPurchases(SkuType.SUBS);
 				List<Purchase> subscriptionPurchases = subscriptionResult.getPurchasesList();
 				if (subscriptionPurchases != null) {
-					BaseActivity.printLog(TAG, "Subscription purchase result size: "
+					InAppBillingApp.printLog(TAG, "Subscription purchase result size: "
 							+ subscriptionPurchases.size());
 					purchases.addAll(subscriptionPurchases);
 				} else {
-					BaseActivity.printLog(TAG, "Subscription purchase result is null:");
+					InAppBillingApp.printLog(TAG, "Subscription purchase result is null:");
 				}
 			}
-			BaseActivity.printLog(TAG, "Local Query Purchase List Size: "
+			InAppBillingApp.printLog(TAG, "Local Query Purchase List Size: "
 					+ purchases.size());
 			processPurchases(purchases);
 		};
@@ -193,13 +206,13 @@ public class BillingManager implements
 	 */
 	private void processPurchases(@NonNull List<Purchase> purchases) {
 		if (purchases.size() > 0) {
-			BaseActivity.printLog(TAG, "purchase list size: " + purchases.size());
+			InAppBillingApp.printLog(TAG, "purchase list size: " + purchases.size());
 		}
 		for (Purchase purchase : purchases) {
 			if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 				handlePurchase(purchase);
 			} else if (purchase.getPurchaseState() == Purchase.PurchaseState.PENDING) {
-				BaseActivity.printLog(TAG, "Received a pending purchase of SKU: "
+				InAppBillingApp.printLog(TAG, "Received a pending purchase of SKU: "
 						+ purchase.getSku());
 				// handle pending purchases, e.g. confirm with users about the pending
 				// purchases, prompt them to complete it, etc.
@@ -230,11 +243,11 @@ public class BillingManager implements
 					.build();
 			myBillingClient.acknowledgePurchase(params, billingResult -> {
 				if (billingResult.getResponseCode() == BillingResponseCode.OK) {
-					BaseActivity.printLog(TAG,
+					InAppBillingApp.printLog(TAG,
 							"onAcknowledgePurchaseResponse: "
 									+ billingResult.getResponseCode());
 				} else {
-					BaseActivity.printLog(TAG,
+					InAppBillingApp.printLog(TAG,
 							"onAcknowledgePurchaseResponse: "
 									+ billingResult.getDebugMessage());
 				}
@@ -246,7 +259,7 @@ public class BillingManager implements
 	@Override
 	public void onPurchasesUpdated(@NonNull BillingResult billingResult,
 	                               @Nullable List<Purchase> purchases) {
-		BaseActivity.printLog(TAG, "onPurchasesUpdate() responseCode: "
+		InAppBillingApp.printLog(TAG, "onPurchasesUpdate() responseCode: "
 				+ billingResult.getResponseCode());
 		if (billingResult.getResponseCode() == BillingResponseCode.OK && purchases != null) {
 			processPurchases(purchases);
@@ -262,7 +275,7 @@ public class BillingManager implements
 	 * @param purchase the purchase result contains Purchase Details.
 	 */
 	private void handlePurchase(@NonNull Purchase purchase) {
-		BaseActivity.printLog(TAG, "Got a purchase: " + purchase);
+		InAppBillingApp.printLog(TAG, "Got a purchase: " + purchase);
 		myPurchasesResultList.add(purchase);
 	}
 
@@ -281,8 +294,7 @@ public class BillingManager implements
 			billingPurchaseDetails.purchaseTime = purchase.getPurchaseTime();
 			billingPurchaseDetailsList.add(billingPurchaseDetails);
 		}
-		workExecutor.execute(() -> AppDatabase.getAppDatabase(context)
-				.getBillingDao().insertPurchaseDetails(billingPurchaseDetailsList));
+		workExecutor.execute(() -> appDatabase.insertPurchaseDetails(billingPurchaseDetailsList));
 	}
 
 	/**
@@ -300,7 +312,7 @@ public class BillingManager implements
 		if (tokensToBeConsumed == null) {
 			tokensToBeConsumed = new HashSet<>();
 		} else if (tokensToBeConsumed.contains(purchase.getPurchaseToken())) {
-			BaseActivity.printLog(TAG,
+			InAppBillingApp.printLog(TAG,
 					"Token was already scheduled to be consumed - skipping...");
 			return;
 		}
@@ -310,10 +322,10 @@ public class BillingManager implements
 			// If billing service was disconnected, we try to reconnect 1 time
 			// (feel free to introduce your retry policy here).
 			if (billingResult.getResponseCode() == BillingResponseCode.OK) {
-				BaseActivity.printLog(TAG,
+				InAppBillingApp.printLog(TAG,
 						"onConsumeResponse, Purchase Token: " + purchaseToken);
 			} else {
-				BaseActivity.printLog(TAG, "onConsumeResponse: "
+				InAppBillingApp.printLog(TAG, "onConsumeResponse: "
 						+ billingResult.getDebugMessage());
 			}
 		};
@@ -340,7 +352,7 @@ public class BillingManager implements
 		switch (billingResult.getResponseCode()) {
 			case BillingResponseCode.DEVELOPER_ERROR:
 			case BillingResponseCode.BILLING_UNAVAILABLE:
-				BaseActivity.printLog(TAG, "Billing unavailable. "
+				InAppBillingApp.printLog(TAG, "Billing unavailable. "
 						+ "Make sure your Google Play app is setup correctly");
 				break;
 			case BillingResponseCode.SERVICE_DISCONNECTED:
@@ -348,36 +360,36 @@ public class BillingManager implements
 				connectToPlayBillingService();
 				break;
 			case BillingResponseCode.OK:
-				BaseActivity.printLog(TAG, "Setup successful!");
+				InAppBillingApp.printLog(TAG, "Setup successful!");
 				break;
 			case BillingResponseCode.USER_CANCELED:
-				BaseActivity.printLog(TAG, "User has cancelled Purchase!");
+				InAppBillingApp.printLog(TAG, "User has cancelled Purchase!");
 				break;
 			case BillingResponseCode.SERVICE_UNAVAILABLE:
 				notifyBillingError(R.string.err_no_internet);
 				break;
 			case BillingResponseCode.ITEM_UNAVAILABLE:
-				BaseActivity.printLog(TAG, "Product is not available for purchase");
+				InAppBillingApp.printLog(TAG, "Product is not available for purchase");
 				break;
 			case BillingResponseCode.ERROR:
-				BaseActivity.printLog(TAG, "fatal error during API action");
+				InAppBillingApp.printLog(TAG, "fatal error during API action");
 				break;
 			case BillingResponseCode.ITEM_ALREADY_OWNED:
-				BaseActivity.printLog(TAG,
+				InAppBillingApp.printLog(TAG,
 						"Failure to purchase since item is already owned");
 				queryPurchasesAsync();
 				break;
 			case BillingResponseCode.ITEM_NOT_OWNED:
-				BaseActivity.printLog(TAG, "Failure to consume since item is not owned");
+				InAppBillingApp.printLog(TAG, "Failure to consume since item is not owned");
 				break;
 			case BillingResponseCode.FEATURE_NOT_SUPPORTED:
-				BaseActivity.printLog(TAG, "Billing feature is not supported on your device");
+				InAppBillingApp.printLog(TAG, "Billing feature is not supported on your device");
 				break;
 			case BillingResponseCode.SERVICE_TIMEOUT:
-				BaseActivity.printLog(TAG, "Billing service timeout occurred");
+				InAppBillingApp.printLog(TAG, "Billing service timeout occurred");
 				break;
 			default:
-				BaseActivity.printLog(TAG, "Billing unavailable. Please check your device");
+				InAppBillingApp.printLog(TAG, "Billing unavailable. Please check your device");
 				break;
 		}
 	}
@@ -388,6 +400,7 @@ public class BillingManager implements
 	 * @param id A StringResID {@link StringRes}
 	 */
 	private void notifyBillingError(@StringRes int id) {
+		InAppBillingApp.showToast(context, id);
 		billingCallbacks.forEach(cb -> cb.onBillingError(context.getString(id)));
 	}
 
@@ -400,7 +413,7 @@ public class BillingManager implements
 	private void executeServiceRequest(Runnable runnable) {
 		if (myBillingClient.isReady()) {
 			runnable.run();
-		} else {
+		} else if (billingCallbacks.size() > 0) {
 			// If billing service was disconnected, we try to reconnect 1 time.
 			// (feel free to introduce your retry policy here).
 			startServiceConnection(runnable);
@@ -417,7 +430,7 @@ public class BillingManager implements
 			@Override
 			public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
 				// The billing client is ready. You can query purchases here.
-				BaseActivity.printLog(TAG, "Setup finished");
+				InAppBillingApp.printLog(TAG, "Setup finished");
 				if (billingResult.getResponseCode() == BillingResponseCode.OK) {
 					if (executeOnSuccess != null) {
 						executeOnSuccess.run();
@@ -468,7 +481,7 @@ public class BillingManager implements
 				(billingResult, skuDetailsList) -> {
 					// Process the result.
 					if (billingResult.getResponseCode() != BillingResponseCode.OK) {
-						BaseActivity.printLog(TAG, "Unsuccessful query for type: "
+						InAppBillingApp.printLog(TAG, "Unsuccessful query for type: "
 								+ billingType
 								+ ". Error code: "
 								+ billingResult.getResponseCode());
@@ -482,10 +495,10 @@ public class BillingManager implements
 						return;
 					}
 					if (skuResultLMap.size() == 0) {
-						BaseActivity.printLog(TAG, "sku error: "
+						InAppBillingApp.printLog(TAG, "sku error: "
 								+ context.getString(R.string.err_no_sku));
 					} else {
-						BaseActivity.printLog(TAG, "storing sku list locally");
+						InAppBillingApp.printLog(TAG, "storing sku list locally");
 						storeSkuDetailsLocally(skuResultLMap);
 					}
 				});
@@ -503,7 +516,7 @@ public class BillingManager implements
 		if (skuDetails.getType().equals(SkuType.SUBS) && areSubscriptionsSupported()
 				|| skuDetails.getType().equals(SkuType.INAPP)) {
 			Runnable purchaseFlowRequest = () -> {
-				BaseActivity.printLog(TAG, "Launching in-app purchase flow.");
+				InAppBillingApp.printLog(TAG, "Launching in-app purchase flow.");
 				BillingFlowParams purchaseParams = BillingFlowParams.newBuilder()
 						.setSkuDetails(skuDetails)
 						.build();
@@ -526,7 +539,7 @@ public class BillingManager implements
 	private boolean areSubscriptionsSupported() {
 		BillingResult billingResult = myBillingClient.isFeatureSupported(FeatureType.SUBSCRIPTIONS);
 		if (billingResult.getResponseCode() != BillingResponseCode.OK) {
-			BaseActivity.printLog(TAG, "areSubscriptionsSupported() got an error response: "
+			InAppBillingApp.printLog(TAG, "areSubscriptionsSupported() got an error response: "
 					+ billingResult.getResponseCode());
 			notifyBillingError(R.string.err_subscription_not_supported);
 		}
@@ -553,17 +566,7 @@ public class BillingManager implements
 				billingSkuDetailsList.add(billingSkuDetails);
 			}
 		}
-		workExecutor.execute(() -> AppDatabase.getAppDatabase(context)
-				.getBillingDao().insertSkuDetails(billingSkuDetailsList));
-	}
-
-	@EntryPoint
-	@InstallIn(SingletonComponent.class)
-	public interface BillingManagerEntryPoint {
-
-		@NonNull
-		WorkExecutor getWorkExecutor();
-
+		workExecutor.execute(() -> appDatabase.insertSkuDetails(billingSkuDetailsList));
 	}
 
 }

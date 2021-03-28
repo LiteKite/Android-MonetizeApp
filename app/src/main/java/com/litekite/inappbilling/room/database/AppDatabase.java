@@ -19,6 +19,7 @@ package com.litekite.inappbilling.room.database;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -26,6 +27,9 @@ import androidx.room.RoomDatabase;
 import com.litekite.inappbilling.room.dao.BillingDao;
 import com.litekite.inappbilling.room.entity.BillingPurchaseDetails;
 import com.litekite.inappbilling.room.entity.BillingSkuDetails;
+import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
+
+import java.util.List;
 
 /**
  * Database Class, Creates Database, Database Instance and destroys Database instance.
@@ -43,7 +47,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
 	private static final String DATABASE_NAME = "InAppBilling";
 
-	private static AppDatabase APP_DATABASE_INSTANCE;
+	private static volatile AppDatabase APP_DATABASE_INSTANCE;
 
 	/**
 	 * Creates Room Database Instance if was not already initiated.
@@ -53,7 +57,7 @@ public abstract class AppDatabase extends RoomDatabase {
 	 * @return {@link #APP_DATABASE_INSTANCE}
 	 */
 	@NonNull
-	public static AppDatabase getAppDatabase(@NonNull Context context) {
+	public static synchronized AppDatabase getAppDatabase(@NonNull Context context) {
 		if (APP_DATABASE_INSTANCE == null) {
 			APP_DATABASE_INSTANCE =
 					Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).build();
@@ -61,10 +65,33 @@ public abstract class AppDatabase extends RoomDatabase {
 		return APP_DATABASE_INSTANCE;
 	}
 
+	@NonNull
+	public LiveData<Boolean> getIsThisSkuPurchased(@NonNull String skuID) {
+		return getBillingDao().getIsThisSkuPurchased(skuID);
+	}
+
+	@NonNull
+	public LiveData<BillingSkuDetails> getSkuDetails(@NonNull String skuID) {
+		return getBillingDao().getSkuDetails(skuID);
+	}
+
+	@NonNull
+	public LiveData<List<BillingSkuRelatedPurchases>> getSkuRelatedPurchases() {
+		return getBillingDao().getSkuRelatedPurchases();
+	}
+
+	public void insertPurchaseDetails(@NonNull List<BillingPurchaseDetails> billingPurchaseDetailsList) {
+		getBillingDao().insertPurchaseDetails(billingPurchaseDetailsList);
+	}
+
+	public void insertSkuDetails(@NonNull List<BillingSkuDetails> billingSkuDetailsList) {
+		getBillingDao().insertSkuDetails(billingSkuDetailsList);
+	}
+
 	/**
 	 * Destroys {@link #APP_DATABASE_INSTANCE}
 	 */
-	public static void destroyAppDatabase() {
+	public void destroyAppDatabase() {
 		APP_DATABASE_INSTANCE = null;
 	}
 

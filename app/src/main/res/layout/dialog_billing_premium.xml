@@ -17,13 +17,13 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".view.fragment.dialog.BillingPremiumDialog">
+    tools:context=".home.BillingPremiumDialog">
 
     <data>
 
         <variable
             name="presenter"
-            type="com.litekite.inappbilling.viewmodel.BillingPremiumVM" />
+            type="com.litekite.inappbilling.home.BillingPremiumVM" />
 
     </data>
 

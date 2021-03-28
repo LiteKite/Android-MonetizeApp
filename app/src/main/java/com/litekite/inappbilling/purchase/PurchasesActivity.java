@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.litekite.inappbilling.view.activity;
+package com.litekite.inappbilling.purchase;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,11 +28,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.litekite.inappbilling.R;
-import com.litekite.inappbilling.databinding.ActivityStoreBinding;
+import com.litekite.inappbilling.base.BaseActivity;
+import com.litekite.inappbilling.databinding.ActivityViewPurchasesBinding;
 import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
-import com.litekite.inappbilling.view.adapter.StoreAdapter;
-import com.litekite.inappbilling.viewmodel.BillingVM;
-import com.litekite.inappbilling.viewmodel.ProductsAndPurchasesVM;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,20 +38,19 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 /**
- * StoreActivity, which displays inApp and subscription products as a list and each products has
- * its own name and price and users buy them by tapping buy button. Purchases made from Google
- * Play Billing Library.
+ * PurchasesActivity, which displays list of inApp and subscription products that are all
+ * purchased by the user.
  *
  * @author Vignesh S
  * @version 1.0, 10/03/2018
  * @since 1.0
  */
 @AndroidEntryPoint
-public class StoreActivity extends BaseActivity {
+public class PurchasesActivity extends BaseActivity {
 
-	private ActivityStoreBinding storeBinding;
-	private List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList;
-	private StoreAdapter storeAdapter;
+	private ActivityViewPurchasesBinding viewPurchasesBinding;
+	private final List<BillingSkuRelatedPurchases> skuProductsAndPurchasesList = new ArrayList<>();
+	private PurchasesAdapter purchasesAdapter;
 
 	/**
 	 * Observes changes and updates of Sku Products and Purchases which is stored in local database.
@@ -62,21 +59,21 @@ public class StoreActivity extends BaseActivity {
 	private final Observer<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesObserver =
 			skuRelatedPurchasesList -> {
 				if (skuRelatedPurchasesList != null && skuRelatedPurchasesList.size() > 0) {
-					StoreActivity.this.skuProductsAndPurchasesList.clear();
-					StoreActivity.this.skuProductsAndPurchasesList
+					PurchasesActivity.this.skuProductsAndPurchasesList.clear();
+					PurchasesActivity.this.skuProductsAndPurchasesList
 							.addAll(skuRelatedPurchasesList);
-					StoreActivity.this.storeAdapter.notifyDataSetChanged();
+					PurchasesActivity.this.purchasesAdapter.notifyDataSetChanged();
 				}
 			};
 
 	/**
-	 * Launches StoreActivity.
+	 * Launches PurchasesActivity.
 	 *
 	 * @param context An Activity Context.
 	 */
 	public static void start(@NonNull Context context) {
 		if (context instanceof AppCompatActivity) {
-			Intent intent = new Intent(context, StoreActivity.class);
+			Intent intent = new Intent(context, PurchasesActivity.class);
 			context.startActivity(intent);
 			startActivityAnimation(context);
 		}
@@ -85,35 +82,30 @@ public class StoreActivity extends BaseActivity {
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		storeBinding = DataBindingUtil.setContentView(this, R.layout.activity_store);
+		viewPurchasesBinding =
+				DataBindingUtil.setContentView(this, R.layout.activity_view_purchases);
 		init();
 	}
 
 	/**
 	 * Sets Toolbar.
-	 * Initializes Presenter ProductsAndPurchasesViewModel, BillingViewModel and registers
-	 * LifeCycle Observers.
+	 * Initializes Presenter ProductsAndPurchasesViewModel and registers LifeCycle Observers.
 	 * Observes Sku Products and Purchases.
 	 * Initializes RecyclerView Products List and its adapter.
 	 */
 	private void init() {
-		setToolbar(storeBinding.tbWidget.toolbar,
+		setToolbar(viewPurchasesBinding.tbWidget.toolbar,
 				true,
-				getString(R.string.store),
-				storeBinding.tbWidget.tvToolbarTitle);
-		BillingVM billingVM = new ViewModelProvider(this).get(BillingVM.class);
-		ProductsAndPurchasesVM productsAndPurchasesVM =
-				new ViewModelProvider(this).get(ProductsAndPurchasesVM.class);
-		this.getLifecycle().addObserver(productsAndPurchasesVM);
-		this.getLifecycle().addObserver(billingVM);
-		skuProductsAndPurchasesList = new ArrayList<>();
-		storeAdapter = new StoreAdapter(
+				getString(R.string.your_purchases),
+				viewPurchasesBinding.tbWidget.tvToolbarTitle);
+		PurchasesVM purchasesVM = new ViewModelProvider(this).get(PurchasesVM.class);
+		this.getLifecycle().addObserver(purchasesVM);
+		purchasesAdapter = new PurchasesAdapter(this, skuProductsAndPurchasesList);
+		viewPurchasesBinding.rvProductsPurchases.setAdapter(purchasesAdapter);
+		purchasesVM.getSkuProductsAndPurchasesList().observe(
 				this,
-				skuProductsAndPurchasesList,
-				billingVM.getBillingManager());
-		storeBinding.rvStore.setAdapter(storeAdapter);
-		productsAndPurchasesVM.getSkuProductsAndPurchasesList()
-				.observe(this, skuProductsAndPurchasesObserver);
+				skuProductsAndPurchasesObserver
+		);
 	}
 
 }
