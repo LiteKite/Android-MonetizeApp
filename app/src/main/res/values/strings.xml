@@ -16,7 +16,7 @@
 -->
 <resources>
 
-    <string name="app_name">InAppBilling</string>
+    <string name="app_name">MonetizeApp</string>
     <string name="toolbar_title">Toolbar Title</string>
 
     <!--Common-->

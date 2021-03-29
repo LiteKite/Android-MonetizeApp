@@ -25,7 +25,7 @@
 
         <variable
             name="presenter"
-            type="com.litekite.inappbilling.store.StoreItemVM" />
+            type="com.litekite.monetize.store.StoreItemVM" />
 
     </data>
 

@@ -16,7 +16,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.litekite.inappbilling">
+    package="com.litekite.monetize">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -26,7 +26,7 @@
         android:required="true" />
 
     <application
-        android:name=".app.InAppBillingApp"
+        android:name="com.litekite.monetize.app.MonetizeApp"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -40,12 +40,12 @@
             tools:node="merge">
             <!-- This entry makes BillingManagerInitializer discoverable. -->
             <meta-data
-                android:name="com.litekite.inappbilling.startup.BillingManagerInitializer"
+                android:name="com.litekite.monetize.startup.BillingManagerInitializer"
                 android:value="androidx.startup" />
         </provider>
 
         <activity
-            android:name=".splash.SplashActivity"
+            android:name="com.litekite.monetize.splash.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -59,18 +59,18 @@
 
                 <data
                     android:host="litekite.business.site"
-                    android:pathPrefix="/inappbilling/"
+                    android:pathPrefix="/monetize_app/"
                     android:scheme="http" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".home.HomeActivity"
+            android:name="com.litekite.monetize.home.HomeActivity"
             android:configChanges="keyboardHidden|screenSize" />
         <activity
-            android:name=".store.StoreActivity"
+            android:name="com.litekite.monetize.store.StoreActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity
-            android:name=".purchase.PurchasesActivity"
+            android:name="com.litekite.monetize.purchase.PurchasesActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
     </application>
 

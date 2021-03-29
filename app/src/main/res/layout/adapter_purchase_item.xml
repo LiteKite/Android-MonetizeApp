@@ -23,7 +23,7 @@
 
         <variable
             name="presenter"
-            type="com.litekite.inappbilling.purchase.PurchaseItemVM" />
+            type="com.litekite.monetize.purchase.PurchaseItemVM" />
 
     </data>
 

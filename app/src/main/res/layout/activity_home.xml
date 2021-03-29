@@ -23,7 +23,7 @@
 
         <variable
             name="presenter"
-            type="com.litekite.inappbilling.home.HomeVM" />
+            type="com.litekite.monetize.home.HomeVM" />
 
     </data>
 
