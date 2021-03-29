@@ -122,16 +122,8 @@ public class BillingPremiumVM extends AndroidViewModel implements
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
 	void onCreate() {
-		// listens play billing manager changes
-		billingManager.addCallback(this);
 		// Sync with the local database
 		fetchFromDB();
-	}
-
-	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-	void onDestroy() {
-		// Removes play billing manager
-		billingManager.removeCallback(this);
 	}
 
 }

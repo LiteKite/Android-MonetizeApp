@@ -33,7 +33,6 @@ import com.litekite.inappbilling.R;
 import com.litekite.inappbilling.base.BaseActivity;
 import com.litekite.inappbilling.billing.BillingCallback;
 import com.litekite.inappbilling.billing.BillingConstants;
-import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.network.NetworkManager;
 import com.litekite.inappbilling.purchase.PurchasesActivity;
 import com.litekite.inappbilling.room.database.AppDatabase;
@@ -55,7 +54,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class HomeVM extends AndroidViewModel implements LifecycleObserver, BillingCallback {
 
 	private final AppDatabase appDatabase;
-	private final BillingManager billingManager;
 	private LiveData<Boolean> isPremiumPurchased = new MutableLiveData<>();
 
 	/**
@@ -66,11 +64,9 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver, Billi
 	 */
 	@Inject
 	public HomeVM(@NonNull Application application,
-	              @NonNull AppDatabase appDatabase,
-	              @NonNull BillingManager billingManager) {
+	              @NonNull AppDatabase appDatabase) {
 		super(application);
 		this.appDatabase = appDatabase;
-		this.billingManager = billingManager;
 	}
 
 	/**
@@ -174,16 +170,8 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver, Billi
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
 	void onCreate() {
-		// listens play billing manager changes
-		billingManager.addCallback(this);
 		// Sync with the local database
 		fetchFromDB();
-	}
-
-	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-	void onDestroy() {
-		// Removes play billing manager
-		billingManager.removeCallback(this);
 	}
 
 }

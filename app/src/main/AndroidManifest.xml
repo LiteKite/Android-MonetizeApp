@@ -15,6 +15,7 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.litekite.inappbilling">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -32,6 +33,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This entry makes BillingManagerInitializer discoverable. -->
+            <meta-data
+                android:name="com.litekite.inappbilling.startup.BillingManagerInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
         <activity
             android:name=".splash.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize">

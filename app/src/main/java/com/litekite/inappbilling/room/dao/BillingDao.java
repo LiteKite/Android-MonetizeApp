@@ -17,7 +17,6 @@
 package com.litekite.inappbilling.room.dao;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -46,16 +45,16 @@ import static com.litekite.inappbilling.billing.BillingConstants.SKU_UNLOCK_APP_
 @Dao
 public interface BillingDao {
 
-	@Nullable
+	@NonNull
 	@Transaction
 	@Query("select * from billing_sku_details where sku_id != '" + SKU_UNLOCK_APP_FEATURES + "'")
 	LiveData<List<BillingSkuRelatedPurchases>> getSkuRelatedPurchases();
 
-	@Nullable
+	@NonNull
 	@Query("select * from billing_sku_details where sku_id = :skuID")
 	LiveData<BillingSkuDetails> getSkuDetails(@NonNull String skuID);
 
-	@Nullable
+	@NonNull
 	@Query("select exists(select * from billing_purchase_details where sku_id = :skuID)")
 	LiveData<Boolean> getIsThisSkuPurchased(@NonNull String skuID);
 

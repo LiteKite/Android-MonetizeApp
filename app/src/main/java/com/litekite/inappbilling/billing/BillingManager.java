@@ -113,6 +113,13 @@ public class BillingManager implements
 				.enablePendingPurchases()
 				.setListener(this)
 				.build();
+		// clears billing manager when the jvm exits or gets terminated.
+		Runtime.getRuntime().addShutdownHook(new Thread(this::destroy));
+		// starts play billing service connection
+		connectToPlayBillingService();
+		// Watches network changes and initiates billing service connection
+		// if not started before...
+		this.networkManager.addCallback(this);
 	}
 
 	@Override
@@ -125,15 +132,12 @@ public class BillingManager implements
 	public void addCallback(@NonNull BillingCallback cb) {
 		if (!billingCallbacks.contains(cb)) {
 			billingCallbacks.add(cb);
-			connectToPlayBillingService();
 		}
 	}
 
 	@Override
 	public void removeCallback(@NonNull BillingCallback cb) {
-		if (billingCallbacks.remove(cb) && billingCallbacks.size() == 0) {
-			destroy();
-		}
+		billingCallbacks.remove(cb);
 	}
 
 	/**
@@ -144,9 +148,7 @@ public class BillingManager implements
 		if (myBillingClient.isReady()) {
 			myBillingClient.endConnection();
 		}
-		this.networkManager.removeCallback(this);
-		// Destroys app local database
-		appDatabase.destroyAppDatabase();
+		networkManager.removeCallback(this);
 	}
 
 	/**
@@ -154,16 +156,13 @@ public class BillingManager implements
 	 */
 	private void connectToPlayBillingService() {
 		InAppBillingApp.printLog(TAG, "connectToPlayBillingService");
-		if (!myBillingClient.isReady() && billingCallbacks.size() > 0) {
+		if (!myBillingClient.isReady()) {
 			startServiceConnection(() -> {
 				// IAB is fully set up. Now, let's get an inventory of stuff we own.
 				InAppBillingApp.printLog(TAG, "Setup successful. Querying inventory.");
 				querySkuDetails();
 				queryPurchasesAsync();
 			});
-			// Watches network changes and initiates billing service connection
-			// if not started before...
-			this.networkManager.addCallback(this);
 		}
 	}
 
@@ -413,7 +412,7 @@ public class BillingManager implements
 	private void executeServiceRequest(Runnable runnable) {
 		if (myBillingClient.isReady()) {
 			runnable.run();
-		} else if (billingCallbacks.size() > 0) {
+		} else {
 			// If billing service was disconnected, we try to reconnect 1 time.
 			// (feel free to introduce your retry policy here).
 			startServiceConnection(runnable);

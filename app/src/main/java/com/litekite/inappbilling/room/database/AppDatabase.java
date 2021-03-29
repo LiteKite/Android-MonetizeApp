@@ -89,13 +89,6 @@ public abstract class AppDatabase extends RoomDatabase {
 	}
 
 	/**
-	 * Destroys {@link #APP_DATABASE_INSTANCE}
-	 */
-	public void destroyAppDatabase() {
-		APP_DATABASE_INSTANCE = null;
-	}
-
-	/**
 	 * Gives BillingDao Database Operations.
 	 *
 	 * @return BillingDao abstract implementation.

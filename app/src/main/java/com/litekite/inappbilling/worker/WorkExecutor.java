@@ -63,6 +63,8 @@ public class WorkExecutor implements Executor {
 				KEEP_ALIVE_TIME_UNIT,
 				new LinkedBlockingQueue<>()
 		);
+		// clears thread pool when the jvm exits or gets terminated.
+		Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownAndAwaitTermination));
 	}
 
 	@Override
@@ -74,8 +76,7 @@ public class WorkExecutor implements Executor {
 	 * This Executor {@link ThreadPoolExecutor} will be kept in memory and
 	 * it needs to be cleared by ourselves when there was no work or when it's necessary.
 	 */
-	@SuppressWarnings({"unused", "RedundantSuppression"})
-	public void shutdownAndAwaitTermination() {
+	private void shutdownAndAwaitTermination() {
 		final int TERMINATION_AWAIT_TIMEOUT = 60;
 		pool.shutdown(); // Disable new tasks from being submitted
 		try {

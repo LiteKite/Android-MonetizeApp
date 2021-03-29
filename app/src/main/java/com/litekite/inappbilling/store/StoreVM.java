@@ -27,7 +27,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.litekite.inappbilling.billing.BillingCallback;
-import com.litekite.inappbilling.billing.BillingManager;
 import com.litekite.inappbilling.room.database.AppDatabase;
 import com.litekite.inappbilling.room.entity.BillingSkuRelatedPurchases;
 
@@ -49,7 +48,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class StoreVM extends AndroidViewModel implements LifecycleObserver, BillingCallback {
 
 	private final AppDatabase appDatabase;
-	private final BillingManager billingManager;
 	private LiveData<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesList =
 			new MutableLiveData<>();
 
@@ -60,11 +58,9 @@ public class StoreVM extends AndroidViewModel implements LifecycleObserver, Bill
 	 */
 	@Inject
 	public StoreVM(@NonNull Application application,
-	               @NonNull AppDatabase appDatabase,
-	               @NonNull BillingManager billingManager) {
+	               @NonNull AppDatabase appDatabase) {
 		super(application);
 		this.appDatabase = appDatabase;
-		this.billingManager = billingManager;
 	}
 
 	/**
@@ -88,16 +84,8 @@ public class StoreVM extends AndroidViewModel implements LifecycleObserver, Bill
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
 	void onCreate() {
-		// listens play billing manager changes
-		billingManager.addCallback(this);
 		// Sync with the local database
 		fetchFromDB();
-	}
-
-	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-	void onDestroy() {
-		// Removes play billing manager
-		billingManager.removeCallback(this);
 	}
 
 }

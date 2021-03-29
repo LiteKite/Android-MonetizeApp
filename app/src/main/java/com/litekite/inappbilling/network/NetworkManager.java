@@ -123,7 +123,7 @@ public class NetworkManager implements CallbackProvider<NetworkManager.NetworkSt
 	 * Registers a Default Network Callback
 	 * that will be notified whenever there's a network change happens.
 	 */
-	public void registerNetworkCallback() {
+	private void registerNetworkCallback() {
 		if (!networkCallbackRegistered && networkStateCallbacks.size() > 0) {
 			networkCallbackRegistered = true;
 			connMgr.registerDefaultNetworkCallback(networkCallback);
@@ -133,7 +133,7 @@ public class NetworkManager implements CallbackProvider<NetworkManager.NetworkSt
 	/**
 	 * Unregisters Default Network Callback.
 	 */
-	public void unregisterNetworkCallback() {
+	private void unregisterNetworkCallback() {
 		if (networkCallbackRegistered && networkStateCallbacks.size() == 0) {
 			networkCallbackRegistered = false;
 			connMgr.unregisterNetworkCallback(networkCallback);
