@@ -1,47 +1,47 @@
-# Android-InAppBilling
+# Android-MonetizeApp
 
-<img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/app_icon.png" alt="App Icon" />
+<img src="https://github.com/LiteKite/Android-MonetizeApp/blob/assets/assets/app_icon.png" alt="App Icon" />
 
 ##
 
 ### A sample which uses Google's Play Billing Library and it does InApp Purchases and Subscriptions.
 
-<a href="https://codeclimate.com/github/LiteKite/Android-InAppBilling/maintainability"><img src="https://api.codeclimate.com/v1/badges/9086ce3ec1082cb455fa/maintainability" /></a> ![build](https://github.com/LiteKite/Android-InAppBilling/workflows/build/badge.svg?branch=main)
+<a href="https://codeclimate.com/github/LiteKite/Android-MonetizeApp/maintainability"><img src="https://api.codeclimate.com/v1/badges/9086ce3ec1082cb455fa/maintainability" /></a> ![build](https://github.com/LiteKite/Android-MonetizeApp/workflows/build/badge.svg?branch=main)
 
 ##
 
 <div align="center">
-<img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/screen_one.png" alt="App Screenshot One"/>
+<img src="https://github.com/LiteKite/Android-MonetizeApp/blob/assets/assets/screen_one.png" alt="App Screenshot One"/>
 </div>
 
 ##
 
 <div align="center">
-<img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/screen_two.png" alt="App Screenshot Two"/>
+<img src="https://github.com/LiteKite/Android-MonetizeApp/blob/assets/assets/screen_two.png" alt="App Screenshot Two"/>
 </div>
 
 ##
 
 <div align="center">
-<img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/screen_three.png" alt="App Screenshot Three"/>
+<img src="https://github.com/LiteKite/Android-MonetizeApp/blob/assets/assets/screen_three.png" alt="App Screenshot Three"/>
 </div>
 
 ##
 
 <div align="center">
-<img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/screen_four.png" alt="App Screenshot Four"/>
+<img src="https://github.com/LiteKite/Android-MonetizeApp/blob/assets/assets/screen_four.png" alt="App Screenshot Four"/>
 </div>
 
 ##
 
 <div align="center">
-<img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/screen_five.png" alt="App Screenshot Five"/>
+<img src="https://github.com/LiteKite/Android-MonetizeApp/blob/assets/assets/screen_five.png" alt="App Screenshot Five"/>
 </div>
 
 ##
 
 <div align="center">
-<img src="https://github.com/LiteKite/Android-InAppBilling/blob/assets/assets/screen_six.png" alt="App Screenshot Six"/>
+<img src="https://github.com/LiteKite/Android-MonetizeApp/blob/assets/assets/screen_six.png" alt="App Screenshot Six"/>
 </div>
 
 ## Getting Started
@@ -85,7 +85,7 @@
 ## Support
 
 If you've found an error in this sample, please file an issue:
-https://github.com/LiteKite/Android-InAppBilling/issues
+https://github.com/LiteKite/Android-MonetizeApp/issues
 
 Patches are encouraged, and may be submitted by forking this project and
 submitting a pull request through GitHub.
