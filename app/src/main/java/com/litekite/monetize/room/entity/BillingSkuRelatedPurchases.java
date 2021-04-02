@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.room.entity;
 
 import androidx.annotation.NonNull;
 import androidx.room.Embedded;
 import androidx.room.Relation;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,14 +30,12 @@ import java.util.List;
  */
 public class BillingSkuRelatedPurchases {
 
-	@NonNull
-	@Embedded
-	public BillingSkuDetails billingSkuDetails = new BillingSkuDetails();
+    @NonNull @Embedded public BillingSkuDetails billingSkuDetails = new BillingSkuDetails();
 
-	@NonNull
-	@Relation(parentColumn = "sku_id",
-			entityColumn = "sku_id",
-			entity = BillingPurchaseDetails.class)
-	public List<BillingPurchaseDetails> billingPurchaseDetails = new ArrayList<>();
-
+    @NonNull
+    @Relation(
+            parentColumn = "sku_id",
+            entityColumn = "sku_id",
+            entity = BillingPurchaseDetails.class)
+    public List<BillingPurchaseDetails> billingPurchaseDetails = new ArrayList<>();
 }

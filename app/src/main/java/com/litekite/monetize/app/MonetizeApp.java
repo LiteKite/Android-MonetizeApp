@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.app;
 
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-
 import dagger.hilt.android.HiltAndroidApp;
 
 /**
@@ -32,44 +29,43 @@ import dagger.hilt.android.HiltAndroidApp;
  *
  * @author Vignesh S
  * @version 1.0, 04/03/2018
- * @see <a href="https://developer.android.com/topic/libraries/architecture/index.html"> This app
- * uses Google Play Billing Library, Architecture Components (LiveData, ViewModel, Room Persistance
- * Library) and Data Binding Library</a>
+ * @see <a href="https://developer.android.com/topic/libraries/architecture/index.html">This app
+ *     uses Google Play Billing Library, Architecture Components (LiveData, ViewModel, Room
+ *     Persistance Library) and Data Binding Library</a>
  * @since 1.0
  */
 @HiltAndroidApp
 public class MonetizeApp extends Application {
 
-	private static final String TAG = MonetizeApp.class.getName();
+    private static final String TAG = MonetizeApp.class.getName();
 
-	/**
-	 * Logs messages for Debugging Purposes.
-	 *
-	 * @param tag     TAG is a class name in which the log come from.
-	 * @param message Type of a Log Message.
-	 */
-	public static void printLog(@NonNull String tag, @NonNull String message) {
-		Log.d(tag, message);
-	}
+    /**
+     * Logs messages for Debugging Purposes.
+     *
+     * @param tag TAG is a class name in which the log come from.
+     * @param message Type of a Log Message.
+     */
+    public static void printLog(@NonNull String tag, @NonNull String message) {
+        Log.d(tag, message);
+    }
 
-	/**
-	 * @param context An Activity or Application Context.
-	 * @param resId A message resId that to be displayed inside a Toast.
-	 */
-	public static void showToast(@NonNull Context context, @StringRes int resId) {
-		Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
-	}
+    /**
+     * @param context An Activity or Application Context.
+     * @param resId A message resId that to be displayed inside a Toast.
+     */
+    public static void showToast(@NonNull Context context, @StringRes int resId) {
+        Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
+    }
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		printLog(TAG, "onCreate:");
-	}
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        printLog(TAG, "onCreate:");
+    }
 
-	@Override
-	protected void attachBaseContext(@Nullable Context base) {
-		super.attachBaseContext(base);
-		printLog(TAG, "attachBaseContext:");
-	}
-
+    @Override
+    protected void attachBaseContext(@Nullable Context base) {
+        super.attachBaseContext(base);
+        printLog(TAG, "attachBaseContext:");
+    }
 }

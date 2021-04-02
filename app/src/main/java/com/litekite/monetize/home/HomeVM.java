@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.home;
 
 import android.app.Application;
 import android.view.View;
 import android.widget.Button;
-
 import androidx.annotation.NonNull;
 import androidx.databinding.BindingAdapter;
 import androidx.lifecycle.AndroidViewModel;
@@ -28,7 +26,6 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
-
 import com.litekite.monetize.R;
 import com.litekite.monetize.base.BaseActivity;
 import com.litekite.monetize.billing.BillingCallback;
@@ -37,10 +34,8 @@ import com.litekite.monetize.network.NetworkManager;
 import com.litekite.monetize.purchase.PurchasesActivity;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.store.StoreActivity;
-
-import javax.inject.Inject;
-
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import javax.inject.Inject;
 
 /**
  * HomeVM, a view model that gives Premium Feature Purchase Status from local database to View,
@@ -53,125 +48,113 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class HomeVM extends AndroidViewModel implements LifecycleObserver, BillingCallback {
 
-	private final AppDatabase appDatabase;
-	private LiveData<Boolean> isPremiumPurchased = new MutableLiveData<>();
+    private final AppDatabase appDatabase;
+    private LiveData<Boolean> isPremiumPurchased = new MutableLiveData<>();
 
-	/**
-	 * Makes a call to check whether the Premium Feature was purchased and stored in the local
-	 * database.
-	 *
-	 * @param application An Application Instance.
-	 */
-	@Inject
-	public HomeVM(@NonNull Application application,
-	              @NonNull AppDatabase appDatabase) {
-		super(application);
-		this.appDatabase = appDatabase;
-	}
+    /**
+     * Makes a call to check whether the Premium Feature was purchased and stored in the local
+     * database.
+     *
+     * @param application An Application Instance.
+     */
+    @Inject
+    public HomeVM(@NonNull Application application, @NonNull AppDatabase appDatabase) {
+        super(application);
+        this.appDatabase = appDatabase;
+    }
 
-	/**
-	 * Fetches and checks whether the Premium Feature was purchased and stored in the local
-	 * database and assigns it to {@link #isPremiumPurchased} LiveData.
-	 */
-	private void fetchFromDB() {
-		isPremiumPurchased = appDatabase.getIsThisSkuPurchased(
-				BillingConstants.SKU_UNLOCK_APP_FEATURES
-		);
-	}
+    @BindingAdapter("android:drawableEnd")
+    public static void setDrawableEnd(@NonNull Button button, @NonNull Boolean isPremiumPurchased) {
+        setBtnDrawableRightEnd(button, isPremiumPurchased);
+    }
 
-	@BindingAdapter("android:drawableEnd")
-	public static void setDrawableEnd(@NonNull Button button,
-	                                  @NonNull Boolean isPremiumPurchased) {
-		setBtnDrawableRightEnd(button, isPremiumPurchased);
-	}
+    /**
+     * Sets two features (View Your Purchases and Buy From Store) locked, if Premium Feature Product
+     * was not purchased, Unlocked otherwise.
+     *
+     * @param button An instance of a Button Widget.
+     * @param isPremiumPurchased A boolean value represents whether the Premium Feature Product was
+     *     purchased or not.
+     */
+    private static void setBtnDrawableRightEnd(Button button, Boolean isPremiumPurchased) {
+        if (isPremiumPurchased) {
+            button.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        } else {
+            button.setCompoundDrawablesWithIntrinsicBounds(
+                    0, 0, R.drawable.ic_lock_outline_white, 0);
+        }
+    }
 
-	/**
-	 * Sets two features (View Your Purchases and Buy From Store) locked, if Premium Feature
-	 * Product was not purchased, Unlocked otherwise.
-	 *
-	 * @param button             An instance of a Button Widget.
-	 * @param isPremiumPurchased A boolean value represents whether the Premium Feature Product was
-	 *                           purchased or not.
-	 */
-	private static void setBtnDrawableRightEnd(Button button, Boolean isPremiumPurchased) {
-		if (isPremiumPurchased) {
-			button.setCompoundDrawablesWithIntrinsicBounds(
-					0,
-					0,
-					0,
-					0);
-		} else {
-			button.setCompoundDrawablesWithIntrinsicBounds(
-					0,
-					0,
-					R.drawable.ic_lock_outline_white,
-					0);
-		}
-	}
+    @BindingAdapter("android:drawableRight")
+    public static void setDrawableRight(
+            @NonNull Button button, @NonNull Boolean isPremiumPurchased) {
+        setBtnDrawableRightEnd(button, isPremiumPurchased);
+    }
 
-	@BindingAdapter("android:drawableRight")
-	public static void setDrawableRight(@NonNull Button button,
-	                                    @NonNull Boolean isPremiumPurchased) {
-		setBtnDrawableRightEnd(button, isPremiumPurchased);
-	}
+    /**
+     * Fetches and checks whether the Premium Feature was purchased and stored in the local database
+     * and assigns it to {@link #isPremiumPurchased} LiveData.
+     */
+    private void fetchFromDB() {
+        isPremiumPurchased =
+                appDatabase.getIsThisSkuPurchased(BillingConstants.SKU_UNLOCK_APP_FEATURES);
+    }
 
-	/**
-	 * A view gets this LiveData of Premium Feature purchased or not and observes for
-	 * changes and updates with it.
-	 *
-	 * @return a LiveData of Premium Feature Purchased or not.
-	 */
-	@NonNull
-	public LiveData<Boolean> getIsPremiumPurchased() {
-		return isPremiumPurchased;
-	}
+    /**
+     * A view gets this LiveData of Premium Feature purchased or not and observes for changes and
+     * updates with it.
+     *
+     * @return a LiveData of Premium Feature Purchased or not.
+     */
+    @NonNull
+    public LiveData<Boolean> getIsPremiumPurchased() {
+        return isPremiumPurchased;
+    }
 
-	/**
-	 * Handles Click Events from View.
-	 *
-	 * @param v A view in which the click action performed.
-	 */
-	public void onClick(@NonNull View v) {
-		final int id = v.getId();
-		if (id == R.id.btn_buy_from_store) {
-			if (checkIsPremiumPurchased(v)) {
-				StoreActivity.start(v.getContext());
-			}
-		} else if (id == R.id.btn_view_your_purchases) {
-			if (checkIsPremiumPurchased(v)) {
-				PurchasesActivity.start(v.getContext());
-			}
-		}
-	}
+    /**
+     * Handles Click Events from View.
+     *
+     * @param v A view in which the click action performed.
+     */
+    public void onClick(@NonNull View v) {
+        final int id = v.getId();
+        if (id == R.id.btn_buy_from_store) {
+            if (checkIsPremiumPurchased(v)) {
+                StoreActivity.start(v.getContext());
+            }
+        } else if (id == R.id.btn_view_your_purchases) {
+            if (checkIsPremiumPurchased(v)) {
+                PurchasesActivity.start(v.getContext());
+            }
+        }
+    }
 
-	/**
-	 * Launches BillingPremiumDialog if Premium Purchase was not purchased.
-	 * Shows a SnackBar if there is no Internet Connectivity.
-	 *
-	 * @param v A view in which the click action performed.
-	 *
-	 * @return whether the Premium Feature Purchased or not.
-	 */
-	private boolean checkIsPremiumPurchased(View v) {
-		Boolean isPurchased = isPremiumPurchased.getValue();
-		if (isPurchased != null) {
-			if (!isPurchased && !NetworkManager.isOnline(v.getContext())) {
-				BaseActivity.showSnackBar(v, R.string.err_no_internet);
-				return false;
-			}
-			if (!isPurchased) {
-				BillingPremiumDialog.show(v.getContext());
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Launches BillingPremiumDialog if Premium Purchase was not purchased. Shows a SnackBar if
+     * there is no Internet Connectivity.
+     *
+     * @param v A view in which the click action performed.
+     * @return whether the Premium Feature Purchased or not.
+     */
+    private boolean checkIsPremiumPurchased(View v) {
+        Boolean isPurchased = isPremiumPurchased.getValue();
+        if (isPurchased != null) {
+            if (!isPurchased && !NetworkManager.isOnline(v.getContext())) {
+                BaseActivity.showSnackBar(v, R.string.err_no_internet);
+                return false;
+            }
+            if (!isPurchased) {
+                BillingPremiumDialog.show(v.getContext());
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
 
-	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-	void onCreate() {
-		// Sync with the local database
-		fetchFromDB();
-	}
-
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    void onCreate() {
+        // Sync with the local database
+        fetchFromDB();
+    }
 }

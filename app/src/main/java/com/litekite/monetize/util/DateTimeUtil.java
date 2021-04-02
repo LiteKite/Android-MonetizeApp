@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.util;
 
 import androidx.annotation.NonNull;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,40 +31,34 @@ import java.util.Locale;
  */
 public class DateTimeUtil {
 
-	public static long FIVE_MINUTES_IN_MILLIS = 5 * 60 * 1000;
+    public static long FIVE_MINUTES_IN_MILLIS = 5 * 60 * 1000;
 
-	@SuppressWarnings({"unused", "RedundantSuppression"})
-	public static long THIRTY_DAYS_IN_MILLIS = 30 * 24 * 60 * 60 * 1000L;
+    @SuppressWarnings({"unused", "RedundantSuppression"})
+    public static long THIRTY_DAYS_IN_MILLIS = 30 * 24 * 60 * 60 * 1000L;
 
-	private DateTimeUtil() {
+    private DateTimeUtil() {}
 
-	}
+    /**
+     * Gets Date in Millis and returns a Formatted Date String.
+     *
+     * @param dateInMillis Date is represented as Millis.
+     * @return formatted Date of the given Date in Millis.
+     */
+    @NonNull
+    public static String getDateTime(long dateInMillis) {
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy, hh:mm a", Locale.getDefault());
+        return dateFormat.format(new Date(dateInMillis));
+    }
 
-	/**
-	 * Gets Date in Millis and returns a Formatted Date String.
-	 *
-	 * @param dateInMillis Date is represented as Millis.
-	 *
-	 * @return formatted Date of the given Date in Millis.
-	 */
-	@NonNull
-	public static String getDateTime(long dateInMillis) {
-		DateFormat dateFormat =
-				new SimpleDateFormat("dd-MM-yyyy, hh:mm a", Locale.getDefault());
-		return dateFormat.format(new Date(dateInMillis));
-	}
-
-	/**
-	 * Checks whether the given Date in Millis is a past, present or future.
-	 *
-	 * @param dateInMillis Date is represented as Millis.
-	 *
-	 * @return a boolean value of whether the given Date in Millis is ended or not by comparing it
-	 * with the Current Date.
-	 */
-	public static boolean isDateTimePast(long dateInMillis) {
-		int result = new Date(dateInMillis).compareTo(new Date());
-		return result < 0;
-	}
-
+    /**
+     * Checks whether the given Date in Millis is a past, present or future.
+     *
+     * @param dateInMillis Date is represented as Millis.
+     * @return a boolean value of whether the given Date in Millis is ended or not by comparing it
+     *     with the Current Date.
+     */
+    public static boolean isDateTimePast(long dateInMillis) {
+        int result = new Date(dateInMillis).compareTo(new Date());
+        return result < 0;
+    }
 }

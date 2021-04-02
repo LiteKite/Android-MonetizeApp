@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.startup;
 
 import android.content.Context;
-
 import com.litekite.monetize.billing.BillingManager;
 import com.litekite.monetize.network.NetworkManager;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.worker.WorkExecutor;
-
 import dagger.hilt.EntryPoint;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.EntryPointAccessors;
@@ -39,19 +36,15 @@ import dagger.hilt.components.SingletonComponent;
 @InstallIn(SingletonComponent.class)
 interface InitializerEntryPoint {
 
-	BillingManager getBillingManager();
+    static InitializerEntryPoint getEntryPoint(Context context) {
+        return EntryPointAccessors.fromApplication(context, InitializerEntryPoint.class);
+    }
 
-	AppDatabase getAppDatabase();
+    BillingManager getBillingManager();
 
-	NetworkManager getNetworkManager();
+    AppDatabase getAppDatabase();
 
-	WorkExecutor getWorkExecutor();
+    NetworkManager getNetworkManager();
 
-	static InitializerEntryPoint getEntryPoint(Context context) {
-		return EntryPointAccessors.fromApplication(
-				context,
-				InitializerEntryPoint.class
-		);
-	}
-
+    WorkExecutor getWorkExecutor();
 }

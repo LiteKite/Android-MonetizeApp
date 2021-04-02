@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.base;
 
 import androidx.annotation.NonNull;
@@ -26,9 +25,7 @@ import androidx.annotation.NonNull;
  * @since 1.0
  */
 public interface CallbackProvider<T> {
-
     void addCallback(@NonNull T cb);
 
     void removeCallback(@NonNull T cb);
-
 }

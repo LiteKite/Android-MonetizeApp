@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.di;
 
 import android.content.Context;
-
 import com.litekite.monetize.billing.BillingManager;
 import com.litekite.monetize.network.NetworkManager;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.worker.WorkExecutor;
-
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
+import javax.inject.Singleton;
 
 /**
- * Provides dependencies for the whole application components
- * and lives as long as application is running.
+ * Provides dependencies for the whole application components and lives as long as application is
+ * running.
  *
  * @author Vignesh S
  * @version 1.0, 15/01/2020
@@ -43,31 +39,31 @@ import dagger.hilt.components.SingletonComponent;
 @InstallIn(SingletonComponent.class)
 public class AppComponents {
 
-	@Singleton
-	@Provides
-	static AppDatabase provideAppDatabase(@ApplicationContext Context context) {
-		return AppDatabase.getAppDatabase(context);
-	}
+    @Singleton
+    @Provides
+    static AppDatabase provideAppDatabase(@ApplicationContext Context context) {
+        return AppDatabase.getAppDatabase(context);
+    }
 
-	@Singleton
-	@Provides
-	static NetworkManager provideNetworkManager(@ApplicationContext Context context) {
-		return new NetworkManager(context);
-	}
+    @Singleton
+    @Provides
+    static NetworkManager provideNetworkManager(@ApplicationContext Context context) {
+        return new NetworkManager(context);
+    }
 
-	@Singleton
-	@Provides
-	static WorkExecutor provideWorkExecutor() {
-		return new WorkExecutor();
-	}
+    @Singleton
+    @Provides
+    static WorkExecutor provideWorkExecutor() {
+        return new WorkExecutor();
+    }
 
-	@Singleton
-	@Provides
-	static BillingManager provideBillingManager(@ApplicationContext Context context,
-	                                            AppDatabase appDatabase,
-	                                            NetworkManager networkManager,
-	                                            WorkExecutor workExecutor) {
-		return new BillingManager(context, appDatabase, networkManager, workExecutor);
-	}
-
+    @Singleton
+    @Provides
+    static BillingManager provideBillingManager(
+            @ApplicationContext Context context,
+            AppDatabase appDatabase,
+            NetworkManager networkManager,
+            WorkExecutor workExecutor) {
+        return new BillingManager(context, appDatabase, networkManager, workExecutor);
+    }
 }

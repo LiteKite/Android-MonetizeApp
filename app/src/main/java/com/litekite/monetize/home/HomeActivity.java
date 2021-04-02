@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.home;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.litekite.monetize.R;
 import com.litekite.monetize.base.BaseActivity;
 import com.litekite.monetize.databinding.ActivityHomeBinding;
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 /**
@@ -44,65 +40,66 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class HomeActivity extends BaseActivity {
 
-	private ActivityHomeBinding homeBinding;
+    private ActivityHomeBinding homeBinding;
 
-	/**
-	 * A Premium Purchase Observer, observes about whether the Premium Purchase has been already
-	 * purchased by user or not. If it was purchased, user has granted access for accessing View
-	 * Your Purchases and Buy From Store. These two features are locked otherwise, and the user
-	 * needs to purchase this in order to use those features.
-	 */
-	private final Observer<Boolean> isPremiumPurchasedObserver = new Observer<Boolean>() {
-		@Override
-		public void onChanged(@Nullable Boolean aBoolean) {
-			if (aBoolean != null) {
-				// Dismisses BillingPremiumDialog after successful purchase of Premium Feature.
-				if (aBoolean) {
-					BillingPremiumDialog.dismiss(HomeActivity.this);
-				}
-				HomeVM.setDrawableRight(homeBinding.btnBuyFromStore, aBoolean);
-				HomeVM.setDrawableEnd(homeBinding.btnBuyFromStore, aBoolean);
-				HomeVM.setDrawableRight(homeBinding.btnViewYourPurchases, aBoolean);
-				HomeVM.setDrawableEnd(homeBinding.btnViewYourPurchases, aBoolean);
-				homeBinding.executePendingBindings();
-			}
-		}
-	};
+    /**
+     * A Premium Purchase Observer, observes about whether the Premium Purchase has been already
+     * purchased by user or not. If it was purchased, user has granted access for accessing View
+     * Your Purchases and Buy From Store. These two features are locked otherwise, and the user
+     * needs to purchase this in order to use those features.
+     */
+    private final Observer<Boolean> isPremiumPurchasedObserver =
+            new Observer<Boolean>() {
+                @Override
+                public void onChanged(@Nullable Boolean aBoolean) {
+                    if (aBoolean != null) {
+                        // Dismisses BillingPremiumDialog after successful purchase of
+                        // Premium Feature.
+                        if (aBoolean) {
+                            BillingPremiumDialog.dismiss(HomeActivity.this);
+                        }
+                        HomeVM.setDrawableRight(homeBinding.btnBuyFromStore, aBoolean);
+                        HomeVM.setDrawableEnd(homeBinding.btnBuyFromStore, aBoolean);
+                        HomeVM.setDrawableRight(homeBinding.btnViewYourPurchases, aBoolean);
+                        HomeVM.setDrawableEnd(homeBinding.btnViewYourPurchases, aBoolean);
+                        homeBinding.executePendingBindings();
+                    }
+                }
+            };
 
-	/**
-	 * Launches HomeActivity.
-	 *
-	 * @param context An Activity Context.
-	 */
-	public static void start(@NonNull Context context) {
-		if (context instanceof AppCompatActivity) {
-			Intent intent = new Intent(context, HomeActivity.class);
-			context.startActivity(intent);
-			startActivityAnimation(context);
-		}
-	}
+    /**
+     * Launches HomeActivity.
+     *
+     * @param context An Activity Context.
+     */
+    public static void start(@NonNull Context context) {
+        if (context instanceof AppCompatActivity) {
+            Intent intent = new Intent(context, HomeActivity.class);
+            context.startActivity(intent);
+            startActivityAnimation(context);
+        }
+    }
 
-	@Override
-	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		homeBinding = DataBindingUtil.setContentView(this, R.layout.activity_home);
-		init();
-	}
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        homeBinding = DataBindingUtil.setContentView(this, R.layout.activity_home);
+        init();
+    }
 
-	/**
-	 * Sets Toolbar.
-	 * Initializes Presenter HomeViewModel, BillingViewModel and registers LifeCycle Observers.
-	 * Observes Premium Purchase.
-	 */
-	private void init() {
-		setToolbar(homeBinding.tbWidget.toolbar,
-				false,
-				getString(R.string.home),
-				homeBinding.tbWidget.tvToolbarTitle);
-		HomeVM homeVM = new ViewModelProvider(this).get(HomeVM.class);
-		homeBinding.setPresenter(homeVM);
-		this.getLifecycle().addObserver(homeVM);
-		homeVM.getIsPremiumPurchased().observe(this, isPremiumPurchasedObserver);
-	}
-
+    /**
+     * Sets Toolbar. Initializes Presenter HomeViewModel, BillingViewModel and registers LifeCycle
+     * Observers. Observes Premium Purchase.
+     */
+    private void init() {
+        setToolbar(
+                homeBinding.tbWidget.toolbar,
+                false,
+                getString(R.string.home),
+                homeBinding.tbWidget.tvToolbarTitle);
+        HomeVM homeVM = new ViewModelProvider(this).get(HomeVM.class);
+        homeBinding.setPresenter(homeVM);
+        this.getLifecycle().addObserver(homeVM);
+        homeVM.getIsPremiumPurchased().observe(this, isPremiumPurchasedObserver);
+    }
 }

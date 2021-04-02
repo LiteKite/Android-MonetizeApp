@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.home;
 
 import android.app.Activity;
 import android.app.Application;
 import android.content.ContextWrapper;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
@@ -28,7 +26,6 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
-
 import com.android.billingclient.api.SkuDetails;
 import com.litekite.monetize.R;
 import com.litekite.monetize.billing.BillingCallback;
@@ -36,12 +33,9 @@ import com.litekite.monetize.billing.BillingConstants;
 import com.litekite.monetize.billing.BillingManager;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.room.entity.BillingSkuDetails;
-
-import org.json.JSONException;
-
-import javax.inject.Inject;
-
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import javax.inject.Inject;
+import org.json.JSONException;
 
 /**
  * BillingPremiumVM, a view model which gets Premium Feature Sku Details from local database, It
@@ -52,78 +46,77 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
  * @since 1.0
  */
 @HiltViewModel
-public class BillingPremiumVM extends AndroidViewModel implements
-		LifecycleObserver,
-		BillingCallback {
+public class BillingPremiumVM extends AndroidViewModel
+        implements LifecycleObserver, BillingCallback {
 
-	private final AppDatabase appDatabase;
-	private final BillingManager billingManager;
-	private LiveData<BillingSkuDetails> premiumSkuDetails;
+    private final AppDatabase appDatabase;
+    private final BillingManager billingManager;
+    private LiveData<BillingSkuDetails> premiumSkuDetails;
 
-	/**
-	 * Makes a call to get Premium Feature Sku Details from local database.
-	 *
-	 * @param application    An Application Instance.
-	 * @param billingManager Provides access to BillingClient which perform Product Purchases
-	 *                       from Google Play Billing Library.
-	 */
-	@Inject
-	public BillingPremiumVM(@NonNull Application application,
-	                        @NonNull AppDatabase appDatabase,
-	                        @NonNull BillingManager billingManager) {
-		super(application);
-		this.appDatabase = appDatabase;
-		this.billingManager = billingManager;
-	}
+    /**
+     * Makes a call to get Premium Feature Sku Details from local database.
+     *
+     * @param application An Application Instance.
+     * @param billingManager Provides access to BillingClient which perform Product Purchases from
+     *     Google Play Billing Library.
+     */
+    @Inject
+    public BillingPremiumVM(
+            @NonNull Application application,
+            @NonNull AppDatabase appDatabase,
+            @NonNull BillingManager billingManager) {
+        super(application);
+        this.appDatabase = appDatabase;
+        this.billingManager = billingManager;
+    }
 
-	/**
-	 * Fetches Premium Feature Sku Details stored in the local database and assigns it to
-	 * {@link #premiumSkuDetails} LiveData.
-	 */
-	private void fetchFromDB() {
-		premiumSkuDetails = appDatabase.getSkuDetails(BillingConstants.SKU_UNLOCK_APP_FEATURES);
-	}
+    /**
+     * Fetches Premium Feature Sku Details stored in the local database and assigns it to {@link
+     * #premiumSkuDetails} LiveData.
+     */
+    private void fetchFromDB() {
+        premiumSkuDetails = appDatabase.getSkuDetails(BillingConstants.SKU_UNLOCK_APP_FEATURES);
+    }
 
-	/**
-	 * Handles Click Events from View.
-	 *
-	 * @param v A view in which the click action performed.
-	 */
-	public void onClick(@NonNull View v) {
-		if (v.getId() == R.id.btn_billing_buy) {
-			// Performs Premium Feature Purchase Flow through BillingClient of Google Play
-			// Billing Library.
-			if (premiumSkuDetails.getValue() != null) {
-				BillingSkuDetails billingSkuDetails = premiumSkuDetails.getValue();
-				try {
-					SkuDetails skuDetails = new SkuDetails(billingSkuDetails.originalJson);
-					billingManager.initiatePurchaseFlow(
-							(Activity) (((ContextWrapper) v.getContext()).getBaseContext()),
-							skuDetails);
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+    /**
+     * Handles Click Events from View.
+     *
+     * @param v A view in which the click action performed.
+     */
+    public void onClick(@NonNull View v) {
+        if (v.getId() == R.id.btn_billing_buy) {
+            // Performs Premium Feature Purchase Flow through BillingClient of Google Play
+            // Billing Library.
+            if (premiumSkuDetails.getValue() != null) {
+                BillingSkuDetails billingSkuDetails = premiumSkuDetails.getValue();
+                try {
+                    SkuDetails skuDetails = new SkuDetails(billingSkuDetails.originalJson);
+                    billingManager.initiatePurchaseFlow(
+                            (Activity) (((ContextWrapper) v.getContext()).getBaseContext()),
+                            skuDetails);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
-	/**
-	 * A view gets this Premium Feature LiveData and observes for changes and updates with it.
-	 *
-	 * @return a LiveData of Premium Feature Sku Details.
-	 */
-	@NonNull
-	public LiveData<BillingSkuDetails> getPremiumSkuDetails() {
-		if (premiumSkuDetails == null) {
-			premiumSkuDetails = new MutableLiveData<>();
-		}
-		return premiumSkuDetails;
-	}
+    /**
+     * A view gets this Premium Feature LiveData and observes for changes and updates with it.
+     *
+     * @return a LiveData of Premium Feature Sku Details.
+     */
+    @NonNull
+    public LiveData<BillingSkuDetails> getPremiumSkuDetails() {
+        if (premiumSkuDetails == null) {
+            premiumSkuDetails = new MutableLiveData<>();
+        }
+        return premiumSkuDetails;
+    }
 
-	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-	void onCreate() {
-		// Sync with the local database
-		fetchFromDB();
-	}
-
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    void onCreate() {
+        // Sync with the local database
+        fetchFromDB();
+    }
 }

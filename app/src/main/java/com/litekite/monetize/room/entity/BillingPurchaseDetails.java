@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.room.entity;
 
 import androidx.annotation.NonNull;
@@ -29,24 +28,22 @@ import androidx.room.PrimaryKey;
  * @version 1.0, 04/03/2018
  * @since 1.0
  */
-@Entity(tableName = "billing_purchase_details",
-		indices = @Index("sku_id"))
+@Entity(tableName = "billing_purchase_details", indices = @Index("sku_id"))
 public class BillingPurchaseDetails {
 
-	@NonNull
-	@PrimaryKey
-	@ColumnInfo(name = "purchase_token")
-	public String purchaseToken = "";
+    @NonNull
+    @PrimaryKey
+    @ColumnInfo(name = "purchase_token")
+    public String purchaseToken = "";
 
-	@NonNull
-	@ColumnInfo(name = "order_id")
-	public String orderID = "";
+    @NonNull
+    @ColumnInfo(name = "order_id")
+    public String orderID = "";
 
-	@NonNull
-	@ColumnInfo(name = "sku_id")
-	public String skuID = "";
+    @NonNull
+    @ColumnInfo(name = "sku_id")
+    public String skuID = "";
 
-	@ColumnInfo(name = "purchase_time")
-	public long purchaseTime;
-
+    @ColumnInfo(name = "purchase_time")
+    public long purchaseTime;
 }

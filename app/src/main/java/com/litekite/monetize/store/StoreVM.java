@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.store;
 
 import android.app.Application;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
@@ -25,20 +23,16 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
-
 import com.litekite.monetize.billing.BillingCallback;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.room.entity.BillingSkuRelatedPurchases;
-
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import java.util.List;
-
 import javax.inject.Inject;
 
-import dagger.hilt.android.lifecycle.HiltViewModel;
-
 /**
- * StoreVM, a view model which gets Sku Products List and its related Purchases
- * from local database and updates it to the observing view.
+ * StoreVM, a view model which gets Sku Products List and its related Purchases from local database
+ * and updates it to the observing view.
  *
  * @author Vignesh S
  * @version 1.0, 10/03/2018
@@ -47,45 +41,43 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class StoreVM extends AndroidViewModel implements LifecycleObserver, BillingCallback {
 
-	private final AppDatabase appDatabase;
-	private LiveData<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesList =
-			new MutableLiveData<>();
+    private final AppDatabase appDatabase;
+    private LiveData<List<BillingSkuRelatedPurchases>> skuProductsAndPurchasesList =
+            new MutableLiveData<>();
 
-	/**
-	 * Makes a call to get Sku Product Details and its related Purchases from local database.
-	 *
-	 * @param application application An Application Instance.
-	 */
-	@Inject
-	public StoreVM(@NonNull Application application,
-	               @NonNull AppDatabase appDatabase) {
-		super(application);
-		this.appDatabase = appDatabase;
-	}
+    /**
+     * Makes a call to get Sku Product Details and its related Purchases from local database.
+     *
+     * @param application application An Application Instance.
+     */
+    @Inject
+    public StoreVM(@NonNull Application application, @NonNull AppDatabase appDatabase) {
+        super(application);
+        this.appDatabase = appDatabase;
+    }
 
-	/**
-	 * Fetches Sku Products List and its related Purchases stored in the local database and assigns
-	 * it to {@link #skuProductsAndPurchasesList} LiveData.
-	 */
-	private void fetchFromDB() {
-		skuProductsAndPurchasesList = appDatabase.getSkuRelatedPurchases();
-	}
+    /**
+     * Fetches Sku Products List and its related Purchases stored in the local database and assigns
+     * it to {@link #skuProductsAndPurchasesList} LiveData.
+     */
+    private void fetchFromDB() {
+        skuProductsAndPurchasesList = appDatabase.getSkuRelatedPurchases();
+    }
 
-	/**
-	 * A view gets this {@link #skuProductsAndPurchasesList} and observes for changes and updates
-	 * with it.
-	 *
-	 * @return a LiveData of Sku Products List and its related Purchases.
-	 */
-	@NonNull
-	public LiveData<List<BillingSkuRelatedPurchases>> getSkuProductsAndPurchasesList() {
-		return skuProductsAndPurchasesList;
-	}
+    /**
+     * A view gets this {@link #skuProductsAndPurchasesList} and observes for changes and updates
+     * with it.
+     *
+     * @return a LiveData of Sku Products List and its related Purchases.
+     */
+    @NonNull
+    public LiveData<List<BillingSkuRelatedPurchases>> getSkuProductsAndPurchasesList() {
+        return skuProductsAndPurchasesList;
+    }
 
-	@OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-	void onCreate() {
-		// Sync with the local database
-		fetchFromDB();
-	}
-
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    void onCreate() {
+        // Sync with the local database
+        fetchFromDB();
+    }
 }

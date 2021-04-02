@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.startup;
 
 import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.startup.Initializer;
-
 import com.litekite.monetize.network.NetworkManager;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,16 +31,15 @@ import java.util.List;
  */
 public class NetworkManagerInitializer implements Initializer<NetworkManager> {
 
-	@NonNull
-	@Override
-	public NetworkManager create(@NonNull Context context) {
-		return InitializerEntryPoint.getEntryPoint(context).getNetworkManager();
-	}
+    @NonNull
+    @Override
+    public NetworkManager create(@NonNull Context context) {
+        return InitializerEntryPoint.getEntryPoint(context).getNetworkManager();
+    }
 
-	@NonNull
-	@Override
-	public List<Class<? extends Initializer<?>>> dependencies() {
-		return new ArrayList<>();
-	}
-
+    @NonNull
+    @Override
+    public List<Class<? extends Initializer<?>>> dependencies() {
+        return new ArrayList<>();
+    }
 }

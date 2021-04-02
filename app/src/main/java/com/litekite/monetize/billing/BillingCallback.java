@@ -13,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.billing;
 
 import androidx.annotation.NonNull;
-
 import com.litekite.monetize.app.MonetizeApp;
 
 /**
- * Listener to the updates that happens when purchases list was updated or consumption of the
- * item was finished, updates the Billing Client responses and errors to the implemented classes.
+ * Listener to the updates that happens when purchases list was updated or consumption of the item
+ * was finished, updates the Billing Client responses and errors to the implemented classes.
  *
  * @author Vignesh S
  * @version 1.0, 04/03/2018
  * @since 1.0
  */
 public interface BillingCallback {
-
-	/**
-	 * Notifies the error messages of Billing Client.
-	 *
-	 * @param error billing client error message.
-	 */
-	default void onBillingError(@NonNull String error) {
-		MonetizeApp.printLog(BillingManager.TAG, error);
-	}
-
+    /**
+     * Notifies the error messages of Billing Client.
+     *
+     * @param error billing client error message.
+     */
+    default void onBillingError(@NonNull String error) {
+        MonetizeApp.printLog(BillingManager.TAG, error);
+    }
 }

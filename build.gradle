@@ -21,6 +21,7 @@ buildscript {
     ext.lifecycle_version = '2.3.1'
     repositories {
         google()
+        mavenCentral()
         jcenter()
     }
     dependencies {
@@ -31,13 +32,35 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.diffplug.spotless" version "5.11.1"
+}
+
 allprojects {
     repositories {
         google()
+        mavenCentral()
         jcenter()
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+spotless {
+    ratchetFrom 'origin/main'
+    format 'misc', {
+        target '**/*.gradle', '**/*.md', '**/.gitignore'
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+    }
+    format 'xml', {
+        target '**/*.xml'
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+    }
+    java {
+        target '**/src/**/*.java'
+        googleJavaFormat().aosp()
+        licenseHeaderFile rootProject.file('spotless/copyright.java')
+    }
 }

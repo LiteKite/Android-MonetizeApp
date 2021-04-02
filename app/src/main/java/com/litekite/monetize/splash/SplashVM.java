@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.litekite.monetize.splash;
 
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
-
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import javax.inject.Inject;
 
-import dagger.hilt.android.lifecycle.HiltViewModel;
-
 /**
- * SplashVM, which notifies {@link #splashTimeDelay} to the view when the
- * {@link #SPLASH_TIME_DELAY_IN_MS} completes.
+ * SplashVM, which notifies {@link #splashTimeDelay} to the view when the {@link
+ * #SPLASH_TIME_DELAY_IN_MS} completes.
  *
  * @author Vignesh S
  * @version 1.0, 10/03/2018
@@ -42,42 +38,39 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class SplashVM extends AndroidViewModel implements LifecycleObserver {
 
-	private static final int SPLASH_TIME_DELAY_IN_MS = 3000;
-	private final Handler handler;
-	private MutableLiveData<Boolean> splashTimeDelay;
-	private final Runnable splashTimeOutRunnable = () -> splashTimeDelay.postValue(true);
+    private static final int SPLASH_TIME_DELAY_IN_MS = 3000;
+    private final Handler handler;
+    private MutableLiveData<Boolean> splashTimeDelay;
+    private final Runnable splashTimeOutRunnable = () -> splashTimeDelay.postValue(true);
 
-	/**
-	 * @param application application An Application Instance.
-	 */
-	@Inject
-	public SplashVM(@NonNull Application application) {
-		super(application);
-		handler = new Handler(Looper.getMainLooper());
-	}
+    /** @param application application An Application Instance. */
+    @Inject
+    public SplashVM(@NonNull Application application) {
+        super(application);
+        handler = new Handler(Looper.getMainLooper());
+    }
 
-	/**
-	 * A view gets this {@link #splashTimeDelay} and observes for changes.
-	 *
-	 * @return whether the {@link #splashTimeDelay} whether the {@link #SPLASH_TIME_DELAY_IN_MS}
-	 * completed or not.
-	 */
-	@NonNull
-	public MutableLiveData<Boolean> getSplashTimeDelay() {
-		if (splashTimeDelay == null) {
-			splashTimeDelay = new MutableLiveData<>();
-		}
-		return splashTimeDelay;
-	}
+    /**
+     * A view gets this {@link #splashTimeDelay} and observes for changes.
+     *
+     * @return whether the {@link #splashTimeDelay} whether the {@link #SPLASH_TIME_DELAY_IN_MS}
+     *     completed or not.
+     */
+    @NonNull
+    public MutableLiveData<Boolean> getSplashTimeDelay() {
+        if (splashTimeDelay == null) {
+            splashTimeDelay = new MutableLiveData<>();
+        }
+        return splashTimeDelay;
+    }
 
-	@OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-	void onCreate() {
-		handler.postDelayed(splashTimeOutRunnable, SPLASH_TIME_DELAY_IN_MS);
-	}
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    void onCreate() {
+        handler.postDelayed(splashTimeOutRunnable, SPLASH_TIME_DELAY_IN_MS);
+    }
 
-	@OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-	void onPause() {
-		handler.removeCallbacks(splashTimeOutRunnable);
-	}
-
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    void onPause() {
+        handler.removeCallbacks(splashTimeOutRunnable);
+    }
 }
