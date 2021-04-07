@@ -17,7 +17,6 @@ package com.litekite.monetize.home;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.ContextWrapper;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -33,6 +32,7 @@ import com.litekite.monetize.billing.BillingConstants;
 import com.litekite.monetize.billing.BillingManager;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.room.entity.BillingSkuDetails;
+import com.litekite.monetize.util.ContextUtil;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import javax.inject.Inject;
 import org.json.JSONException;
@@ -91,9 +91,10 @@ public class BillingPremiumVM extends AndroidViewModel
                 BillingSkuDetails billingSkuDetails = premiumSkuDetails.getValue();
                 try {
                     SkuDetails skuDetails = new SkuDetails(billingSkuDetails.originalJson);
-                    billingManager.initiatePurchaseFlow(
-                            (Activity) (((ContextWrapper) v.getContext()).getBaseContext()),
-                            skuDetails);
+                    Activity activityContext = ContextUtil.getActivity(v.getContext());
+                    if (activityContext != null) {
+                        billingManager.initiatePurchaseFlow(activityContext, skuDetails);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
