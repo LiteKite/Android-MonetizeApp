@@ -48,9 +48,9 @@ public class HomeActivity extends BaseActivity {
      * Your Purchases and Buy From Store. These two features are locked otherwise, and the user
      * needs to purchase this in order to use those features.
      */
-    private final Observer<Integer> isPremiumPurchasedObserver =
+    private final Observer<Boolean> isPremiumPurchasedObserver =
             value -> {
-                boolean isPurchased = value != null && value != 0;
+                boolean isPurchased = value != null ? value : false;
                 // Dismisses BillingPremiumDialog after successful purchase of Premium Feature.
                 if (isPurchased) {
                     BillingPremiumDialog.dismiss(HomeActivity.this);

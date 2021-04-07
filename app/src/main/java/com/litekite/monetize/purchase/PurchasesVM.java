@@ -18,11 +18,9 @@ package com.litekite.monetize.purchase;
 import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.OnLifecycleEvent;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.room.entity.BillingSkuRelatedPurchases;
 import dagger.hilt.android.lifecycle.HiltViewModel;
@@ -53,6 +51,7 @@ public class PurchasesVM extends AndroidViewModel implements LifecycleObserver {
     public PurchasesVM(@NonNull Application application, @NonNull AppDatabase appDatabase) {
         super(application);
         this.appDatabase = appDatabase;
+        // Sync with the local database
         fetchFromDB();
     }
 
@@ -73,11 +72,5 @@ public class PurchasesVM extends AndroidViewModel implements LifecycleObserver {
     @NonNull
     public LiveData<List<BillingSkuRelatedPurchases>> getSkuProductsAndPurchasesList() {
         return skuProductsAndPurchasesList;
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    void onCreate() {
-        // Sync with the local database
-        fetchFromDB();
     }
 }

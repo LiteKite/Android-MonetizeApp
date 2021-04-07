@@ -18,6 +18,7 @@ package com.litekite.monetize.room.database;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -64,8 +65,9 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     @NonNull
-    public LiveData<Integer> getIsThisSkuPurchased(@NonNull String skuID) {
-        return getBillingDao().getIsThisSkuPurchased(skuID);
+    public LiveData<Boolean> getIsThisSkuPurchased(@NonNull String skuID) {
+        return Transformations.map(
+                getBillingDao().getIsThisSkuPurchased(skuID), input -> input != null && input != 0);
     }
 
     @NonNull

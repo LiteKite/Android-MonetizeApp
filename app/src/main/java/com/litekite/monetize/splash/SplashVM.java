@@ -40,7 +40,7 @@ public class SplashVM extends AndroidViewModel implements LifecycleObserver {
 
     private static final int SPLASH_TIME_DELAY_IN_MS = 3000;
     private final Handler handler;
-    private MutableLiveData<Boolean> splashTimeDelay;
+    private final MutableLiveData<Boolean> splashTimeDelay = new MutableLiveData<>();
     private final Runnable splashTimeOutRunnable = () -> splashTimeDelay.postValue(true);
 
     /** @param application application An Application Instance. */
@@ -58,9 +58,6 @@ public class SplashVM extends AndroidViewModel implements LifecycleObserver {
      */
     @NonNull
     public MutableLiveData<Boolean> getSplashTimeDelay() {
-        if (splashTimeDelay == null) {
-            splashTimeDelay = new MutableLiveData<>();
-        }
         return splashTimeDelay;
     }
 

@@ -81,7 +81,10 @@ public class PurchaseItemVM {
             skuProductName.set(productName);
             String productState =
                     context.getResources()
-                            .getQuantityString(R.plurals.qty, productPurchaseDetails.size());
+                            .getQuantityString(
+                                    R.plurals.qty,
+                                    productPurchaseDetails.size(),
+                                    productPurchaseDetails.size());
             skuProductState.set(productState);
         } else {
             // This is Popcorn.

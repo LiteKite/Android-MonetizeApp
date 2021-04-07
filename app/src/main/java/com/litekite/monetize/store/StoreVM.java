@@ -18,11 +18,9 @@ package com.litekite.monetize.store;
 import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.OnLifecycleEvent;
 import com.litekite.monetize.billing.BillingCallback;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.room.entity.BillingSkuRelatedPurchases;
@@ -54,6 +52,8 @@ public class StoreVM extends AndroidViewModel implements LifecycleObserver, Bill
     public StoreVM(@NonNull Application application, @NonNull AppDatabase appDatabase) {
         super(application);
         this.appDatabase = appDatabase;
+        // Sync with the local database
+        fetchFromDB();
     }
 
     /**
@@ -73,11 +73,5 @@ public class StoreVM extends AndroidViewModel implements LifecycleObserver, Bill
     @NonNull
     public LiveData<List<BillingSkuRelatedPurchases>> getSkuProductsAndPurchasesList() {
         return skuProductsAndPurchasesList;
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    void onCreate() {
-        // Sync with the local database
-        fetchFromDB();
     }
 }

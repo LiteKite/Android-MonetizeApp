@@ -20,11 +20,9 @@ import android.app.Application;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.OnLifecycleEvent;
 import com.android.billingclient.api.SkuDetails;
 import com.litekite.monetize.R;
 import com.litekite.monetize.billing.BillingCallback;
@@ -51,7 +49,7 @@ public class BillingPremiumVM extends AndroidViewModel
 
     private final AppDatabase appDatabase;
     private final BillingManager billingManager;
-    private LiveData<BillingSkuDetails> premiumSkuDetails;
+    private LiveData<BillingSkuDetails> premiumSkuDetails = new MutableLiveData<>();
 
     /**
      * Makes a call to get Premium Feature Sku Details from local database.
@@ -68,6 +66,8 @@ public class BillingPremiumVM extends AndroidViewModel
         super(application);
         this.appDatabase = appDatabase;
         this.billingManager = billingManager;
+        // Sync with the local database
+        fetchFromDB();
     }
 
     /**
@@ -109,15 +109,6 @@ public class BillingPremiumVM extends AndroidViewModel
      */
     @NonNull
     public LiveData<BillingSkuDetails> getPremiumSkuDetails() {
-        if (premiumSkuDetails == null) {
-            premiumSkuDetails = new MutableLiveData<>();
-        }
         return premiumSkuDetails;
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    void onCreate() {
-        // Sync with the local database
-        fetchFromDB();
     }
 }

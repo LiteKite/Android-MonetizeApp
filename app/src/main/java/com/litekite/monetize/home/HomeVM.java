@@ -18,16 +18,12 @@ package com.litekite.monetize.home;
 import android.app.Application;
 import android.view.View;
 import android.widget.Button;
-
 import androidx.annotation.NonNull;
 import androidx.databinding.BindingAdapter;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.OnLifecycleEvent;
-
 import com.litekite.monetize.R;
 import com.litekite.monetize.base.BaseActivity;
 import com.litekite.monetize.billing.BillingCallback;
@@ -36,10 +32,8 @@ import com.litekite.monetize.network.NetworkManager;
 import com.litekite.monetize.purchase.PurchasesActivity;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.store.StoreActivity;
-
-import javax.inject.Inject;
-
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import javax.inject.Inject;
 
 /**
  * HomeVM, a view model that gives Premium Feature Purchase Status from local database to View,
@@ -53,7 +47,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class HomeVM extends AndroidViewModel implements LifecycleObserver, BillingCallback {
 
     private final AppDatabase appDatabase;
-    private LiveData<Integer> isPremiumPurchased = new MutableLiveData<>();
+    private LiveData<Boolean> isPremiumPurchased = new MutableLiveData<>();
 
     /**
      * Makes a call to check whether the Premium Feature was purchased and stored in the local
@@ -65,6 +59,8 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver, Billi
     public HomeVM(@NonNull Application application, @NonNull AppDatabase appDatabase) {
         super(application);
         this.appDatabase = appDatabase;
+        // Sync with the local database
+        fetchFromDB();
     }
 
     @BindingAdapter("android:drawableEnd")
@@ -111,7 +107,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver, Billi
      * @return a LiveData of Premium Feature Purchased or not.
      */
     @NonNull
-    public LiveData<Integer> getIsPremiumPurchased() {
+    public LiveData<Boolean> getIsPremiumPurchased() {
         return isPremiumPurchased;
     }
 
@@ -142,7 +138,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver, Billi
      */
     private boolean checkIsPremiumPurchased(View v) {
         boolean isPurchased =
-                isPremiumPurchased.getValue() != null && isPremiumPurchased.getValue() != 0;
+                isPremiumPurchased.getValue() != null ? isPremiumPurchased.getValue() : false;
         if (!isPurchased && !NetworkManager.isOnline(v.getContext())) {
             BaseActivity.showSnackBar(v, R.string.err_no_internet);
             return false;
@@ -152,11 +148,5 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver, Billi
             return false;
         }
         return true;
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    void onCreate() {
-        // Sync with the local database
-        fetchFromDB();
     }
 }
