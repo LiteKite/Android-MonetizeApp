@@ -48,23 +48,18 @@ public class HomeActivity extends BaseActivity {
      * Your Purchases and Buy From Store. These two features are locked otherwise, and the user
      * needs to purchase this in order to use those features.
      */
-    private final Observer<Boolean> isPremiumPurchasedObserver =
-            new Observer<Boolean>() {
-                @Override
-                public void onChanged(@Nullable Boolean aBoolean) {
-                    if (aBoolean != null) {
-                        // Dismisses BillingPremiumDialog after successful purchase of
-                        // Premium Feature.
-                        if (aBoolean) {
-                            BillingPremiumDialog.dismiss(HomeActivity.this);
-                        }
-                        HomeVM.setDrawableRight(homeBinding.btnBuyFromStore, aBoolean);
-                        HomeVM.setDrawableEnd(homeBinding.btnBuyFromStore, aBoolean);
-                        HomeVM.setDrawableRight(homeBinding.btnViewYourPurchases, aBoolean);
-                        HomeVM.setDrawableEnd(homeBinding.btnViewYourPurchases, aBoolean);
-                        homeBinding.executePendingBindings();
-                    }
+    private final Observer<Integer> isPremiumPurchasedObserver =
+            value -> {
+                boolean isPurchased = value != null && value != 0;
+                // Dismisses BillingPremiumDialog after successful purchase of Premium Feature.
+                if (isPurchased) {
+                    BillingPremiumDialog.dismiss(HomeActivity.this);
                 }
+                HomeVM.setDrawableRight(homeBinding.btnBuyFromStore, isPurchased);
+                HomeVM.setDrawableEnd(homeBinding.btnBuyFromStore, isPurchased);
+                HomeVM.setDrawableRight(homeBinding.btnViewYourPurchases, isPurchased);
+                HomeVM.setDrawableEnd(homeBinding.btnViewYourPurchases, isPurchased);
+                homeBinding.executePendingBindings();
             };
 
     /**

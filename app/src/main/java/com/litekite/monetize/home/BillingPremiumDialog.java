@@ -56,14 +56,10 @@ public class BillingPremiumDialog extends BottomSheetDialogFragment {
      * <p>Sets Premium Feature Product Price.
      */
     private final Observer<BillingSkuDetails> premiumSkuDetailsObserver =
-            new Observer<BillingSkuDetails>() {
-                @Override
-                public void onChanged(@Nullable BillingSkuDetails billingSkuDetails) {
-                    if (billingSkuDetails != null) {
-                        dialogBillingPremiumBinding.tvBillingPrice.setText(
-                                billingSkuDetails.skuPrice);
-                        dialogBillingPremiumBinding.executePendingBindings();
-                    }
+            billingSkuDetails -> {
+                if (billingSkuDetails != null) {
+                    dialogBillingPremiumBinding.tvBillingPrice.setText(billingSkuDetails.skuPrice);
+                    dialogBillingPremiumBinding.executePendingBindings();
                 }
             };
 

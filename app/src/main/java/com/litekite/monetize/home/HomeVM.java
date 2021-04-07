@@ -18,6 +18,7 @@ package com.litekite.monetize.home;
 import android.app.Application;
 import android.view.View;
 import android.widget.Button;
+
 import androidx.annotation.NonNull;
 import androidx.databinding.BindingAdapter;
 import androidx.lifecycle.AndroidViewModel;
@@ -26,6 +27,7 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.OnLifecycleEvent;
+
 import com.litekite.monetize.R;
 import com.litekite.monetize.base.BaseActivity;
 import com.litekite.monetize.billing.BillingCallback;
@@ -34,8 +36,10 @@ import com.litekite.monetize.network.NetworkManager;
 import com.litekite.monetize.purchase.PurchasesActivity;
 import com.litekite.monetize.room.database.AppDatabase;
 import com.litekite.monetize.store.StoreActivity;
-import dagger.hilt.android.lifecycle.HiltViewModel;
+
 import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
 
 /**
  * HomeVM, a view model that gives Premium Feature Purchase Status from local database to View,
@@ -49,7 +53,7 @@ import javax.inject.Inject;
 public class HomeVM extends AndroidViewModel implements LifecycleObserver, BillingCallback {
 
     private final AppDatabase appDatabase;
-    private LiveData<Boolean> isPremiumPurchased = new MutableLiveData<>();
+    private LiveData<Integer> isPremiumPurchased = new MutableLiveData<>();
 
     /**
      * Makes a call to check whether the Premium Feature was purchased and stored in the local
@@ -107,7 +111,7 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver, Billi
      * @return a LiveData of Premium Feature Purchased or not.
      */
     @NonNull
-    public LiveData<Boolean> getIsPremiumPurchased() {
+    public LiveData<Integer> getIsPremiumPurchased() {
         return isPremiumPurchased;
     }
 
@@ -137,19 +141,17 @@ public class HomeVM extends AndroidViewModel implements LifecycleObserver, Billi
      * @return whether the Premium Feature Purchased or not.
      */
     private boolean checkIsPremiumPurchased(View v) {
-        Boolean isPurchased = isPremiumPurchased.getValue();
-        if (isPurchased != null) {
-            if (!isPurchased && !NetworkManager.isOnline(v.getContext())) {
-                BaseActivity.showSnackBar(v, R.string.err_no_internet);
-                return false;
-            }
-            if (!isPurchased) {
-                BillingPremiumDialog.show(v.getContext());
-                return false;
-            }
-            return true;
+        boolean isPurchased =
+                isPremiumPurchased.getValue() != null && isPremiumPurchased.getValue() != 0;
+        if (!isPurchased && !NetworkManager.isOnline(v.getContext())) {
+            BaseActivity.showSnackBar(v, R.string.err_no_internet);
+            return false;
         }
-        return false;
+        if (!isPurchased) {
+            BillingPremiumDialog.show(v.getContext());
+            return false;
+        }
+        return true;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)

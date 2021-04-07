@@ -23,7 +23,7 @@ android {
         applicationId "com.litekite.monetize"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 2
+        versionCode 3
         versionName "1.0"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true

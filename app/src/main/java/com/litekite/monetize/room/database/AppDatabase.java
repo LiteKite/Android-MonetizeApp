@@ -64,7 +64,7 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     @NonNull
-    public LiveData<Boolean> getIsThisSkuPurchased(@NonNull String skuID) {
+    public LiveData<Integer> getIsThisSkuPurchased(@NonNull String skuID) {
         return getBillingDao().getIsThisSkuPurchased(skuID);
     }
 

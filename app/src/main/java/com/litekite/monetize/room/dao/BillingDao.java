@@ -54,7 +54,7 @@ public interface BillingDao {
 
     @NonNull
     @Query("select exists(select * from billing_purchase_details where sku_id = :skuID)")
-    LiveData<Boolean> getIsThisSkuPurchased(@NonNull String skuID);
+    LiveData<Integer> getIsThisSkuPurchased(@NonNull String skuID);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertSkuDetails(@NonNull List<BillingSkuDetails> billingSkuDetails);
