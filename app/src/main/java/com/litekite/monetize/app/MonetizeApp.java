@@ -17,11 +17,13 @@ package com.litekite.monetize.app;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.StrictMode;
 import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import com.litekite.monetize.BuildConfig;
 import dagger.hilt.android.HiltAndroidApp;
 
 /**
@@ -32,6 +34,7 @@ import dagger.hilt.android.HiltAndroidApp;
  * @see <a href="https://developer.android.com/topic/libraries/architecture/index.html">This app
  *     uses Google Play Billing Library, Architecture Components (LiveData, ViewModel, Room
  *     Persistance Library) and Data Binding Library</a>
+ * @see <a href="https://developer.android.com/reference/android/os/StrictMode">Strict Mode</a>
  * @since 1.0
  */
 @HiltAndroidApp
@@ -59,6 +62,22 @@ public class MonetizeApp extends Application {
 
     @Override
     public void onCreate() {
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                    new StrictMode.ThreadPolicy.Builder()
+                            .detectDiskReads()
+                            .detectDiskWrites()
+                            .detectNetwork()
+                            .penaltyLog()
+                            .build());
+            StrictMode.setVmPolicy(
+                    new StrictMode.VmPolicy.Builder()
+                            .detectLeakedSqlLiteObjects()
+                            .detectLeakedClosableObjects()
+                            .penaltyLog()
+                            .penaltyDeath()
+                            .build());
+        }
         super.onCreate();
         printLog(TAG, "onCreate:");
     }

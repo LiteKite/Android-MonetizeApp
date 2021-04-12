@@ -70,6 +70,10 @@
 
 `Hilt DI` -> Dependency Injection Library for Android.</br>
 
+`App Startup` -> Initializes dependencies during app startup.</br>
+
+`Spotless` -> A Code Formatter that uses Google AOSP Java format.</br>
+
 ## References
 
 [Google's Trivial Drive Sample](https://github.com/googlesamples/android-play-billing/tree/master/TrivialDrive_v2) -> A Sample provided by Google for implementing In-app purchases.
