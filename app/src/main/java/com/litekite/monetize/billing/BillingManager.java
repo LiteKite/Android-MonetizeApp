@@ -33,6 +33,8 @@ import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.Purchase.PurchasesResult;
+import com.android.billingclient.api.PurchaseHistoryRecord;
+import com.android.billingclient.api.PurchaseHistoryResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
@@ -156,7 +158,8 @@ public class BillingManager
                         // IAB is fully set up. Now, let's get an inventory of stuff we own.
                         MonetizeApp.printLog(TAG, "Setup successful. Querying inventory.");
                         querySkuDetails();
-                        queryPurchasesAsync();
+                        queryPurchaseHistoryAsync();
+                        queryPurchasesLocally();
                     });
         }
     }
@@ -165,7 +168,7 @@ public class BillingManager
      * Query purchases across various use cases and deliver the result in a formalized way through a
      * listener
      */
-    private void queryPurchasesAsync() {
+    private void queryPurchasesLocally() {
         executeServiceRequest(
                 () -> {
                     myPurchasesResultList.clear();
@@ -195,6 +198,57 @@ public class BillingManager
                             TAG, "Local Query Purchase List Size: " + purchases.size());
                     processPurchases(purchases);
                 });
+    }
+
+    /**
+     * Has runnable implementation of querying InApp and Subscription purchases from Google Play
+     * Remote Server.
+     */
+    private void queryPurchaseHistoryAsync() {
+        final List<PurchaseHistoryRecord> purchasesList = new ArrayList<>();
+        queryPurchaseHistoryAsync(
+                purchasesList,
+                SkuType.INAPP,
+                () -> {
+                    if (areSubscriptionsSupported()) {
+                        queryPurchaseHistoryAsync(purchasesList, SkuType.SUBS, null);
+                    }
+                });
+    }
+
+    /**
+     * Queries InApp and Subscribed purchase results from Google Play Remote Server.
+     *
+     * @param purchases this list contains all the product purchases made, has InApp and
+     *     Subscription purchased results.
+     * @param skuType InApp or Subscription.
+     * @param executeWhenFinished Once the InApp product purchase results are given, then
+     *     subscription based purchase results are queried and results are placed into the {@link
+     *     #myPurchasesResultList}
+     */
+    private void queryPurchaseHistoryAsync(
+            final List<PurchaseHistoryRecord> purchases,
+            final @SkuType String skuType,
+            final Runnable executeWhenFinished) {
+        PurchaseHistoryResponseListener listener =
+                (billingResult, list) -> {
+                    if (billingResult.getResponseCode() == BillingResponseCode.OK && list != null) {
+                        purchases.addAll(list);
+                        if (executeWhenFinished != null) {
+                            executeWhenFinished.run();
+                        }
+                    } else {
+                        MonetizeApp.printLog(
+                                TAG,
+                                "queryPurchaseHistoryAsync() got an error response code: "
+                                        + billingResult.getResponseCode());
+                        logErrorType(billingResult);
+                    }
+                    if (executeWhenFinished == null) {
+                        storePurchaseHistoryRecordsLocally(purchases);
+                    }
+                };
+        executeServiceRequest(() -> myBillingClient.queryPurchaseHistoryAsync(skuType, listener));
     }
 
     /**
@@ -298,6 +352,23 @@ public class BillingManager
     }
 
     /**
+     * Stores Purchase Details on local storage.
+     *
+     * @param purchases list of Purchase Details returned from the queries.
+     */
+    private void storePurchaseHistoryRecordsLocally(List<PurchaseHistoryRecord> purchases) {
+        final List<BillingPurchaseDetails> billingPurchaseDetailsList = new ArrayList<>();
+        for (PurchaseHistoryRecord purchase : purchases) {
+            BillingPurchaseDetails billingPurchaseDetails = new BillingPurchaseDetails();
+            billingPurchaseDetails.purchaseToken = purchase.getPurchaseToken();
+            billingPurchaseDetails.skuID = purchase.getSku();
+            billingPurchaseDetails.purchaseTime = purchase.getPurchaseTime();
+            billingPurchaseDetailsList.add(billingPurchaseDetails);
+        }
+        workExecutor.execute(() -> appDatabase.insertPurchaseDetails(billingPurchaseDetailsList));
+    }
+
+    /**
      * Consumes InApp Product Purchase after successful purchase of InApp Product Purchase. InApp
      * Products cannot be bought after a purchase was made. We need to consume it after a successful
      * purchase, so that we can purchase again and it will become available for the next time we
@@ -371,7 +442,7 @@ public class BillingManager
                 break;
             case BillingResponseCode.ITEM_ALREADY_OWNED:
                 MonetizeApp.printLog(TAG, "Failure to purchase since item is already owned");
-                queryPurchasesAsync();
+                queryPurchasesLocally();
                 break;
             case BillingResponseCode.ITEM_NOT_OWNED:
                 MonetizeApp.printLog(TAG, "Failure to consume since item is not owned");
