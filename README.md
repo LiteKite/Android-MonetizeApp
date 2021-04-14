@@ -76,7 +76,7 @@
 
 ## References
 
-[Google's Trivial Drive Sample](https://github.com/googlesamples/android-play-billing/tree/master/TrivialDrive_v2) -> A Sample provided by Google for implementing In-app purchases.
+[Google's Play Billing Sample](https://github.com/android/play-billing-samples) -> A Sample provided by Google for implementing In-app purchases.
 
 [Google Play Library Training](https://developer.android.com/training/play-billing-library/index.html) -> A Google Play Billing Library Usage Documentation.
 
