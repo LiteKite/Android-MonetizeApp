@@ -32,9 +32,9 @@ import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
-import com.android.billingclient.api.Purchase.PurchasesResult;
 import com.android.billingclient.api.PurchaseHistoryRecord;
 import com.android.billingclient.api.PurchaseHistoryResponseListener;
+import com.android.billingclient.api.PurchasesResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
@@ -157,9 +157,10 @@ public class BillingManager
                     () -> {
                         // IAB is fully set up. Now, let's get an inventory of stuff we own.
                         MonetizeApp.printLog(TAG, "Setup successful. Querying inventory.");
+                        myPurchasesResultList.clear();
                         querySkuDetails();
-                        queryPurchaseHistoryAsync();
                         queryPurchasesLocally();
+                        queryPurchasesHistoryAsync();
                     });
         }
     }
@@ -169,42 +170,59 @@ public class BillingManager
      * listener
      */
     private void queryPurchasesLocally() {
-        executeServiceRequest(
+        final List<Purchase> purchasesList = new ArrayList<>();
+        queryPurchasesAsync(
+                purchasesList,
+                SkuType.INAPP,
                 () -> {
-                    myPurchasesResultList.clear();
-                    final PurchasesResult purchasesResult =
-                            myBillingClient.queryPurchases(SkuType.INAPP);
-                    final List<Purchase> purchases = new ArrayList<>();
-                    if (purchasesResult.getPurchasesList() != null) {
-                        purchases.addAll(purchasesResult.getPurchasesList());
-                    }
                     // If there are subscriptions supported, we add subscription rows as well
                     if (areSubscriptionsSupported()) {
-                        final PurchasesResult subscriptionResult =
-                                myBillingClient.queryPurchases(SkuType.SUBS);
-                        final List<Purchase> subscriptionPurchases =
-                                subscriptionResult.getPurchasesList();
-                        if (subscriptionPurchases != null) {
-                            MonetizeApp.printLog(
-                                    TAG,
-                                    "Subscription purchase result size: "
-                                            + subscriptionPurchases.size());
-                            purchases.addAll(subscriptionPurchases);
-                        } else {
-                            MonetizeApp.printLog(TAG, "Subscription purchase result is null:");
-                        }
+                        queryPurchasesAsync(purchasesList, SkuType.SUBS, null);
                     }
-                    MonetizeApp.printLog(
-                            TAG, "Local Query Purchase List Size: " + purchases.size());
-                    processPurchases(purchases);
                 });
+    }
+
+    /**
+     * Queries InApp and Subscribed purchase results from Google Play Locally.
+     *
+     * @param purchases this list contains all the product purchases made, has InApp and
+     *     Subscription purchased results.
+     * @param skuType InApp or Subscription.
+     * @param executeWhenFinished Once the InApp product purchase results are given, then
+     *     subscription based purchase results are queried and results are placed into the {@link
+     *     #myPurchasesResultList}
+     */
+    private void queryPurchasesAsync(
+            final List<Purchase> purchases,
+            final @SkuType String skuType,
+            final Runnable executeWhenFinished) {
+        PurchasesResponseListener purchasesResponseListener =
+                (billingResult, list) -> {
+                    if (billingResult.getResponseCode() == BillingResponseCode.OK) {
+                        purchases.addAll(list);
+                        if (executeWhenFinished != null) {
+                            executeWhenFinished.run();
+                        }
+                    } else {
+                        MonetizeApp.printLog(
+                                TAG,
+                                "queryPurchasesAsync() got an error response code: "
+                                        + billingResult.getResponseCode());
+                        logErrorType(billingResult);
+                    }
+                    if (executeWhenFinished == null) {
+                        processPurchases(purchases);
+                    }
+                };
+        executeServiceRequest(
+                () -> myBillingClient.queryPurchasesAsync(skuType, purchasesResponseListener));
     }
 
     /**
      * Has runnable implementation of querying InApp and Subscription purchases from Google Play
      * Remote Server.
      */
-    private void queryPurchaseHistoryAsync() {
+    private void queryPurchasesHistoryAsync() {
         final List<PurchaseHistoryRecord> purchasesList = new ArrayList<>();
         queryPurchaseHistoryAsync(
                 purchasesList,
@@ -265,20 +283,23 @@ public class BillingManager
                 handlePurchase(purchase);
             } else if (purchase.getPurchaseState() == Purchase.PurchaseState.PENDING) {
                 MonetizeApp.printLog(
-                        TAG, "Received a pending purchase of SKU: " + purchase.getSku());
+                        TAG,
+                        "Received a pending purchase of SKU: " + purchase.getSkus().toString());
                 // handle pending purchases, e.g. confirm with users about the pending
                 // purchases, prompt them to complete it, etc.
                 // TODO: 8/24/2020 handle this in the next release.
             }
         }
         storePurchaseResultsLocally(myPurchasesResultList);
-        for (Purchase purchase : purchases) {
-            if (purchase.getSku().equals(BillingConstants.SKU_BUY_APPLE)) {
-                handleConsumablePurchasesAsync(purchase);
-            } else {
-                acknowledgeNonConsumablePurchasesAsync(purchase);
-            }
-        }
+        purchases.forEach(
+                purchase -> {
+                    String sku = purchase.getSkus().stream().findFirst().orElse("");
+                    if (sku.equals(BillingConstants.SKU_BUY_APPLE)) {
+                        handleConsumablePurchasesAsync(purchase);
+                    } else {
+                        acknowledgeNonConsumablePurchasesAsync(purchase);
+                    }
+                });
     }
 
     /**
@@ -297,9 +318,7 @@ public class BillingManager
                 billingResult -> {
                     if (billingResult.getResponseCode() == BillingResponseCode.OK) {
                         MonetizeApp.printLog(
-                                TAG,
-                                "onAcknowledgePurchaseResponse: "
-                                        + billingResult.getResponseCode());
+                                TAG, "onAcknowledgePurchaseResponse: " + BillingResponseCode.OK);
                     } else {
                         MonetizeApp.printLog(
                                 TAG,
@@ -344,7 +363,7 @@ public class BillingManager
             BillingPurchaseDetails billingPurchaseDetails = new BillingPurchaseDetails();
             billingPurchaseDetails.purchaseToken = purchase.getPurchaseToken();
             billingPurchaseDetails.orderID = purchase.getOrderId();
-            billingPurchaseDetails.skuID = purchase.getSku();
+            billingPurchaseDetails.skuID = purchase.getSkus().stream().findFirst().orElse("");
             billingPurchaseDetails.purchaseTime = purchase.getPurchaseTime();
             billingPurchaseDetailsList.add(billingPurchaseDetails);
         }
@@ -361,7 +380,7 @@ public class BillingManager
         for (PurchaseHistoryRecord purchase : purchases) {
             BillingPurchaseDetails billingPurchaseDetails = new BillingPurchaseDetails();
             billingPurchaseDetails.purchaseToken = purchase.getPurchaseToken();
-            billingPurchaseDetails.skuID = purchase.getSku();
+            billingPurchaseDetails.skuID = purchase.getSkus().stream().findFirst().orElse("");
             billingPurchaseDetails.purchaseTime = purchase.getPurchaseTime();
             billingPurchaseDetailsList.add(billingPurchaseDetails);
         }
@@ -442,7 +461,6 @@ public class BillingManager
                 break;
             case BillingResponseCode.ITEM_ALREADY_OWNED:
                 MonetizeApp.printLog(TAG, "Failure to purchase since item is already owned");
-                queryPurchasesLocally();
                 break;
             case BillingResponseCode.ITEM_NOT_OWNED:
                 MonetizeApp.printLog(TAG, "Failure to consume since item is not owned");

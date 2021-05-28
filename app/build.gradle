@@ -62,14 +62,10 @@ android {
     }
 }
 
-hilt {
-    enableTransformForLocalTests = true
-}
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.core:core:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.core:core:1.5.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
@@ -78,7 +74,7 @@ dependencies {
     implementation "androidx.startup:startup-runtime:1.0.0"
 
     // Play billing library
-    implementation 'com.android.billingclient:billing:3.0.3'
+    implementation 'com.android.billingclient:billing:4.0.0'
 
     // ViewModel, LiveData and Lifecycle
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
@@ -87,8 +83,8 @@ dependencies {
     annotationProcessor "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
     // Room
-    implementation 'androidx.room:room-runtime:2.2.6'
-    annotationProcessor 'androidx.room:room-compiler:2.2.6'
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
@@ -103,13 +99,13 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.5.1'
 
     // Truth assertions
-    testImplementation 'com.google.truth:truth:1.1.2'
+    testImplementation 'com.google.truth:truth:1.1.3'
 
     // Test helpers for LiveData
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
 
     // Test helpers for Room
-    testImplementation 'androidx.room:room-testing:2.2.6'
+    testImplementation "androidx.room:room-testing:$room_version"
 
     // Hilt - Local unit test helpers
     testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
@@ -129,7 +125,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:truth:1.3.0'
 
     // Mockito
-    androidTestImplementation 'org.mockito:mockito-android:3.9.0'
+    androidTestImplementation 'org.mockito:mockito-android:3.10.0'
 
     // Espresso dependencies
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
