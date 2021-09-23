@@ -94,6 +94,14 @@ https://github.com/LiteKite/Android-MonetizeApp/issues
 Patches are encouraged, and may be submitted by forking this project and
 submitting a pull request through GitHub.
 
+##
+
+<h3 align="center">Like this project?, Always support...</h3>
+
+<p align="center">
+    <a href="https://www.buymeacoffee.com/svignesh93"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="50" /></a>
+</p>
+
 ## License
 
 ~~~
